@@ -6,7 +6,7 @@
     <title>Winntelligence | From Inception to Scale</title>
     <style>
         body {
-            background-color: #050a14; /* Deep Winntelligence Blue */
+            background-color: #060a11;
             color: #e2e8f0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
@@ -19,20 +19,18 @@
         }
         .container { max-width: 600px; text-align: center; }
         
-        /* THE LOGO SYMBOL */
-        .symbol { 
-            font-size: 3.5rem; 
-            margin-bottom: 25px; 
-            color: #3b82f6;
-            filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
+        /* THE LOGO */
+        .brand-header { 
+            margin-bottom: 40px; 
+            filter: drop-shadow(0 0 15px rgba(0, 195, 255, 0.4));
         }
+        .main-logo { width: 180px; height: auto; }
 
-        h1 { font-weight: 300; letter-spacing: -1px; font-size: 2.8rem; margin-bottom: 15px; }
-        p { color: #94a3b8; line-height: 1.6; font-size: 1.15rem; margin-bottom: 40px; }
+        h1 { font-weight: 300; letter-spacing: -1.5px; font-size: 2.8rem; margin-bottom: 15px; }
+        p { color: #94a3b8; line-height: 1.6; font-size: 1.15rem; margin-bottom: 45px; }
         
-        /* THE INTERROGATOR */
         form { width: 100%; text-align: left; }
-        label { font-size: 0.8rem; color: #475569; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+        label { font-size: 0.8rem; color: #475569; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; display: block; }
         textarea {
             width: 100%;
             background: #0f172a;
@@ -41,37 +39,39 @@
             color: white;
             padding: 18px;
             font-size: 1rem;
-            height: 150px;
+            height: 160px;
             box-sizing: border-box;
             outline: none;
             transition: border-color 0.3s;
+            font-family: inherit;
         }
-        textarea:focus { border-color: #3b82f6; }
+        textarea:focus { border-color: #00c3ff; }
         
         button {
             margin-top: 20px;
             width: 100%;
-            background-color: #2563eb;
+            background-color: #0a498f;
             color: white;
             border: none;
-            padding: 15px;
+            padding: 18px;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: background 0.2s;
-            letter-spacing: 1px;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
         }
-        button:hover { background-color: #3b82f6; }
+        button:hover { background-color: #00c3ff; color: black; }
 
         footer { 
-            margin-top: 80px; 
-            font-size: 0.7rem; 
+            margin-top: 90px; 
+            font-size: 0.65rem; 
             color: #334155; 
-            letter-spacing: 3px; 
+            letter-spacing: 4px; 
             text-transform: uppercase; 
             border-top: 1px solid #1e293b;
-            padding-top: 20px;
+            padding-top: 25px;
             width: 100%;
         }
     </style>
@@ -79,15 +79,17 @@
 <body>
 
     <div class="container">
-        <div class="symbol">◈</div>
+        <div class="brand-header">
+            <img src="logo.png" alt="Winntelligence Society of Mind Logo" class="main-logo">
+        </div>
 
         <h1>From Inception to Scale.</h1>
-        <p>Building winning ventures requires navigation, not just maps. Winntelligence provides the agentic infrastructure to de-blur intent and operationalize venture physics.</p>
+        <p>Winntelligence provides the agentic infrastructure to operationalize venture physics. We help founders eliminate strategic entropy and build with institutional precision.</p>
 
         <form action="mailto:winn@winntelligence.ai" method="POST" enctype="text/plain">
-            <label>The Initial Inquiry</label>
-            <textarea name="The_Blur" placeholder="Describe the current blur in your venture..." required></textarea>
-            <button type="submit">DE-BLUR WITH WINN</button>
+            <label>Strategic Inquiry</label>
+            <textarea name="Inquiry" placeholder="Define your primary bottleneck or strategic objective..." required></textarea>
+            <button type="submit">Request Agentic Brief</button>
         </form>
 
         <footer>
