@@ -123,8 +123,8 @@
 
     <form action="mailto:winn@winntelligence.ai" method="POST" enctype="text/plain">
         <label>What are you building?</label>
-        <textarea name="Inquiry" placeholder="“We’re building [X] for [Y] by doing [Z]…”" required></textarea>
-        <button type="submit">LET'S BUILD</button>
+        <textarea id="venture-input" placeholder="“We’re building [X] for [Y] by doing [Z]...”"></textarea>
+        <button type="submit" onclick="handleBuild()">LET'S BUILD</button>
     </form>
 
     <hr>
@@ -133,6 +133,27 @@
         Winn-Alpha // Winn-Matrix // Winn-Forge
     </footer>
 </div>
+</div> 
+    <script>
+        function handleBuild() {
+            const textarea = document.getElementById('venture-input');
+            const button = document.querySelector('.cta-button');
+            const originalText = button.innerText;
 
+            setTimeout(() => {
+                button.innerText = "BRIEF REQUESTED ✓";
+                button.style.backgroundColor = "#28a745"; 
+                if(textarea) textarea.value = ""; 
+            }, 500);
+
+            setTimeout(() => {
+                button.innerText = originalText;
+                button.style.backgroundColor = ""; 
+            }, 5000);
+        }
+    </script>
+
+</body>
+</html>
 </body>
 </html>
