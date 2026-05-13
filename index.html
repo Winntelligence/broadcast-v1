@@ -137,23 +137,48 @@
 </div>
 </div> 
     <script>
-        function handleBuild() {
-            const textarea = document.getElementById('venture-input');
-            const button = document.querySelector('.cta-button');
-            const originalText = button.innerText;
+    async function handleBuild(event) {
+        // 1. Prevents the page from reloading/redirecting
+        if (event) event.preventDefault();
 
-            setTimeout(() => {
-                button.innerText = "BRIEF REQUESTED ✓";
-                button.style.backgroundColor = "#28a745"; 
-                if(textarea) textarea.value = ""; 
-            }, 500);
+        const input = document.getElementById('venture-input');
+        const button = document.querySelector('button');
+        const form = document.getElementById('inception-form');
 
-            setTimeout(() => {
-                button.innerText = originalText;
-                button.style.backgroundColor = ""; 
-            }, 5000);
+        // Check if there is actually text in the box
+        if (!input.value.trim()) {
+            alert("Please describe your vision first.");
+            return;
         }
-    </script>
+
+        // 2. Immediate Visual Feedback (Institutional Precision)
+        button.textContent = "BRIEF RECEIVED";
+        button.style.backgroundColor = "#28a745"; // Success Green
+
+        // 3. The "Silent" Handshake (Sending data to Formspree in background)
+        const data = new FormData(form);
+        try {
+            await fetch(form.action, {
+                method: form.method,
+                body: data,
+                headers: { 'Accept': 'application/json' }
+            });
+
+            // 4. The Resolution: Clear the box now that data is safe
+            input.value = "";
+        } catch (error) {
+            console.error("Submission failed", error);
+            button.textContent = "SYSTEM ERROR";
+            button.style.backgroundColor = "#dc3545";
+        }
+
+        // 5. Reset button back to original state after 3 seconds
+        setTimeout(() => {
+            button.textContent = "LET'S BUILD";
+            button.style.backgroundColor = "#0056b3";
+        }, 3000);
+    }
+</script>
 
 </body>
 </html>
