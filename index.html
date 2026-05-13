@@ -3,99 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Winntelligence | From Inception to Scale</title>
+    <title>Winntelligence // From Inception to Scale</title>
     <style>
         body {
-            background-color: #060a11;
+            background-color: #020202; /* Minsky-approved deep obsidian */
             color: #e2e8f0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
         }
-        .container { max-width: 600px; text-align: center; }
-        
-        /* THE LOGO */
-        .brand-header { 
-            margin-bottom: 40px; 
-            filter: drop-shadow(0 0 15px rgba(0, 195, 255, 0.4));
-        }
-        .main-logo { width: 180px; height: auto; }
 
-        h1 { font-weight: 300; letter-spacing: -1.5px; font-size: 2.8rem; margin-bottom: 15px; }
-        p { color: #94a3b8; line-height: 1.6; font-size: 1.15rem; margin-bottom: 45px; }
-        
-        form { width: 100%; text-align: left; }
-        label { font-size: 0.8rem; color: #475569; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; display: block; }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .main-logo {
+            width: 350px; /* Authoritative scaling */
+            height: auto;
+            margin-bottom: 10px;
+            /* If logo has a gray background, this helps it blend: */
+            mix-blend-mode: screen; 
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            margin: 50px 0 15px 0;
+            color: #ffffff;
+        }
+
+        .hero-hook {
+            font-size: 18px;
+            color: #94a3b8;
+            margin-bottom: 45px;
+            font-weight: 300;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            color: #64748b;
+        }
+
         textarea {
             width: 100%;
+            height: 120px;
             background: #0f172a;
             border: 1px solid #1e293b;
             border-radius: 8px;
-            color: white;
-            padding: 18px;
-            font-size: 1rem;
-            height: 160px;
+            padding: 15px;
+            color: #f8fafc;
+            font-size: 16px;
+            margin-bottom: 20px;
+            resize: none;
             box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.3s;
-            font-family: inherit;
         }
-        textarea:focus { border-color: #00c3ff; }
-        
+
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
         button {
-            margin-top: 20px;
             width: 100%;
-            background-color: #0a498f;
+            background-color: #004aad;
             color: white;
             border: none;
             padding: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
             border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.9rem;
             cursor: pointer;
-            transition: background 0.2s;
-            letter-spacing: 2.5px;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #0056cc;
+            transform: translateY(-1px);
+        }
+
+        footer {
+            margin-top: 60px;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: #334155;
             text-transform: uppercase;
         }
-        button:hover { background-color: #00c3ff; color: black; }
 
-        footer { 
-            margin-top: 90px; 
-            font-size: 0.65rem; 
-            color: #334155; 
-            letter-spacing: 4px; 
-            text-transform: uppercase; 
+        hr {
+            border: 0;
             border-top: 1px solid #1e293b;
-            padding-top: 25px;
-            width: 100%;
+            margin-top: 40px;
+            width: 50%;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="brand-header">
-            <img src="logo.png" alt="Winntelligence Society of Mind Logo" class="main-logo">
-        </div>
-
-        <h1>From Inception to Scale.</h1>
-        <p>Winntelligence provides the agentic infrastructure to operationalize venture physics. We help founders eliminate strategic entropy and build with institutional precision.</p>
-
-        <form action="mailto:winn@winntelligence.ai" method="POST" enctype="text/plain">
-            <label>Strategic Inquiry</label>
-            <textarea name="Inquiry" placeholder="Define your primary bottleneck or strategic objective..." required></textarea>
-            <button type="submit">Request Agentic Brief</button>
-        </form>
-
-        <footer>
-            Winn-Alpha &nbsp; // &nbsp; Winn-Matrix &nbsp; // &nbsp; Winn-Forge
-        </footer>
+<div class="container">
+    <div class="brand-header">
+        <img class="main-logo" src="logo.png" alt="Winntelligence Logo">
     </div>
+
+    <h1>From Inception to Scale.</h1>
+    
+    <p class="hero-hook">Build your vision with our venture coaching.</p>
+
+    <form action="mailto:winn@winntelligence.ai" method="POST" enctype="text/plain">
+        <label>What are you building?</label>
+        <textarea name="Inquiry" placeholder="“We’re building [X] for [Y] by doing [Z]…”" required></textarea>
+        <button type="submit">LET'S BUILD</button>
+    </form>
+
+    <hr>
+
+    <footer>
+        Winn-Alpha // Winn-Matrix // Winn-Forge
+    </footer>
+</div>
 
 </body>
 </html>
