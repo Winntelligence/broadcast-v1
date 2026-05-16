@@ -38,7 +38,7 @@
             margin-bottom: 40px;
         }
         .interactive-prompt {
-            margin: 40px 0;
+            margin: 35px 0;
         }
         .prompt-label {
             color: #38bdf8;
@@ -49,7 +49,7 @@
         .input-group {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
+            margin-top: 10px;
         }
         .text-input {
             flex: 1;
@@ -73,6 +73,7 @@
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
+            white-space: nowrap;
         }
         .submit-btn:hover {
             background: #0ea5e9;
@@ -129,12 +130,18 @@
             <div class="prompt-label">
                 What is the most tedious, data-heavy, or repetitive task in your current venture building process?
             </div>
-            <p style="color: #94a3b8; font-size: 0.95rem; margin: 0 0 15px 0;">
-                Submit your primary bottleneck below. We use these direct submissions to prioritize the next agent configurations deployed to the repository.
-            </p>
-            
             <form action="#" method="POST" class="input-group">
-                <input type="text" name="bottleneck" class="text-input" placeholder="e.g., Cross-referencing pricing data across 10 competitor sites..." required>
+                <input type="text" name="bottleneck" class="text-input" placeholder="e.g., Cross-referencing competitor metrics..." required>
+                <button type="submit" class="submit-btn">Submit to Winn</button>
+            </form>
+        </div>
+
+        <div class="interactive-prompt">
+            <div class="prompt-label">
+                What automated venture are you currently trying to build?
+            </div>
+            <form action="#" method="POST" class="input-group">
+                <input type="text" name="venture_idea" class="text-input" placeholder="e.g., An automated real-time arbitrage scanner..." required>
                 <button type="submit" class="submit-btn">Submit to Winn</button>
             </form>
         </div>
