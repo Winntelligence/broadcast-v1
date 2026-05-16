@@ -6,7 +6,7 @@
     <title>Winntelligence // The Venture Repository</title>
     <style>
         body {
-            background-color: #020202; /* Minsky-approved deep obsidian */
+            background-color: #020202; /* Deep obsidian */
             color: #e2e8f0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             display: flex;
@@ -25,48 +25,57 @@
             width: 650px; 
             max-width: 95%; 
             height: auto;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             display: block;
             margin-left: auto;
             margin-right: auto;
         }
-        h1 {
-            font-size: 2.5rem;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-weight: 700;
-            letter-spacing: -0.04em;
-            line-height: 1.1;
+        p.intro {
+            font-size: 1.25rem;
+            line-height: 1.6;
             color: #fff;
-        }
-        .subtitle {
-            font-size: 1.2rem;
-            color: #94a3b8;
-            margin-bottom: 35px;
-            font-weight: 400;
-            line-height: 1.5;
-        }
-        .manifesto-box {
-            border-left: 3px solid #38bdf8; /* Cyber blue accent line */
-            padding-left: 20px;
-            margin: 35px 0;
-        }
-        .manifesto-box p {
-            font-size: 1.15rem;
-            line-height: 1.6;
-            margin: 0;
-            color: #f1f5f9;
             font-weight: 500;
+            margin-bottom: 40px;
         }
-        .cta-inline {
+        .interactive-prompt {
             margin: 40px 0;
-            line-height: 1.6;
         }
-        .question-highlight {
+        .prompt-label {
             color: #38bdf8;
             font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .text-input {
+            flex: 1;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 4px;
+            padding: 12px;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .text-input:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+        .submit-btn {
+            background: #38bdf8;
+            color: #020202;
+            border: none;
+            border-radius: 4px;
+            padding: 0 20px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background: #0ea5e9;
         }
         hr {
             border: 0;
@@ -74,9 +83,10 @@
             margin: 40px 0;
         }
         h2 {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: #fff;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
         }
         .log-meta {
             font-family: monospace;
@@ -92,26 +102,17 @@
         }
         .log-item h3 {
             margin: 10px 0 5px 0;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             color: #f1f5f9;
         }
         .log-item p {
             color: #94a3b8;
             margin: 0;
             font-size: 0.95rem;
+            line-height: 1.5;
         }
         .future-log {
             opacity: 0.5;
-        }
-        .placeholder-box {
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            padding: 20px;
-            text-align: center;
-            color: #64748b;
-            font-size: 0.9rem;
-            border-radius: 4px;
-            margin-top: 20px;
         }
     </style>
 </head>
@@ -120,50 +121,41 @@
     <div class="container">
         <img src="logo.png" alt="Winntelligence Logo" class="main-logo">
 
-        <h1>The Future of AI is a Society.</h1>
-        <p class="subtitle">
-            True machine intelligence doesn’t come from a single, massive prompt. It emerges from a coordinated collective of specialized, interconnected micro-agents. 
+        <p class="intro">
+            Winntelligence is the central repository to compile, orchestrate, and manage your automated ventures.
         </p>
 
-        <div class="manifesto-box">
-            <p>Winntelligence is the central repository to compile, orchestrate, and manage your automated ventures.</p>
-        </div>
-
-        <div class="cta-inline">
-            <p>
-                Winn is in its earliest phase, and we are building the framework to solve real operational limits. You can shape the exact code we deploy next.
-            </p>
-            
-            <div class="question-highlight">
+        <div class="interactive-prompt">
+            <div class="prompt-label">
                 What is the most tedious, data-heavy, or repetitive task in your current venture building process?
             </div>
-            
-            <p style="font-size: 0.95rem; color: #94a3b8; margin-bottom: 0;">
-                Subscribe to get the technical blueprints, and reply to our welcome message to tell us what micro-agent we should deploy next.
+            <p style="color: #94a3b8; font-size: 0.95rem; margin: 0 0 15px 0;">
+                Submit your primary bottleneck below. We use these direct submissions to prioritize the next agent configurations deployed to the repository.
             </p>
-
-            <div class="placeholder-box">
-                [ Substack Subscription Node Form ]
-            </div>
+            
+            <form action="#" method="POST" class="input-group">
+                <input type="text" name="bottleneck" class="text-input" placeholder="e.g., Cross-referencing pricing data across 10 competitor sites..." required>
+                <button type="submit" class="submit-btn">Submit to Winn</button>
+            </form>
         </div>
 
         <hr>
 
-        <h2>Live Build Logs</h2>
+        <h2>Current Build Status</h2>
         
         <div class="log-item">
-            <span class="log-meta">System Status // Active</span>
-            <h3>Data Loop Ingestion</h3>
+            <span class="log-meta">Online</span>
+            <h3>Platform Data Integrations</h3>
             <p>
-                Successfully integrated direct streams from X, Substack, and Reddit into the core repository. Winn is now actively tracking operational trends and real-time market signals to inform our underlying models.
+                Connected operational data pipelines from X, Substack, and Reddit directly into the repository infrastructure to track real-time market signals.
             </p>
         </div>
 
         <div class="log-item future-log">
-            <span class="log-meta">Current Sprint // In Progress</span>
+            <span class="log-meta">Pending</span>
             <h3>Automated Output Auditing</h3>
             <p>
-                Deploying internal verification nodes designed to cross-reference and validate all generated intelligence before it is logged to the venture repository.
+                Developing secondary validation layers to automatically check data accuracy before records are saved to a venture file.
             </p>
         </div>
     </div>
