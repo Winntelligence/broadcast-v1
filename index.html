@@ -6,12 +6,12 @@
     <title>Winntelligence // The Venture Repository</title>
     <style>
         :root {
-            --bg-main: #0d1117;       /* GitHub's exact deep slate obsidian */
+            --bg-main: #0d1117;       /* GitHub's deep slate obsidian */
             --bg-input: #161b22;      /* GitHub's dark input tone */
             --border-muted: #21262d;  /* Muted tech border */
-            --text-main: #c9d1d9;     /* Soft white/silver text for zero eye strain */
-            --text-muted: #8b949e;    /* GitHub/Umami secondary text */
-            --accent: #58a6ff;        /* Clean, professional developer blue */
+            --text-main: #c9d1d9;     /* Soft silver text */
+            --text-muted: #8b949e;    /* Secondary text */
+            --accent: #58a6ff;        /* Professional developer blue */
             --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
 
@@ -84,7 +84,7 @@
             color: #484f58;
         }
         .submit-btn {
-            background: #21262d; /* Sleek dark GitHub-style button */
+            background: #21262d; 
             color: var(--accent);
             border: 1px solid var(--border-muted);
             border-radius: 6px;
@@ -148,12 +148,12 @@
         <img src="logo.png" alt="Winntelligence Logo" class="main-logo">
 
         <p class="intro">
-            Winntelligence is an emerging repository for venture building.
+            Winntelligence is an open repository for venture building, engineered by the community.
         </p>
 
         <div class="interactive-prompt">
             <div class="prompt-label">
-                What venture are you currently trying to build?
+                What venture architecture should we map next?
             </div>
             <form action="#" method="POST" class="input-group">
                 <input type="text" name="venture_idea" class="text-input" placeholder="e.g., A predictive market intelligence node for logistics..." required>
@@ -163,10 +163,10 @@
 
         <div class="interactive-prompt">
             <div class="prompt-label">
-                What venture building problem can Winn help you with?
+                What domain or industry-specific configuration does your project require?
             </div>
             <form action="#" method="POST" class="input-group">
-                <input type="text" name="bottleneck" class="text-input" placeholder="e.g., Identifying active lead investors in my specific niche..." required>
+                <input type="text" name="domain_config" class="text-input" placeholder="e.g., Compliance auditing for payments, computer vision for robotics..." required>
                 <button type="submit" class="submit-btn">Submit to Winn</button>
             </form>
         </div>
