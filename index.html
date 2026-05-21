@@ -6,225 +6,419 @@
     <title>Winntelligence // The Venture Repository</title>
     <style>
         :root {
-            --bg-main: #0d1117;       /* GitHub's deep slate obsidian */
-            --bg-input: #161b22;      /* GitHub's dark input tone */
-            --border-muted: #21262d;  /* Muted tech border */
-            --text-main: #c9d1d9;     /* Soft silver text */
-            --text-muted: #8b949e;    /* Secondary text */
-            --accent: #58a6ff;        /* Professional developer blue */
+            --bg-main: #0a0f0f;
+            --bg-surface: #0f1a1a;
+            --bg-input: #0f1a1a;
+            --border-muted: #1a2f2f;
+            --border-accent: rgba(13,115,119,0.3);
+            --text-main: #e8f5f0;
+            --text-muted: #5a7a7a;
+            --text-hint: #2a4040;
+            --accent: #0D7377;
+            --accent-light: #5DCAA5;
+            --accent-pale: #9FE1CB;
             --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
             font-family: var(--font-stack);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 40px 20px;
             -webkit-font-smoothing: antialiased;
         }
-        .container {
-            text-align: left; 
-            max-width: 600px;
-            width: 100%;
-        }
+
+        /* ── LOGO ── */
         .main-logo {
             width: 100%;
-            max-width: 600px; 
+            max-width: 480px;
             height: auto;
-            margin-bottom: 40px;
+            margin-bottom: 48px;
             display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        p.intro {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            color: #fff;
-            font-weight: 400;
-            margin-bottom: 45px;
-            letter-spacing: -0.01em;
-        }
-        .interactive-prompt {
-            margin: 40px 0;
-            transition: all 0.3s ease;
-        }
-        .prompt-label {
-            color: #fff;
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin-bottom: 14px;
-            letter-spacing: -0.01em;
-        }
-        .input-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 12px;
-        }
-        .text-input {
-            flex: 1;
-            background: var(--bg-input);
-            border: 1px solid var(--border-muted);
-            border-radius: 6px;
-            padding: 12px 16px;
-            color: #fff;
-            font-size: 0.95rem;
-            font-family: var(--font-stack);
-            transition: border-color 0.2s ease;
-        }
-        .text-input:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: #1f242c;
-        }
-        .text-input::placeholder {
-            color: #484f58;
-        }
-        .submit-btn {
-            background: #21262d; 
-            color: var(--accent);
-            border: 1px solid var(--border-muted);
-            border-radius: 6px;
-            padding: 0 24px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-        .submit-btn:hover {
-            background: #30363d;
-            border-color: #8b949e;
-            color: #fff;
-        }
-        
-        /* TERMINAL SUCCESS STATE DESIGN */
-        .success-box {
-            display: none;
-            background: var(--bg-input);
-            border: 1px solid var(--border-muted);
-            border-radius: 6px;
-            padding: 24px;
-            margin: 40px 0;
-            animation: fadeIn 0.4s ease;
-        }
-        .success-title {
-            color: #2ea043; /* Clean terminal green */
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .success-box ul {
-            margin: 0;
-            padding-left: 20px;
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-        .success-box li {
-            margin-bottom: 8px;
-        }
-        .success-box strong {
-            color: var(--text-main);
         }
 
-        @keyframes fadeIn {
+        /* ── WINN CONTAINER ── */
+        .winn-container {
+            width: 100%;
+            max-width: 680px;
+            background: var(--bg-main);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 560px;
+        }
+
+        /* ── HEADER ── */
+        .winn-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 0.5px solid var(--border-accent);
+        }
+
+        .winn-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .winn-logo-mark {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+        }
+
+        .winn-logo-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-pale);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .winn-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--accent-light);
+            letter-spacing: 0.04em;
+        }
+
+        .winn-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            animation: pulse 2.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ── MESSAGES ── */
+        .winn-messages {
+            flex: 1;
+            padding: 28px 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            min-height: 380px;
+            max-height: 420px;
+        }
+
+        .session-marker {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .session-line {
+            flex: 1;
+            height: 0.5px;
+            background: rgba(13,115,119,0.15);
+        }
+
+        .session-text {
+            font-size: 10px;
+            color: var(--text-hint);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .msg {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-width: 82%;
+            animation: fadeUp 0.35s ease-out forwards;
+        }
+
+        .msg.winn { align-self: flex-start; }
+        .msg.you { align-self: flex-end; }
+
+        .msg-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .msg.winn .msg-label { color: var(--accent); }
+        .msg.you .msg-label { color: var(--text-muted); text-align: right; }
+
+        .msg-bubble {
+            padding: 13px 17px;
+            border-radius: 10px;
+            font-size: 15px;
+            line-height: 1.65;
+        }
+
+        .msg.winn .msg-bubble {
+            background: var(--bg-surface);
+            color: var(--text-main);
+            border: 0.5px solid var(--border-accent);
+            border-top-left-radius: 3px;
+        }
+
+        .msg.you .msg-bubble {
+            background: #131e1e;
+            color: #b8cec8;
+            border: 0.5px solid rgba(255,255,255,0.06);
+            border-top-right-radius: 3px;
+        }
+
+        /* ── TYPING INDICATOR ── */
+        .typing-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-width: 82%;
+            align-self: flex-start;
+            animation: fadeUp 0.35s ease-out forwards;
+        }
+
+        .typing-bubble {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 13px 17px;
+            background: var(--bg-surface);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 10px;
+            border-top-left-radius: 3px;
+            width: fit-content;
+        }
+
+        .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: blink 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0.25; transform: scale(0.75); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+
+        /* ── INPUT AREA ── */
+        .winn-input-area {
+            padding: 14px 20px 18px;
+            border-top: 0.5px solid rgba(13,115,119,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .winn-input {
+            flex: 1;
+            background: var(--bg-surface);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 9px;
+            padding: 11px 15px;
+            font-size: 15px;
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+            min-height: 44px;
+            max-height: 120px;
+            transition: border-color 0.15s;
+        }
+
+        .winn-input::placeholder { color: #283838; }
+        .winn-input:focus { border-color: rgba(13,115,119,0.55); }
+
+        .send-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 9px;
+            background: var(--accent);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .send-btn:hover { background: #0f9196; }
+        .send-btn:active { transform: scale(0.95); }
+        .send-btn:disabled { background: #162020; cursor: not-allowed; }
+
+        .send-btn svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: white;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: var(--text-hint);
+            text-align: center;
+            letter-spacing: 0.025em;
+        }
+
+        /* ── BUILD LOG ── */
+        .divider {
+            width: 100%;
+            max-width: 680px;
+            border: 0;
+            border-top: 0.5px solid #1a2f2f;
+            margin: 48px 0 40px;
+        }
+
+        .build-section {
+            width: 100%;
+            max-width: 680px;
+        }
+
+        .build-section h2 {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 28px;
+            letter-spacing: -0.01em;
+        }
+
+        .log-meta {
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
+            border: 0.5px solid #1a2f2f;
+            background: #0f1a1a;
+            padding: 3px 9px;
+            font-size: 0.68rem;
+            border-radius: 4px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .log-item {
+            margin-bottom: 32px;
+        }
+
+        .log-item h3 {
+            margin: 12px 0 5px 0;
+            font-size: 1rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .log-item p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .future-log { opacity: 0.35; }
+
+        @keyframes fadeUp {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        hr {
-            border: 0;
-            border-top: 1px solid var(--border-muted);
-            margin: 45px 0;
-        }
-        h2 {
-            font-size: 1.2rem;
-            color: #fff;
-            margin-bottom: 25px;
-            letter-spacing: -0.01em;
-        }
-        .log-meta {
-            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
-            border: 1px solid var(--border-muted);
-            background: var(--bg-input);
-            padding: 4px 10px;
-            font-size: 0.7rem;
-            border-radius: 4px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .log-item {
-            margin-bottom: 35px;
-        }
-        .log-item h3 {
-            margin: 14px 0 6px 0;
-            font-size: 1.05rem;
-            color: #fff;
-            font-weight: 600;
-        }
-        .log-item p {
-            color: var(--text-muted);
-            margin: 0;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-        .future-log {
-            opacity: 0.4;
+        /* ── RESPONSIVE ── */
+        @media (max-width: 480px) {
+            body { padding: 24px 14px; }
+            .winn-messages { max-height: 360px; }
+            .msg { max-width: 92%; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <img src="logo.png" alt="Winntelligence Logo" class="main-logo">
+    <img src="logo.png" alt="Winntelligence" class="main-logo">
 
-        <p class="intro">
-            Winntelligence is an open repository for venture building, engineered by the community.
-        </p>
-
-        <div id="interaction-area">
-            <div class="interactive-prompt">
-                <div class="prompt-label">
-                    What venture architecture should we map next?
-                </div>
-                <form onsubmit="handleWinnSubmit(event)" class="input-group">
-                    <input type="text" class="text-input" placeholder="e.g., A predictive market intelligence node for logistics..." required>
-                    <button type="submit" class="submit-btn">Submit to Winn</button>
-                </form>
+    <!-- WINN CONVERSATION INTERFACE -->
+    <div class="winn-container">
+        <div class="winn-header">
+            <div class="winn-logo">
+                <div class="winn-logo-mark">W</div>
+                <span class="winn-logo-text">Winntelligence</span>
             </div>
-
-            <div class="interactive-prompt">
-                <div class="prompt-label">
-                    What domain or industry-specific configuration does your project require?
-                </div>
-                <form onsubmit="handleWinnSubmit(event)" class="input-group">
-                    <input type="text" class="text-input" placeholder="e.g., Compliance auditing for payments, computer vision for robotics..." required>
-                    <button type="submit" class="submit-btn">Submit to Winn</button>
-                </form>
+            <div class="winn-status">
+                <div class="winn-status-dot"></div>
+                <span>Winn is here</span>
             </div>
         </div>
 
-        <div id="success-telemetry" class="success-box">
-            <div class="success-title">✓ Signal Ingested Into Repository</div>
-            <ul>
-                <li><strong>Node Allocation:</strong> Your input has been serialized and queued for multi-agent mapping.</li>
-                <li><strong>Next Milestone:</strong> Community domain requests are compiled weekly. Track the Live Build Logs or follow our Substack notes below to see when this architecture node updates.</li>
-            </ul>
+        <div class="winn-messages" id="messages">
+            <div class="session-marker">
+                <div class="session-line"></div>
+                <span class="session-text">Session 1</span>
+                <div class="session-line"></div>
+            </div>
+            <div class="msg winn">
+                <span class="msg-label">Winn</span>
+                <div class="msg-bubble">
+                    Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.
+                </div>
+            </div>
         </div>
 
-        <hr>
+        <div class="winn-input-area">
+            <div class="input-row">
+                <textarea
+                    class="winn-input"
+                    id="founderInput"
+                    placeholder="Tell Winn what you're building..."
+                    rows="1"
+                ></textarea>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+            <div class="input-hint">This conversation is between you and Winn — honest, private, and in your corner.</div>
+        </div>
+    </div>
 
+    <hr class="divider">
+
+    <!-- BUILD LOG -->
+    <div class="build-section">
         <h2>Current Build Status</h2>
-        
+
         <div class="log-item">
             <span class="log-meta">Online</span>
             <h3>Platform Data Integrations</h3>
@@ -233,22 +427,139 @@
             </p>
         </div>
 
+        <div class="log-item">
+            <span class="log-meta">Online</span>
+            <h3>Winn Diagnostic Agent</h3>
+            <p>
+                First version of the Winn coaching intelligence is live. The Diagnostic Agent asks the right questions in the right sequence — surfacing the prior question every venture builder needs to answer before anything else.
+            </p>
+        </div>
+
         <div class="log-item future-log">
             <span class="log-meta">Pending</span>
-            <h3>Automated Output Auditing</h3>
+            <h3>Venture Repository — Pattern Nodes</h3>
             <p>
-                Developing secondary validation layers to automatically check data accuracy before records are saved to a venture file.
+                Encoding the first cohort of venture patterns into the repository DAG. Each node contains a pattern signature, prior question, intervention type, and outcome record. The repository compounds with every venture that runs through it.
+            </p>
+        </div>
+
+        <div class="log-item future-log">
+            <span class="log-meta">Pending</span>
+            <h3>Founder Memory Layer</h3>
+            <p>
+                Persistent memory across sessions. Winn will remember where each founder left off — their venture stage, their prior questions, their self-awareness trajectory — and pick up exactly where the last conversation ended.
             </p>
         </div>
     </div>
 
     <script>
-        function handleWinnSubmit(event) {
-            event.preventDefault();
-            // Hide the active text inputs cleanly
-            document.getElementById('interaction-area').style.display = 'none';
-            // Reveal the terminal confirmation box smoothly
-            document.getElementById('success-telemetry').style.display = 'block';
+        // ── CONFIGURATION ──
+        // Replace with your deployed Cloudflare Worker URL
+        const WORKER_URL = 'https://winn-api.winn-3d3.workers.dev';
+
+        // ── STATE ──
+        let history = [];
+        let thinking = false;
+
+        // ── ELEMENTS ──
+        const messagesEl = document.getElementById('messages');
+        const inputEl = document.getElementById('founderInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // ── AUTO-RESIZE INPUT ──
+        inputEl.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // ── ENTER TO SEND ──
+        inputEl.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // ── ADD MESSAGE TO UI ──
+        function addMessage(role, text) {
+            const isWinn = role === 'winn';
+            const div = document.createElement('div');
+            div.className = `msg ${isWinn ? 'winn' : 'you'}`;
+            div.innerHTML = `
+                <span class="msg-label">${isWinn ? 'Winn' : 'You'}</span>
+                <div class="msg-bubble">${text.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</div>
+            `;
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        // ── TYPING INDICATOR ──
+        function showTyping() {
+            const div = document.createElement('div');
+            div.className = 'typing-wrap';
+            div.id = 'typing';
+            div.innerHTML = `
+                <span class="msg-label" style="color: #0D7377; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;">Winn</span>
+                <div class="typing-bubble">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            `;
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function removeTyping() {
+            const el = document.getElementById('typing');
+            if (el) el.remove();
+        }
+
+        // ── SEND MESSAGE ──
+        async function sendMessage() {
+            const text = inputEl.value.trim();
+            if (!text || thinking) return;
+
+            inputEl.value = '';
+            inputEl.style.height = 'auto';
+            thinking = true;
+            sendBtn.disabled = true;
+
+            addMessage('you', text);
+            history.push({ role: 'user', content: text });
+            showTyping();
+
+            try {
+                const res = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: history }),
+                });
+
+                const data = await res.json();
+                removeTyping();
+
+                if (!res.ok) {
+                    addMessage('winn', "Something went wrong on my end. Try again in a moment.");
+                    history.pop();
+                } else {
+                    const reply = data.content
+                        .filter(b => b.type === 'text')
+                        .map(b => b.text)
+                        .join('');
+                    history.push({ role: 'assistant', content: reply });
+                    addMessage('winn', reply);
+                }
+
+            } catch (err) {
+                removeTyping();
+                addMessage('winn', "Something went wrong on my end. Try again in a moment.");
+                history.pop();
+            }
+
+            thinking = false;
+            sendBtn.disabled = false;
+            inputEl.focus();
         }
     </script>
 
