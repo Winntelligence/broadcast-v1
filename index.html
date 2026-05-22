@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,29 +44,21 @@
             display: block;
         }
 
-        /* ── WINN CONTAINER ── */
-        .winn-container {
+        /* ── IDENTITY GATE ── */
+        #identity-gate {
             width: 100%;
             max-width: 680px;
             background: var(--bg-main);
             border: 0.5px solid var(--border-accent);
             border-radius: 12px;
-            overflow: hidden;
+            padding: 48px 40px;
             display: flex;
             flex-direction: column;
-            min-height: 560px;
+            gap: 28px;
+            animation: fadeUp 0.4s ease-out forwards;
         }
 
-        /* ── HEADER ── */
-        .winn-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 24px;
-            border-bottom: 0.5px solid var(--border-accent);
-        }
-
-        .winn-logo {
+        .gate-header {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -94,7 +87,206 @@
             text-transform: uppercase;
         }
 
+        .gate-prompt {
+            font-size: 17px;
+            line-height: 1.65;
+            color: var(--text-main);
+        }
+
+        .gate-prompt span {
+            color: var(--accent-pale);
+        }
+
+        .gate-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .gate-input {
+            flex: 1;
+            background: var(--bg-surface);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 9px;
+            padding: 13px 17px;
+            font-size: 15px;
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .gate-input::placeholder { color: #283838; }
+        .gate-input:focus { border-color: rgba(13,115,119,0.55); }
+
+        .gate-btn {
+            padding: 13px 24px;
+            border-radius: 9px;
+            background: var(--accent);
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            font-family: var(--font-stack);
+            white-space: nowrap;
+            transition: background 0.15s, transform 0.1s;
+            letter-spacing: 0.02em;
+        }
+
+        .gate-btn:hover { background: #0f9196; }
+        .gate-btn:active { transform: scale(0.97); }
+
+        .gate-note {
+            font-size: 12px;
+            color: var(--text-hint);
+            letter-spacing: 0.025em;
+        }
+
+        /* ── RETURNING USER PANEL ── */
+        #returning-panel {
+            width: 100%;
+            max-width: 680px;
+            background: var(--bg-main);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 12px;
+            padding: 40px;
+            display: none;
+            flex-direction: column;
+            gap: 24px;
+            animation: fadeUp 0.4s ease-out forwards;
+        }
+
+        .returning-greeting {
+            font-size: 17px;
+            line-height: 1.65;
+            color: var(--text-main);
+        }
+
+        .returning-greeting strong {
+            color: var(--accent-pale);
+        }
+
+        .session-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .session-card {
+            background: var(--bg-surface);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 9px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .session-card:hover {
+            border-color: rgba(13,115,119,0.6);
+            background: #111f1f;
+        }
+
+        .session-card-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .session-card-title {
+            font-size: 14px;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .session-card-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .session-card-preview {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .returning-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 11px 20px;
+            border-radius: 9px;
+            border: 0.5px solid var(--border-accent);
+            background: transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-pale);
+            font-family: var(--font-stack);
+            transition: border-color 0.15s, background 0.15s;
+            letter-spacing: 0.02em;
+        }
+
+        .action-btn:hover {
+            border-color: rgba(13,115,119,0.6);
+            background: #111f1f;
+        }
+
+        .action-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .action-btn.primary:hover { background: #0f9196; }
+
+        /* ── WINN CONTAINER ── */
+        #winn-container {
+            width: 100%;
+            max-width: 680px;
+            background: var(--bg-main);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            min-height: 560px;
+        }
+
+        /* ── HEADER ── */
+        .winn-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 0.5px solid var(--border-accent);
+        }
+
+        .winn-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .winn-status {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .winn-status-indicator {
             display: flex;
             align-items: center;
             gap: 6px;
@@ -114,6 +306,30 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
+        }
+
+        .founder-tag {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            padding: 3px 9px;
+            border: 0.5px solid var(--border-muted);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: border-color 0.15s;
+        }
+
+        .founder-tag:hover { border-color: var(--border-accent); }
+
+        .founder-tag-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
         }
 
         /* ── MESSAGES ── */
@@ -360,6 +576,7 @@
             body { padding: 24px 14px; }
             .winn-messages { max-height: 360px; }
             .msg { max-width: 92%; }
+            #identity-gate, #returning-panel { padding: 32px 24px; }
         }
     </style>
 </head>
@@ -367,32 +584,61 @@
 
     <img src="logo.png" alt="Winntelligence" class="main-logo">
 
+    <!-- IDENTITY GATE: first-time visitors -->
+    <div id="identity-gate">
+        <div class="gate-header">
+            <div class="winn-logo-mark">W</div>
+            <span class="winn-logo-text">Winntelligence</span>
+        </div>
+        <div class="gate-prompt">
+            Winn is here for venture builders.<br>
+            <span>Before we begin — what should Winn call you?</span>
+        </div>
+        <div class="gate-input-row">
+            <input
+                class="gate-input"
+                id="nameInput"
+                type="text"
+                placeholder="Your first name or what you go by..."
+                autocomplete="off"
+                maxlength="40"
+            >
+            <button class="gate-btn" id="startBtn" onclick="handleStart()">Begin</button>
+        </div>
+        <div class="gate-note">Winn remembers you across visits. Your conversations stay in your browser.</div>
+    </div>
+
+    <!-- RETURNING USER PANEL -->
+    <div id="returning-panel">
+        <div class="winn-logo-mark" style="margin-bottom:4px;">W</div>
+        <div class="returning-greeting" id="returning-greeting"></div>
+        <div class="session-cards" id="session-cards"></div>
+        <div class="returning-actions">
+            <button class="action-btn primary" onclick="startNewSession()">Start a new conversation</button>
+            <button class="action-btn" onclick="clearIdentity()">Not you? Switch founder</button>
+        </div>
+    </div>
+
     <!-- WINN CONVERSATION INTERFACE -->
-    <div class="winn-container">
+    <div id="winn-container">
         <div class="winn-header">
             <div class="winn-logo">
                 <div class="winn-logo-mark">W</div>
                 <span class="winn-logo-text">Winntelligence</span>
             </div>
             <div class="winn-status">
-                <div class="winn-status-dot"></div>
-                <span>Winn is here</span>
-            </div>
-        </div>
-
-        <div class="winn-messages" id="messages">
-            <div class="session-marker">
-                <div class="session-line"></div>
-                <span class="session-text">Session 1</span>
-                <div class="session-line"></div>
-            </div>
-            <div class="msg winn">
-                <span class="msg-label">Winn</span>
-                <div class="msg-bubble">
-                    Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.
+                <div class="founder-tag" id="founder-tag" onclick="goHome()" title="Session history">
+                    <div class="founder-tag-dot"></div>
+                    <span id="founder-tag-name"></span>
+                </div>
+                <div class="winn-status-indicator">
+                    <div class="winn-status-dot"></div>
+                    <span>Winn is here</span>
                 </div>
             </div>
         </div>
+
+        <div class="winn-messages" id="messages"></div>
 
         <div class="winn-input-area">
             <div class="input-row">
@@ -422,73 +668,293 @@
         <div class="log-item">
             <span class="log-meta">Online</span>
             <h3>Platform Data Integrations</h3>
-            <p>
-                Connected operational data pipelines from X, Substack, and Reddit directly into the repository infrastructure to track real-time market signals.
-            </p>
+            <p>Connected operational data pipelines from X, Substack, and Reddit directly into the repository infrastructure to track real-time market signals.</p>
         </div>
 
         <div class="log-item">
             <span class="log-meta">Online</span>
             <h3>Winn Diagnostic Agent</h3>
-            <p>
-                First version of the Winn coaching intelligence is live. The Diagnostic Agent asks the right questions in the right sequence — surfacing the prior question every venture builder needs to answer before anything else.
-            </p>
+            <p>First version of the Winn coaching intelligence is live. The Diagnostic Agent asks the right questions in the right sequence — surfacing the prior question every venture builder needs to answer before anything else.</p>
+        </div>
+
+        <div class="log-item">
+            <span class="log-meta">Online</span>
+            <h3>Founder Memory Layer</h3>
+            <p>Winn now remembers you across visits. Your conversation history is stored locally in your browser — Winn picks up where you left off and tracks your prior questions over time.</p>
         </div>
 
         <div class="log-item future-log">
             <span class="log-meta">Pending</span>
             <h3>Venture Repository — Pattern Nodes</h3>
-            <p>
-                Encoding the first cohort of venture patterns into the repository DAG. Each node contains a pattern signature, prior question, intervention type, and outcome record. The repository compounds with every venture that runs through it.
-            </p>
-        </div>
-
-        <div class="log-item future-log">
-            <span class="log-meta">Pending</span>
-            <h3>Founder Memory Layer</h3>
-            <p>
-                Persistent memory across sessions. Winn will remember where each founder left off — their venture stage, their prior questions, their self-awareness trajectory — and pick up exactly where the last conversation ended.
-            </p>
+            <p>Encoding the first cohort of venture patterns into the repository DAG. Each node contains a pattern signature, prior question, intervention type, and outcome record. The repository compounds with every venture that runs through it.</p>
         </div>
     </div>
 
     <script>
         // ── CONFIGURATION ──
-        // Replace with your deployed Cloudflare Worker URL
         const WORKER_URL = 'https://winn-api.winn-3d3.workers.dev';
+        const STORAGE_KEY = 'winn_founder';
+        const SESSIONS_KEY = 'winn_sessions';
 
         // ── STATE ──
+        let currentFounder = null;
+        let currentSession = null;
         let history = [];
         let thinking = false;
 
-        // ── ELEMENTS ──
-        const messagesEl = document.getElementById('messages');
-        const inputEl = document.getElementById('founderInput');
-        const sendBtn = document.getElementById('sendBtn');
+        // ── STORAGE HELPERS ──
+        function getFounder() {
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); }
+            catch { return null; }
+        }
 
-        // ── AUTO-RESIZE INPUT ──
-        inputEl.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-        });
+        function saveFounder(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
 
-        // ── ENTER TO SEND ──
-        inputEl.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
+        function getSessions() {
+            try { return JSON.parse(localStorage.getItem(SESSIONS_KEY)) || []; }
+            catch { return []; }
+        }
+
+        function saveSessions(sessions) {
+            localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+        }
+
+        function saveCurrentSession() {
+            if (!currentSession || history.length === 0) return;
+            const sessions = getSessions();
+            const idx = sessions.findIndex(s => s.id === currentSession.id);
+            const updated = {
+                ...currentSession,
+                history: history,
+                lastMessage: history[history.length - 1]?.content?.slice(0, 100) || '',
+                updatedAt: new Date().toISOString(),
+                messageCount: history.length
+            };
+            if (idx >= 0) sessions[idx] = updated;
+            else sessions.unshift(updated);
+            // keep max 10 sessions
+            saveSessions(sessions.slice(0, 10));
+        }
+
+        function createNewSession(founderName) {
+            return {
+                id: Date.now().toString(),
+                founderName,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                history: [],
+                messageCount: 0,
+                lastMessage: ''
+            };
+        }
+
+        // ── UI HELPERS ──
+        function show(id) { document.getElementById(id).style.display = 'flex'; }
+        function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+        function formatDate(iso) {
+            const d = new Date(iso);
+            const now = new Date();
+            const diff = now - d;
+            if (diff < 60000) return 'just now';
+            if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+            if (diff < 604800000) return Math.floor(diff/86400000) + 'd ago';
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        // ── INIT ──
+        function init() {
+            const founder = getFounder();
+            if (!founder) {
+                show('identity-gate');
+                document.getElementById('nameInput').focus();
+                document.getElementById('nameInput').addEventListener('keydown', e => {
+                    if (e.key === 'Enter') handleStart();
+                });
+                return;
             }
-        });
+
+            currentFounder = founder;
+            const sessions = getSessions().filter(s => s.founderName === founder.name);
+
+            if (sessions.length === 0) {
+                startNewSession();
+            } else {
+                showReturningPanel(founder, sessions);
+            }
+        }
+
+        // ── FIRST TIME START ──
+        function handleStart() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (!name) return;
+            const founder = { name, createdAt: new Date().toISOString() };
+            saveFounder(founder);
+            currentFounder = founder;
+            hide('identity-gate');
+            startNewSession();
+        }
+
+        // ── RETURNING PANEL ──
+        function showReturningPanel(founder, sessions) {
+            const greeting = document.getElementById('returning-greeting');
+            const now = new Date().getHours();
+            const timeword = now < 12 ? 'morning' : now < 17 ? 'afternoon' : 'evening';
+            greeting.innerHTML = `Good ${timeword}, <strong>${founder.name}</strong>. Winn is here.<br><br>You have ${sessions.length} conversation${sessions.length !== 1 ? 's' : ''} in the repository. Pick up where you left off, or start something new.`;
+
+            const cards = document.getElementById('session-cards');
+            cards.innerHTML = '';
+            sessions.slice(0, 3).forEach(session => {
+                const card = document.createElement('div');
+                card.className = 'session-card';
+                card.onclick = () => resumeSession(session);
+                const sessionNum = sessions.indexOf(session) + 1;
+                card.innerHTML = `
+                    <span class="session-card-label">Session ${sessionNum} · ${formatDate(session.updatedAt)}</span>
+                    <div class="session-card-title">${session.messageCount} exchange${session.messageCount !== 1 ? 's' : ''}</div>
+                    ${session.lastMessage ? `<div class="session-card-preview">"${session.lastMessage}..."</div>` : ''}
+                `;
+                cards.appendChild(card);
+            });
+
+            hide('identity-gate');
+            show('returning-panel');
+        }
+
+        // ── RESUME SESSION ──
+        function resumeSession(session) {
+            currentSession = session;
+            history = session.history || [];
+            hide('returning-panel');
+            openWinnContainer(true);
+        }
+
+        // ── NEW SESSION ──
+        function startNewSession() {
+            hide('identity-gate');
+            hide('returning-panel');
+            currentSession = createNewSession(currentFounder.name);
+            history = [];
+            openWinnContainer(false);
+        }
+
+        // ── OPEN WINN INTERFACE ──
+        function openWinnContainer(isResume) {
+            const messagesEl = document.getElementById('messages');
+            messagesEl.innerHTML = '';
+
+            // session marker
+            const sessions = getSessions().filter(s => s.founderName === currentFounder.name);
+            const sessionNum = isResume
+                ? sessions.findIndex(s => s.id === currentSession.id) + 1
+                : sessions.length + 1;
+
+            const marker = document.createElement('div');
+            marker.className = 'session-marker';
+            marker.innerHTML = `
+                <div class="session-line"></div>
+                <span class="session-text">Session ${sessionNum}</span>
+                <div class="session-line"></div>
+            `;
+            messagesEl.appendChild(marker);
+
+            // founder tag in header
+            document.getElementById('founder-tag-name').textContent = currentFounder.name;
+
+            show('winn-container');
+
+            if (isResume && history.length > 0) {
+                // replay history into UI
+                history.forEach(msg => {
+                    addMessageToUI(msg.role === 'user' ? 'you' : 'winn', msg.content, false);
+                });
+                // Winn picks up where it left off
+                addWinnPickup();
+            } else {
+                // fresh greeting
+                addMessageToUI('winn', `Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.`, true);
+            }
+
+            setupInput();
+        }
+
+        // ── WINN PICKUP MESSAGE FOR RETURNING ──
+        async function addWinnPickup() {
+            showTyping();
+            const resumePrompt = [{
+                role: 'user',
+                content: `[SYSTEM: The founder ${currentFounder.name} has returned to continue this conversation. Briefly acknowledge you remember where they left off, reference something specific from the conversation, and invite them to continue. Keep it to 2-3 sentences. Do not repeat the opening greeting.]`
+            }];
+            try {
+                const res = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: [...history, ...resumePrompt] }),
+                });
+                const data = await res.json();
+                removeTyping();
+                if (res.ok) {
+                    const reply = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+                    addMessageToUI('winn', reply, true);
+                }
+            } catch {
+                removeTyping();
+            }
+        }
+
+        // ── GO HOME (header click) ──
+        function goHome() {
+            saveCurrentSession();
+            hide('winn-container');
+            const sessions = getSessions().filter(s => s.founderName === currentFounder.name);
+            showReturningPanel(currentFounder, sessions);
+        }
+
+        // ── CLEAR IDENTITY ──
+        function clearIdentity() {
+            saveCurrentSession();
+            localStorage.removeItem(STORAGE_KEY);
+            hide('returning-panel');
+            hide('winn-container');
+            document.getElementById('nameInput').value = '';
+            show('identity-gate');
+            document.getElementById('nameInput').focus();
+        }
+
+        // ── SETUP INPUT ──
+        function setupInput() {
+            const inputEl = document.getElementById('founderInput');
+            inputEl.value = '';
+            inputEl.style.height = 'auto';
+            inputEl.focus();
+
+            inputEl.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+
+            inputEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
 
         // ── ADD MESSAGE TO UI ──
-        function addMessage(role, text) {
+        function addMessageToUI(role, text, animate) {
             const isWinn = role === 'winn';
             const div = document.createElement('div');
             div.className = `msg ${isWinn ? 'winn' : 'you'}`;
+            if (!animate) div.style.animation = 'none';
             div.innerHTML = `
-                <span class="msg-label">${isWinn ? 'Winn' : 'You'}</span>
+                <span class="msg-label">${isWinn ? 'Winn' : currentFounder.name}</span>
                 <div class="msg-bubble">${text.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</div>
             `;
+            const messagesEl = document.getElementById('messages');
             messagesEl.appendChild(div);
             messagesEl.scrollTop = messagesEl.scrollHeight;
         }
@@ -499,13 +965,12 @@
             div.className = 'typing-wrap';
             div.id = 'typing';
             div.innerHTML = `
-                <span class="msg-label" style="color: #0D7377; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;">Winn</span>
+                <span class="msg-label" style="color: #0D7377; font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;">Winn</span>
                 <div class="typing-bubble">
-                    <div class="dot"></div>
-                    <div class="dot"></div>
-                    <div class="dot"></div>
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
                 </div>
             `;
+            const messagesEl = document.getElementById('messages');
             messagesEl.appendChild(div);
             messagesEl.scrollTop = messagesEl.scrollHeight;
         }
@@ -517,6 +982,8 @@
 
         // ── SEND MESSAGE ──
         async function sendMessage() {
+            const inputEl = document.getElementById('founderInput');
+            const sendBtn = document.getElementById('sendBtn');
             const text = inputEl.value.trim();
             if (!text || thinking) return;
 
@@ -525,7 +992,7 @@
             thinking = true;
             sendBtn.disabled = true;
 
-            addMessage('you', text);
+            addMessageToUI('you', text, true);
             history.push({ role: 'user', content: text });
             showTyping();
 
@@ -540,20 +1007,17 @@
                 removeTyping();
 
                 if (!res.ok) {
-                    addMessage('winn', "Something went wrong on my end. Try again in a moment.");
+                    addMessageToUI('winn', "Something went wrong on my end. Try again in a moment.", true);
                     history.pop();
                 } else {
-                    const reply = data.content
-                        .filter(b => b.type === 'text')
-                        .map(b => b.text)
-                        .join('');
+                    const reply = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
                     history.push({ role: 'assistant', content: reply });
-                    addMessage('winn', reply);
+                    addMessageToUI('winn', reply, true);
+                    saveCurrentSession();
                 }
-
-            } catch (err) {
+            } catch {
                 removeTyping();
-                addMessage('winn', "Something went wrong on my end. Try again in a moment.");
+                addMessageToUI('winn', "Something went wrong on my end. Try again in a moment.", true);
                 history.pop();
             }
 
@@ -561,6 +1025,9 @@
             sendBtn.disabled = false;
             inputEl.focus();
         }
+
+        // ── BOOT ──
+        init();
     </script>
 
 </body>
