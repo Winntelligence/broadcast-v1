@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +8,6 @@
         :root {
             --bg-main: #0a0f0f;
             --bg-surface: #0f1a1a;
-            --bg-input: #0f1a1a;
-            --border-muted: #1a2f2f;
             --border-accent: rgba(13,115,119,0.3);
             --text-main: #e8f5f0;
             --text-muted: #5a7a7a;
@@ -18,15 +15,13 @@
             --accent: #0D7377;
             --accent-light: #5DCAA5;
             --accent-pale: #9FE1CB;
-            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
-            background-color: var(--bg-main);
+            background: var(--bg-main);
             color: var(--text-main);
-            font-family: var(--font-stack);
+            font-family: var(--font);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -34,228 +29,115 @@
             padding: 40px 20px;
             -webkit-font-smoothing: antialiased;
         }
+        .logo { width: 100%; max-width: 480px; height: auto; margin-bottom: 48px; display: block; }
 
-        /* ── LOGO ── */
-        .main-logo {
-            width: 100%;
-            max-width: 480px;
-            height: auto;
-            margin-bottom: 48px;
-            display: block;
-        }
-
-        /* ── IDENTITY GATE ── */
-        #identity-gate {
-            width: 100%;
-            max-width: 680px;
+        /* ── PANELS ── */
+        .panel {
+            width: 100%; max-width: 680px;
             background: var(--bg-main);
             border: 0.5px solid var(--border-accent);
             border-radius: 12px;
             padding: 48px 40px;
-            display: flex;
+            display: none;
             flex-direction: column;
-            gap: 28px;
+            gap: 24px;
             animation: fadeUp 0.4s ease-out forwards;
         }
+        .panel.active { display: flex; }
 
-        .gate-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .winn-logo-mark {
-            width: 30px;
-            height: 30px;
-            border-radius: 7px;
+        .w-mark {
+            width: 32px; height: 32px; border-radius: 7px;
             background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ffffff;
-            letter-spacing: 0.02em;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 700; color: white;
             flex-shrink: 0;
         }
-
-        .winn-logo-text {
-            font-size: 13px;
-            font-weight: 500;
+        .w-label {
+            font-size: 12px; font-weight: 600;
             color: var(--accent-pale);
             letter-spacing: 0.1em;
             text-transform: uppercase;
         }
+        .panel-header { display: flex; align-items: center; gap: 10px; }
 
-        .gate-prompt {
-            font-size: 17px;
-            line-height: 1.65;
-            color: var(--text-main);
+        .panel-title {
+            font-size: 17px; line-height: 1.65; color: var(--text-main);
         }
+        .panel-title span { color: var(--accent-pale); }
 
-        .gate-prompt span {
-            color: var(--accent-pale);
-        }
-
-        .gate-input-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .gate-input {
-            flex: 1;
+        .input-field {
             background: var(--bg-surface);
             border: 0.5px solid var(--border-accent);
             border-radius: 9px;
             padding: 13px 17px;
             font-size: 15px;
             color: var(--text-main);
-            font-family: var(--font-stack);
+            font-family: var(--font);
             outline: none;
             transition: border-color 0.15s;
+            width: 100%;
+        }
+        .input-field::placeholder { color: #283838; }
+        .input-field:focus { border-color: rgba(13,115,119,0.55); }
+
+        textarea.input-field {
+            resize: none;
+            min-height: 100px;
+            line-height: 1.6;
         }
 
-        .gate-input::placeholder { color: #283838; }
-        .gate-input:focus { border-color: rgba(13,115,119,0.55); }
-
-        .gate-btn {
+        .btn {
             padding: 13px 24px;
             border-radius: 9px;
-            background: var(--accent);
             border: none;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            color: #ffffff;
-            font-family: var(--font-stack);
-            white-space: nowrap;
+            font-family: var(--font);
             transition: background 0.15s, transform 0.1s;
             letter-spacing: 0.02em;
         }
-
-        .gate-btn:hover { background: #0f9196; }
-        .gate-btn:active { transform: scale(0.97); }
-
-        .gate-note {
-            font-size: 12px;
-            color: var(--text-hint);
-            letter-spacing: 0.025em;
-        }
-
-        /* ── RETURNING USER PANEL ── */
-        #returning-panel {
-            width: 100%;
-            max-width: 680px;
-            background: var(--bg-main);
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: #0f9196; }
+        .btn-primary:disabled { background: #162020; cursor: not-allowed; }
+        .btn-ghost {
+            background: transparent;
             border: 0.5px solid var(--border-accent);
-            border-radius: 12px;
-            padding: 40px;
-            display: none;
-            flex-direction: column;
-            gap: 24px;
-            animation: fadeUp 0.4s ease-out forwards;
-        }
-
-        .returning-greeting {
-            font-size: 17px;
-            line-height: 1.65;
-            color: var(--text-main);
-        }
-
-        .returning-greeting strong {
             color: var(--accent-pale);
         }
+        .btn-ghost:hover { border-color: rgba(13,115,119,0.6); background: #111f1f; }
 
-        .session-cards {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
 
+        .hint { font-size: 12px; color: var(--text-hint); letter-spacing: 0.025em; }
+
+        /* ── SESSION CARDS ── */
         .session-card {
             background: var(--bg-surface);
             border: 0.5px solid var(--border-accent);
             border-radius: 9px;
             padding: 16px 20px;
             cursor: pointer;
-            transition: border-color 0.15s, background 0.15s;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+            transition: border-color 0.15s;
+            display: flex; flex-direction: column; gap: 5px;
         }
-
-        .session-card:hover {
-            border-color: rgba(13,115,119,0.6);
-            background: #111f1f;
-        }
-
+        .session-card:hover { border-color: rgba(13,115,119,0.6); background: #111f1f; }
         .session-card-label {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
+            font-size: 10px; font-weight: 600;
+            letter-spacing: 0.1em; text-transform: uppercase;
             color: var(--accent);
         }
-
-        .session-card-title {
-            font-size: 14px;
-            color: var(--text-main);
-            font-weight: 500;
-        }
-
-        .session-card-meta {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
+        .session-card-title { font-size: 14px; color: var(--text-main); font-weight: 500; }
+        .session-card-meta { font-size: 12px; color: var(--text-muted); }
         .session-card-preview {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-top: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 13px; color: var(--text-muted); font-style: italic;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .returning-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 11px 20px;
-            border-radius: 9px;
-            border: 0.5px solid var(--border-accent);
-            background: transparent;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--accent-pale);
-            font-family: var(--font-stack);
-            transition: border-color 0.15s, background 0.15s;
-            letter-spacing: 0.02em;
-        }
-
-        .action-btn:hover {
-            border-color: rgba(13,115,119,0.6);
-            background: #111f1f;
-        }
-
-        .action-btn.primary {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: white;
-        }
-
-        .action-btn.primary:hover { background: #0f9196; }
-
-        /* ── WINN CONTAINER ── */
+        /* ── WINN CHAT ── */
         #winn-container {
-            width: 100%;
-            max-width: 680px;
+            width: 100%; max-width: 680px;
             background: var(--bg-main);
             border: 0.5px solid var(--border-accent);
             border-radius: 12px;
@@ -264,395 +146,200 @@
             flex-direction: column;
             min-height: 560px;
         }
+        #winn-container.active { display: flex; }
 
-        /* ── HEADER ── */
         .winn-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             padding: 16px 24px;
             border-bottom: 0.5px solid var(--border-accent);
         }
+        .winn-logo { display: flex; align-items: center; gap: 10px; }
+        .winn-status { display: flex; align-items: center; gap: 14px; }
 
-        .winn-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .status-dot-wrap {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 11px; color: var(--accent-light); letter-spacing: 0.04em;
         }
-
-        .winn-status {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .winn-status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: var(--accent-light);
-            letter-spacing: 0.04em;
-        }
-
-        .winn-status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
+        .status-dot {
+            width: 6px; height: 6px; border-radius: 50%;
             background: var(--accent-light);
             animation: pulse 2.5s infinite ease-in-out;
         }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .founder-tag {
-            font-size: 11px;
-            color: var(--text-muted);
-            letter-spacing: 0.05em;
+        .user-tag {
+            font-size: 11px; color: var(--text-muted);
             padding: 3px 9px;
-            border: 0.5px solid var(--border-muted);
+            border: 0.5px solid rgba(13,115,119,0.2);
             border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
             cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
             transition: border-color 0.15s;
         }
+        .user-tag:hover { border-color: var(--border-accent); }
+        .user-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
 
-        .founder-tag:hover { border-color: var(--border-accent); }
-
-        .founder-tag-dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--accent);
-            flex-shrink: 0;
-        }
-
-        /* ── MESSAGES ── */
         .winn-messages {
-            flex: 1;
-            padding: 28px 24px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            overflow-y: auto;
-            min-height: 380px;
-            max-height: 420px;
+            flex: 1; padding: 28px 24px 16px;
+            display: flex; flex-direction: column; gap: 20px;
+            overflow-y: auto; min-height: 380px; max-height: 420px;
         }
-
         .session-marker {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 12px;
         }
+        .session-line { flex: 1; height: 0.5px; background: rgba(13,115,119,0.15); }
+        .session-text { font-size: 10px; color: var(--text-hint); letter-spacing: 0.1em; text-transform: uppercase; }
 
-        .session-line {
-            flex: 1;
-            height: 0.5px;
-            background: rgba(13,115,119,0.15);
-        }
-
-        .session-text {
-            font-size: 10px;
-            color: var(--text-hint);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        .msg {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            max-width: 82%;
-            animation: fadeUp 0.35s ease-out forwards;
-        }
-
+        .msg { display: flex; flex-direction: column; gap: 5px; max-width: 82%; animation: fadeUp 0.35s ease-out; }
         .msg.winn { align-self: flex-start; }
-        .msg.you { align-self: flex-end; }
-
-        .msg-label {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
+        .msg.user { align-self: flex-end; }
+        .msg-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
         .msg.winn .msg-label { color: var(--accent); }
-        .msg.you .msg-label { color: var(--text-muted); text-align: right; }
+        .msg.user .msg-label { color: var(--text-muted); text-align: right; }
+        .msg-bubble { padding: 13px 17px; border-radius: 10px; font-size: 15px; line-height: 1.65; }
+        .msg.winn .msg-bubble { background: var(--bg-surface); color: var(--text-main); border: 0.5px solid var(--border-accent); border-top-left-radius: 3px; }
+        .msg.user .msg-bubble { background: #131e1e; color: #b8cec8; border: 0.5px solid rgba(255,255,255,0.06); border-top-right-radius: 3px; }
 
-        .msg-bubble {
-            padding: 13px 17px;
-            border-radius: 10px;
-            font-size: 15px;
-            line-height: 1.65;
-        }
-
-        .msg.winn .msg-bubble {
-            background: var(--bg-surface);
-            color: var(--text-main);
-            border: 0.5px solid var(--border-accent);
-            border-top-left-radius: 3px;
-        }
-
-        .msg.you .msg-bubble {
-            background: #131e1e;
-            color: #b8cec8;
-            border: 0.5px solid rgba(255,255,255,0.06);
-            border-top-right-radius: 3px;
-        }
-
-        /* ── TYPING INDICATOR ── */
-        .typing-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            max-width: 82%;
-            align-self: flex-start;
-            animation: fadeUp 0.35s ease-out forwards;
-        }
-
-        .typing-bubble {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 13px 17px;
-            background: var(--bg-surface);
-            border: 0.5px solid var(--border-accent);
-            border-radius: 10px;
-            border-top-left-radius: 3px;
-            width: fit-content;
-        }
-
-        .dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--accent);
-            animation: blink 1.4s infinite ease-in-out;
-        }
-
+        .typing-wrap { display: flex; flex-direction: column; gap: 5px; max-width: 82%; align-self: flex-start; }
+        .typing-bubble { display: flex; align-items: center; gap: 5px; padding: 13px 17px; background: var(--bg-surface); border: 0.5px solid var(--border-accent); border-radius: 10px; border-top-left-radius: 3px; width: fit-content; }
+        .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: blink 1.4s infinite ease-in-out; }
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
 
-        @keyframes blink {
-            0%, 80%, 100% { opacity: 0.25; transform: scale(0.75); }
-            40% { opacity: 1; transform: scale(1); }
-        }
-
-        /* ── INPUT AREA ── */
         .winn-input-area {
             padding: 14px 20px 18px;
             border-top: 0.5px solid rgba(13,115,119,0.15);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            display: flex; flex-direction: column; gap: 10px;
         }
-
-        .input-row {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-
+        .input-row { display: flex; gap: 10px; align-items: flex-end; }
         .winn-input {
-            flex: 1;
-            background: var(--bg-surface);
+            flex: 1; background: var(--bg-surface);
             border: 0.5px solid var(--border-accent);
-            border-radius: 9px;
-            padding: 11px 15px;
-            font-size: 15px;
-            color: var(--text-main);
-            font-family: var(--font-stack);
-            resize: none;
-            outline: none;
-            line-height: 1.5;
-            min-height: 44px;
-            max-height: 120px;
+            border-radius: 9px; padding: 11px 15px;
+            font-size: 15px; color: var(--text-main);
+            font-family: var(--font); resize: none; outline: none;
+            line-height: 1.5; min-height: 44px; max-height: 120px;
             transition: border-color 0.15s;
         }
-
         .winn-input::placeholder { color: #283838; }
         .winn-input:focus { border-color: rgba(13,115,119,0.55); }
-
         .send-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 9px;
-            background: var(--accent);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: background 0.15s, transform 0.1s;
+            width: 42px; height: 42px; border-radius: 9px;
+            background: var(--accent); border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: background 0.15s, transform 0.1s;
         }
-
         .send-btn:hover { background: #0f9196; }
         .send-btn:active { transform: scale(0.95); }
         .send-btn:disabled { background: #162020; cursor: not-allowed; }
-
-        .send-btn svg {
-            width: 17px;
-            height: 17px;
-            fill: none;
-            stroke: white;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .input-hint {
-            font-size: 11px;
-            color: var(--text-hint);
-            text-align: center;
-            letter-spacing: 0.025em;
-        }
+        .send-btn svg { width: 17px; height: 17px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .input-hint { font-size: 11px; color: var(--text-hint); text-align: center; letter-spacing: 0.025em; }
 
         /* ── BUILD LOG ── */
-        .divider {
-            width: 100%;
-            max-width: 680px;
-            border: 0;
-            border-top: 0.5px solid #1a2f2f;
-            margin: 48px 0 40px;
-        }
-
-        .build-section {
-            width: 100%;
-            max-width: 680px;
-        }
-
-        .build-section h2 {
-            font-size: 1.1rem;
-            color: #fff;
-            margin-bottom: 28px;
-            letter-spacing: -0.01em;
-        }
-
-        .log-meta {
-            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
-            border: 0.5px solid #1a2f2f;
-            background: #0f1a1a;
-            padding: 3px 9px;
-            font-size: 0.68rem;
-            border-radius: 4px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-
-        .log-item {
-            margin-bottom: 32px;
-        }
-
-        .log-item h3 {
-            margin: 12px 0 5px 0;
-            font-size: 1rem;
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .log-item p {
-            color: var(--text-muted);
-            margin: 0;
-            font-size: 0.92rem;
-            line-height: 1.6;
-        }
-
+        .divider { width: 100%; max-width: 680px; border: 0; border-top: 0.5px solid #1a2f2f; margin: 48px 0 40px; }
+        .build-section { width: 100%; max-width: 680px; }
+        .build-section h2 { font-size: 1.1rem; color: #fff; margin-bottom: 28px; letter-spacing: -0.01em; }
+        .log-meta { font-family: monospace; border: 0.5px solid #1a2f2f; background: #0f1a1a; padding: 3px 9px; font-size: 0.68rem; border-radius: 4px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+        .log-item { margin-bottom: 32px; }
+        .log-item h3 { margin: 12px 0 5px; font-size: 1rem; color: #fff; font-weight: 600; }
+        .log-item p { color: var(--text-muted); margin: 0; font-size: 0.92rem; line-height: 1.6; }
         .future-log { opacity: 0.35; }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes blink { 0%, 80%, 100% { opacity: 0.25; transform: scale(0.75); } 40% { opacity: 1; transform: scale(1); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ── RESPONSIVE ── */
         @media (max-width: 480px) {
             body { padding: 24px 14px; }
+            .panel { padding: 32px 24px; }
             .winn-messages { max-height: 360px; }
             .msg { max-width: 92%; }
-            #identity-gate, #returning-panel { padding: 32px 24px; }
         }
     </style>
 </head>
 <body>
 
-    <img src="logo.png" alt="Winntelligence" class="main-logo">
+    <img src="logo.png" alt="Winntelligence" class="logo">
 
-    <!-- IDENTITY GATE: first-time visitors -->
-    <div id="identity-gate">
-        <div class="gate-header">
-            <div class="winn-logo-mark">W</div>
-            <span class="winn-logo-text">Winntelligence</span>
+    <!-- PANEL 1: EMAIL / MAGIC LINK -->
+    <div id="panel-email" class="panel">
+        <div class="panel-header">
+            <div class="w-mark">W</div>
+            <span class="w-label">Winntelligence</span>
         </div>
-        <div class="gate-prompt">
+        <div class="panel-title">
             Winn is here for venture builders.<br>
-            <span>Before we begin — what should Winn call you?</span>
+            <span>Enter your email to begin.</span>
         </div>
-        <div class="gate-input-row">
-            <input
-                class="gate-input"
-                id="nameInput"
-                type="text"
-                placeholder="Your first name or what you go by..."
-                autocomplete="off"
-                maxlength="40"
-            >
-            <button class="gate-btn" id="startBtn" onclick="handleStart()">Begin</button>
+        <input class="input-field" id="emailInput" type="email" placeholder="your@email.com" autocomplete="email">
+        <div class="btn-row">
+            <button class="btn btn-primary" id="emailBtn" onclick="handleEmail()">Send me a link</button>
         </div>
-        <div class="gate-note">Winn remembers you across visits. Your conversations stay in your browser.</div>
+        <div class="hint">Winn will send you a magic link. No password needed.</div>
     </div>
 
-    <!-- RETURNING USER PANEL -->
-    <div id="returning-panel">
-        <div class="winn-logo-mark" style="margin-bottom:4px;">W</div>
-        <div class="returning-greeting" id="returning-greeting"></div>
-        <div class="session-cards" id="session-cards"></div>
-        <div class="returning-actions">
-            <button class="action-btn primary" onclick="startNewSession()">Start a new conversation</button>
-            <button class="action-btn" onclick="clearIdentity()">Not you? Switch founder</button>
+    <!-- PANEL 2: MAGIC LINK SENT -->
+    <div id="panel-sent" class="panel">
+        <div class="panel-header">
+            <div class="w-mark">W</div>
+            <span class="w-label">Winntelligence</span>
+        </div>
+        <div class="panel-title">
+            Check your email.<br>
+            <span>Winn sent you a link. Click it to continue.</span>
+        </div>
+        <div class="hint">Didn't get it? Check your spam folder, or <a href="#" onclick="showPanel('panel-email')" style="color: var(--accent-pale);">try again</a>.</div>
+    </div>
+
+    <!-- PANEL 3: INTENTION QUESTION -->
+    <div id="panel-intention" class="panel">
+        <div class="panel-header">
+            <div class="w-mark">W</div>
+            <span class="w-label">Winntelligence</span>
+        </div>
+        <div class="panel-title" style="font-size: 22px; font-weight: 600; color: var(--accent-pale);">
+            Why are you here?
+        </div>
+        <textarea class="input-field" id="intentionInput" placeholder="Take your time." rows="4"></textarea>
+        <div class="btn-row">
+            <button class="btn btn-primary" id="intentionBtn" onclick="handleIntention()">Continue</button>
+        </div>
+        <div class="hint">There is no right answer. Winn is listening.</div>
+    </div>
+
+    <!-- PANEL 4: RETURNING USER -->
+    <div id="panel-returning" class="panel">
+        <div class="w-mark" style="margin-bottom: 4px;">W</div>
+        <div id="returning-greeting" class="panel-title"></div>
+        <div id="session-cards" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="startNewSession()">Start a new conversation</button>
+            <button class="btn btn-ghost" onclick="signOut()">Sign out</button>
         </div>
     </div>
 
-    <!-- WINN CONVERSATION INTERFACE -->
+    <!-- WINN CONVERSATION -->
     <div id="winn-container">
         <div class="winn-header">
             <div class="winn-logo">
-                <div class="winn-logo-mark">W</div>
-                <span class="winn-logo-text">Winntelligence</span>
+                <div class="w-mark">W</div>
+                <span class="w-label">Winntelligence</span>
             </div>
             <div class="winn-status">
-                <div class="founder-tag" id="founder-tag" onclick="goHome()" title="Session history">
-                    <div class="founder-tag-dot"></div>
-                    <span id="founder-tag-name"></span>
+                <div class="user-tag" id="user-tag" onclick="goHome()">
+                    <div class="user-tag-dot"></div>
+                    <span id="user-tag-name"></span>
                 </div>
-                <div class="winn-status-indicator">
-                    <div class="winn-status-dot"></div>
+                <div class="status-dot-wrap">
+                    <div class="status-dot"></div>
                     <span>Winn is here</span>
                 </div>
             </div>
         </div>
-
         <div class="winn-messages" id="messages"></div>
-
         <div class="winn-input-area">
             <div class="input-row">
-                <textarea
-                    class="winn-input"
-                    id="founderInput"
-                    placeholder="Tell Winn what you're building..."
-                    rows="1"
-                ></textarea>
+                <textarea class="winn-input" id="founderInput" placeholder="Tell Winn what you're building..." rows="1"></textarea>
                 <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-                    <svg viewBox="0 0 24 24">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
+                    <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
             </div>
             <div class="input-hint">This conversation is between you and Winn — honest, private, and in your corner.</div>
@@ -661,98 +348,87 @@
 
     <hr class="divider">
 
-    <!-- BUILD LOG -->
     <div class="build-section">
         <h2>Current Build Status</h2>
-
         <div class="log-item">
             <span class="log-meta">Online</span>
             <h3>Platform Data Integrations</h3>
             <p>Connected operational data pipelines from X, Substack, and Reddit directly into the repository infrastructure to track real-time market signals.</p>
         </div>
-
         <div class="log-item">
             <span class="log-meta">Online</span>
             <h3>Winn Diagnostic Agent</h3>
             <p>First version of the Winn coaching intelligence is live. The Diagnostic Agent asks the right questions in the right sequence — surfacing the prior question every venture builder needs to answer before anything else.</p>
         </div>
-
         <div class="log-item">
             <span class="log-meta">Online</span>
             <h3>Founder Memory Layer</h3>
-            <p>Winn now remembers you across visits. Your conversation history is stored locally in your browser — Winn picks up where you left off and tracks your prior questions over time.</p>
+            <p>Winn now remembers you across visits and across devices. Your conversation history is stored securely — Winn picks up where you left off and tracks your prior questions over time.</p>
         </div>
-
         <div class="log-item future-log">
             <span class="log-meta">Pending</span>
             <h3>Venture Repository — Pattern Nodes</h3>
-            <p>Encoding the first cohort of venture patterns into the repository DAG. Each node contains a pattern signature, prior question, intervention type, and outcome record. The repository compounds with every venture that runs through it.</p>
+            <p>Encoding the first cohort of venture patterns into the repository DAG. Each node contains a pattern signature, prior question, intervention type, and outcome record.</p>
         </div>
     </div>
 
     <script>
         // ── CONFIGURATION ──
         const WORKER_URL = 'https://winn-api.winn-3d3.workers.dev';
-        const STORAGE_KEY = 'winn_founder';
-        const SESSIONS_KEY = 'winn_sessions';
-
+        const SUPABASE_URL = 'https://vxwsldczrpvjkivepnlb.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4d3NsZGN6cnB2amtpdmVwbmxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNjY1MDQsImV4cCI6MjA5Njg0MjUwNH0.-zdYhVZiLuksy7r8ntijyIyKcBJquuaEeg5d-NH-FQI';
         // ── STATE ──
-        let currentFounder = null;
+        let currentUser = null;
         let currentSession = null;
         let history = [];
         let thinking = false;
+        let authToken = null;
 
-        // ── STORAGE HELPERS ──
-        function getFounder() {
-            try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); }
-            catch { return null; }
+        // ── SUPABASE AUTH HELPERS ──
+        function saveAuth(token, user) {
+            localStorage.setItem('winn_token', token);
+            localStorage.setItem('winn_user', JSON.stringify(user));
+            authToken = token;
+            currentUser = user;
         }
 
-        function saveFounder(data) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        function loadAuth() {
+            authToken = localStorage.getItem('winn_token');
+            const userStr = localStorage.getItem('winn_user');
+            if (userStr) {
+                try { currentUser = JSON.parse(userStr); } catch {}
+            }
         }
 
-        function getSessions() {
-            try { return JSON.parse(localStorage.getItem(SESSIONS_KEY)) || []; }
-            catch { return []; }
+        function clearAuth() {
+            localStorage.removeItem('winn_token');
+            localStorage.removeItem('winn_user');
+            localStorage.removeItem('winn_session');
+            authToken = null;
+            currentUser = null;
+            currentSession = null;
         }
 
-        function saveSessions(sessions) {
-            localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+        function saveSessionLocal(session) {
+            localStorage.setItem('winn_session', JSON.stringify(session));
         }
 
-        function saveCurrentSession() {
-            if (!currentSession || history.length === 0) return;
-            const sessions = getSessions();
-            const idx = sessions.findIndex(s => s.id === currentSession.id);
-            const updated = {
-                ...currentSession,
-                history: history,
-                lastMessage: history[history.length - 1]?.content?.slice(0, 100) || '',
-                updatedAt: new Date().toISOString(),
-                messageCount: history.length
-            };
-            if (idx >= 0) sessions[idx] = updated;
-            else sessions.unshift(updated);
-            // keep max 10 sessions
-            saveSessions(sessions.slice(0, 10));
+        function loadSessionLocal() {
+            const s = localStorage.getItem('winn_session');
+            try { return s ? JSON.parse(s) : null; } catch { return null; }
         }
 
-        function createNewSession(founderName) {
-            return {
-                id: Date.now().toString(),
-                founderName,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                history: [],
-                messageCount: 0,
-                lastMessage: ''
-            };
+        // ── PANEL HELPERS ──
+        function showPanel(id) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('winn-container').classList.remove('active');
+            if (id === 'winn') {
+                document.getElementById('winn-container').classList.add('active');
+            } else {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('active');
+            }
         }
-
-        // ── UI HELPERS ──
-        function show(id) { document.getElementById(id).style.display = 'flex'; }
-        function hide(id) { document.getElementById(id).style.display = 'none'; }
 
         function formatDate(iso) {
             const d = new Date(iso);
@@ -766,269 +442,340 @@
         }
 
         // ── INIT ──
-        function init() {
-            const founder = getFounder();
-            if (!founder) {
-                show('identity-gate');
-                document.getElementById('nameInput').focus();
-                document.getElementById('nameInput').addEventListener('keydown', e => {
-                    if (e.key === 'Enter') handleStart();
-                });
+        async function init() {
+            // Check for magic link token in URL
+            const hash = window.location.hash;
+            if (hash.includes('access_token')) {
+                await handleMagicLinkCallback(hash);
                 return;
             }
 
-            currentFounder = founder;
-            const sessions = getSessions().filter(s => s.founderName === founder.name);
+            loadAuth();
 
-            if (sessions.length === 0) {
-                startNewSession();
+            if (authToken) {
+                await loadUserAndSessions();
             } else {
-                showReturningPanel(founder, sessions);
+                showPanel('panel-email');
+                document.getElementById('emailInput').focus();
+                document.getElementById('emailInput').addEventListener('keydown', e => {
+                    if (e.key === 'Enter') handleEmail();
+                });
             }
         }
 
-        // ── FIRST TIME START ──
-        function handleStart() {
-            const name = document.getElementById('nameInput').value.trim();
-            if (!name) return;
-            const founder = { name, createdAt: new Date().toISOString() };
-            saveFounder(founder);
-            currentFounder = founder;
-            hide('identity-gate');
-            startNewSession();
+        // ── MAGIC LINK CALLBACK ──
+        async function handleMagicLinkCallback(hash) {
+            const params = new URLSearchParams(hash.replace('#', ''));
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+
+            if (!accessToken) {
+                showPanel('panel-email');
+                return;
+            }
+
+            // Get user from Supabase
+            try {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'apikey': SUPABASE_ANON_KEY,
+                    }
+                });
+
+                if (!response.ok) throw new Error('Auth failed');
+                const userData = await response.json();
+
+                saveAuth(accessToken, userData);
+
+                // Clean URL
+                window.history.replaceState(null, '', window.location.pathname);
+
+                await loadUserAndSessions();
+
+            } catch (err) {
+                console.error('Auth error:', err);
+                showPanel('panel-email');
+            }
+        }
+
+        // ── LOAD USER AND SESSIONS ──
+        async function loadUserAndSessions() {
+            try {
+                const response = await fetch(`${WORKER_URL}/sessions/list`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!response.ok) {
+                    clearAuth();
+                    showPanel('panel-email');
+                    return;
+                }
+
+                const data = await response.json();
+                currentUser = data.user;
+
+                // Check if intention is set
+                if (!currentUser.intention) {
+                    showPanel('panel-intention');
+                    document.getElementById('intentionInput').focus();
+                    return;
+                }
+
+                // Show returning panel
+                showReturningPanel(data.user, data.sessions);
+
+            } catch (err) {
+                console.error('Load error:', err);
+                showPanel('panel-email');
+            }
+        }
+
+        // ── HANDLE EMAIL ──
+        async function handleEmail() {
+            const email = document.getElementById('emailInput').value.trim();
+            if (!email) return;
+
+            const btn = document.getElementById('emailBtn');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            try {
+                const response = await fetch(`${WORKER_URL}/auth/magic-link`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                if (!response.ok) throw new Error('Failed to send');
+
+                showPanel('panel-sent');
+
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Send me a link';
+                alert('Something went wrong. Please try again.');
+            }
+        }
+
+        // ── HANDLE INTENTION ──
+        async function handleIntention() {
+            const intention = document.getElementById('intentionInput').value.trim();
+            if (!intention) return;
+
+            const btn = document.getElementById('intentionBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                await fetch(`${WORKER_URL}/user/intention`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ intention })
+                });
+
+                currentUser.intention = intention;
+                await loadUserAndSessions();
+
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Continue';
+            }
         }
 
         // ── RETURNING PANEL ──
-        function showReturningPanel(founder, sessions) {
+        function showReturningPanel(user, sessions) {
             const greeting = document.getElementById('returning-greeting');
             const now = new Date().getHours();
             const timeword = now < 12 ? 'morning' : now < 17 ? 'afternoon' : 'evening';
-            greeting.innerHTML = `Good ${timeword}, <strong>${founder.name}</strong>. Winn is here.<br><br>You have ${sessions.length} conversation${sessions.length !== 1 ? 's' : ''} in the repository. Pick up where you left off, or start something new.`;
+            const name = user.name || user.email.split('@')[0];
+
+            greeting.innerHTML = `Good ${timeword}, <strong style="color: var(--accent-pale)">${name}</strong>. Winn is here.<br><br>${sessions.length > 0 ? `You have ${sessions.length} conversation${sessions.length !== 1 ? 's' : ''} in the repository. Pick up where you left off, or start something new.` : 'Ready to begin your first conversation.'}`;
 
             const cards = document.getElementById('session-cards');
             cards.innerHTML = '';
-            sessions.slice(0, 3).forEach(session => {
+
+            sessions.slice(0, 3).forEach((session, i) => {
                 const card = document.createElement('div');
                 card.className = 'session-card';
                 card.onclick = () => resumeSession(session);
-                const sessionNum = sessions.indexOf(session) + 1;
                 card.innerHTML = `
-                    <span class="session-card-label">Session ${sessionNum} · ${formatDate(session.updatedAt)}</span>
-                    <div class="session-card-title">${session.messageCount} exchange${session.messageCount !== 1 ? 's' : ''}</div>
-                    ${session.lastMessage ? `<div class="session-card-preview">"${session.lastMessage}..."</div>` : ''}
+                    <span class="session-card-label">Session ${i + 1} · ${formatDate(session.updated_at)}</span>
+                    <div class="session-card-title">${session.title || 'Conversation'}</div>
+                    <div class="session-card-meta">${session.message_count || 0} exchange${session.message_count !== 1 ? 's' : ''}</div>
+                    ${session.last_message_preview ? `<div class="session-card-preview">"${session.last_message_preview}..."</div>` : ''}
                 `;
                 cards.appendChild(card);
             });
 
-            hide('identity-gate');
-            show('returning-panel');
+            showPanel('panel-returning');
         }
 
         // ── RESUME SESSION ──
         function resumeSession(session) {
             currentSession = session;
-            history = session.history || [];
-            hide('returning-panel');
-            openWinnContainer(true);
+            history = [];
+            saveSessionLocal(session);
+            openWinn(true);
         }
 
         // ── NEW SESSION ──
         function startNewSession() {
-            hide('identity-gate');
-            hide('returning-panel');
-            currentSession = createNewSession(currentFounder.name);
+            currentSession = null;
             history = [];
-            openWinnContainer(false);
+            openWinn(false);
         }
 
-        // ── OPEN WINN INTERFACE ──
-        function openWinnContainer(isResume) {
+        // ── OPEN WINN ──
+        function openWinn(isResume) {
             const messagesEl = document.getElementById('messages');
             messagesEl.innerHTML = '';
 
-            // session marker
-            const sessions = getSessions().filter(s => s.founderName === currentFounder.name);
-            const sessionNum = isResume
-                ? sessions.findIndex(s => s.id === currentSession.id) + 1
-                : sessions.length + 1;
+            const name = currentUser ? (currentUser.name || currentUser.email.split('@')[0]) : 'You';
+            document.getElementById('user-tag-name').textContent = name;
 
+            // Session marker
             const marker = document.createElement('div');
             marker.className = 'session-marker';
-            marker.innerHTML = `
-                <div class="session-line"></div>
-                <span class="session-text">Session ${sessionNum}</span>
-                <div class="session-line"></div>
-            `;
+            marker.innerHTML = `<div class="session-line"></div><span class="session-text">${isResume ? 'Continuing' : 'Session'}</span><div class="session-line"></div>`;
             messagesEl.appendChild(marker);
 
-            // founder tag in header
-            document.getElementById('founder-tag-name').textContent = currentFounder.name;
+            showPanel('winn');
 
-            show('winn-container');
-
-            if (isResume && history.length > 0) {
-                // replay history into UI
-                history.forEach(msg => {
-                    addMessageToUI(msg.role === 'user' ? 'you' : 'winn', msg.content, false);
-                });
-                // Winn picks up where it left off
-                addWinnPickup();
+            if (!isResume) {
+                addMsg('winn', "Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.");
             } else {
-                // fresh greeting
-                addMessageToUI('winn', `Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.`, true);
+                addMsg('winn', "Winn is here. Pick up where you left off.");
             }
 
             setupInput();
         }
 
-        // ── WINN PICKUP MESSAGE FOR RETURNING ──
-        async function addWinnPickup() {
-            showTyping();
-            const resumePrompt = [{
-                role: 'user',
-                content: `[SYSTEM: The founder ${currentFounder.name} has returned to continue this conversation. Briefly acknowledge you remember where they left off, reference something specific from the conversation, and invite them to continue. Keep it to 2-3 sentences. Do not repeat the opening greeting.]`
-            }];
-            try {
-                const res = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: [...history, ...resumePrompt] }),
-                });
-                const data = await res.json();
-                removeTyping();
-                if (res.ok) {
-                    const reply = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
-                    addMessageToUI('winn', reply, true);
-                }
-            } catch {
-                removeTyping();
-            }
-        }
-
-        // ── GO HOME (header click) ──
+        // ── GO HOME ──
         function goHome() {
-            saveCurrentSession();
-            hide('winn-container');
-            const sessions = getSessions().filter(s => s.founderName === currentFounder.name);
-            showReturningPanel(currentFounder, sessions);
+            loadUserAndSessions();
         }
 
-        // ── CLEAR IDENTITY ──
-        function clearIdentity() {
-            saveCurrentSession();
-            localStorage.removeItem(STORAGE_KEY);
-            hide('returning-panel');
-            hide('winn-container');
-            document.getElementById('nameInput').value = '';
-            show('identity-gate');
-            document.getElementById('nameInput').focus();
+        // ── SIGN OUT ──
+        async function signOut() {
+            try {
+                await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'apikey': SUPABASE_ANON_KEY,
+                    }
+                });
+            } catch {}
+            clearAuth();
+            showPanel('panel-email');
         }
+
+        // ── ADD MESSAGE ──
+        function addMsg(role, text, animate = true) {
+            const isWinn = role === 'winn';
+            const name = currentUser ? (currentUser.name || currentUser.email.split('@')[0]) : 'You';
+            const div = document.createElement('div');
+            div.className = `msg ${isWinn ? 'winn' : 'user'}`;
+            if (!animate) div.style.animation = 'none';
+            div.innerHTML = `
+                <span class="msg-label">${isWinn ? 'Winn' : name}</span>
+                <div class="msg-bubble">${text.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</div>
+            `;
+            const el = document.getElementById('messages');
+            el.appendChild(div);
+            el.scrollTop = el.scrollHeight;
+        }
+
+        // ── TYPING ──
+        function showTyping() {
+            const div = document.createElement('div');
+            div.className = 'typing-wrap'; div.id = 'typing';
+            div.innerHTML = `<span class="msg-label" style="color:#0D7377;font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Winn</span><div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+            const el = document.getElementById('messages');
+            el.appendChild(div);
+            el.scrollTop = el.scrollHeight;
+        }
+        function removeTyping() { const el = document.getElementById('typing'); if (el) el.remove(); }
 
         // ── SETUP INPUT ──
         function setupInput() {
-            const inputEl = document.getElementById('founderInput');
-            inputEl.value = '';
-            inputEl.style.height = 'auto';
-            inputEl.focus();
-
-            inputEl.addEventListener('input', function() {
+            const input = document.getElementById('founderInput');
+            input.value = ''; input.style.height = 'auto'; input.focus();
+            input.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 120) + 'px';
             });
-
-            inputEl.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
             });
-        }
-
-        // ── ADD MESSAGE TO UI ──
-        function addMessageToUI(role, text, animate) {
-            const isWinn = role === 'winn';
-            const div = document.createElement('div');
-            div.className = `msg ${isWinn ? 'winn' : 'you'}`;
-            if (!animate) div.style.animation = 'none';
-            div.innerHTML = `
-                <span class="msg-label">${isWinn ? 'Winn' : currentFounder.name}</span>
-                <div class="msg-bubble">${text.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</div>
-            `;
-            const messagesEl = document.getElementById('messages');
-            messagesEl.appendChild(div);
-            messagesEl.scrollTop = messagesEl.scrollHeight;
-        }
-
-        // ── TYPING INDICATOR ──
-        function showTyping() {
-            const div = document.createElement('div');
-            div.className = 'typing-wrap';
-            div.id = 'typing';
-            div.innerHTML = `
-                <span class="msg-label" style="color: #0D7377; font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;">Winn</span>
-                <div class="typing-bubble">
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                </div>
-            `;
-            const messagesEl = document.getElementById('messages');
-            messagesEl.appendChild(div);
-            messagesEl.scrollTop = messagesEl.scrollHeight;
-        }
-
-        function removeTyping() {
-            const el = document.getElementById('typing');
-            if (el) el.remove();
         }
 
         // ── SEND MESSAGE ──
         async function sendMessage() {
-            const inputEl = document.getElementById('founderInput');
-            const sendBtn = document.getElementById('sendBtn');
-            const text = inputEl.value.trim();
+            const input = document.getElementById('founderInput');
+            const btn = document.getElementById('sendBtn');
+            const text = input.value.trim();
             if (!text || thinking) return;
 
-            inputEl.value = '';
-            inputEl.style.height = 'auto';
-            thinking = true;
-            sendBtn.disabled = true;
+            input.value = ''; input.style.height = 'auto';
+            thinking = true; btn.disabled = true;
 
-            addMessageToUI('you', text, true);
+            addMsg('user', text);
             history.push({ role: 'user', content: text });
             showTyping();
 
             try {
+                const headers = { 'Content-Type': 'application/json' };
+                if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+
                 const res = await fetch(WORKER_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: history }),
+                    headers,
+                    body: JSON.stringify({
+                        messages: history,
+                        sessionId: currentSession?.id || null,
+                        newSession: !currentSession
+                    })
                 });
 
                 const data = await res.json();
                 removeTyping();
 
                 if (!res.ok) {
-                    addMessageToUI('winn', "Something went wrong on my end. Try again in a moment.", true);
+                    addMsg('winn', "Something went wrong on my end. Try again in a moment.");
                     history.pop();
                 } else {
                     const reply = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
                     history.push({ role: 'assistant', content: reply });
-                    addMessageToUI('winn', reply, true);
-                    saveCurrentSession();
+                    addMsg('winn', reply);
+
+                    // Store session ID from server
+                    if (data.sessionId && !currentSession) {
+                        currentSession = { id: data.sessionId };
+                        saveSessionLocal(currentSession);
+                    }
                 }
             } catch {
                 removeTyping();
-                addMessageToUI('winn', "Something went wrong on my end. Try again in a moment.", true);
+                addMsg('winn', "Something went wrong on my end. Try again in a moment.");
                 history.pop();
             }
 
-            thinking = false;
-            sendBtn.disabled = false;
-            inputEl.focus();
+            thinking = false; btn.disabled = false;
+            document.getElementById('founderInput').focus();
         }
 
         // ── BOOT ──
         init();
     </script>
-
 </body>
 </html>
