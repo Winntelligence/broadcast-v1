@@ -31,7 +31,6 @@
         }
         .logo { width: 100%; max-width: 480px; height: auto; margin-bottom: 48px; display: block; }
 
-        /* ── PANELS ── */
         .panel {
             width: 100%; max-width: 680px;
             background: var(--bg-main);
@@ -112,7 +111,6 @@
 
         .hint { font-size: 12px; color: var(--text-hint); letter-spacing: 0.025em; }
 
-        /* ── SESSION CARDS ── */
         .session-card {
             background: var(--bg-surface);
             border: 0.5px solid var(--border-accent);
@@ -135,7 +133,6 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        /* ── WINN CHAT ── */
         #winn-container {
             width: 100%; max-width: 680px;
             background: var(--bg-main);
@@ -233,7 +230,6 @@
         .send-btn svg { width: 17px; height: 17px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .input-hint { font-size: 11px; color: var(--text-hint); text-align: center; letter-spacing: 0.025em; }
 
-        /* ── BUILD LOG ── */
         .divider { width: 100%; max-width: 680px; border: 0; border-top: 0.5px solid #1a2f2f; margin: 48px 0 40px; }
         .build-section { width: 100%; max-width: 680px; }
         .build-section h2 { font-size: 1.1rem; color: #fff; margin-bottom: 28px; letter-spacing: -0.01em; }
@@ -373,18 +369,16 @@
     </div>
 
     <script>
-        // ── CONFIGURATION ──
         const WORKER_URL = 'https://winn-api.winn-3d3.workers.dev';
         const SUPABASE_URL = 'https://vxwsldczrpvjkivepnlb.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4d3NsZGN6cnB2amtpdmVwbmxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNjY1MDQsImV4cCI6MjA5Njg0MjUwNH0.-zdYhVZiLuksy7r8ntijyIyKcBJquuaEeg5d-NH-FQI';
-        // ── STATE ──
+
         let currentUser = null;
         let currentSession = null;
         let history = [];
         let thinking = false;
         let authToken = null;
 
-        // ── SUPABASE AUTH HELPERS ──
         function saveAuth(token, user) {
             localStorage.setItem('winn_token', token);
             localStorage.setItem('winn_user', JSON.stringify(user));
@@ -418,7 +412,6 @@
             try { return s ? JSON.parse(s) : null; } catch { return null; }
         }
 
-        // ── PANEL HELPERS ──
         function showPanel(id) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.getElementById('winn-container').classList.remove('active');
@@ -442,26 +435,32 @@
         }
 
         // ── INIT ──
-async function init() {
-    // Check for magic link token in URL
-    const hash = window.location.hash;
-    if (hash.includes('access_token')) {
-        await handleMagicLinkCallback(hash);
-        return;
-    }
-    if (hash.includes('error=')) {
-        const params = new URLSearchParams(hash.replace('#', ''));
-        const errorDesc = params.get('error_description') || 'Link expired';
-        window.history.replaceState(null, '', window.location.pathname);
-        showPanel('panel-email');
-        loadAuth();
-        if (authToken) { await loadUserAndSessions(); return; }
-        alert('Your link expired. Please request a new one.');
-        return;
-    }
+        async function init() {
+            const hash = window.location.hash;
+
+            // Handle error in hash
+            if (hash.includes('error=')) {
+                const params = new URLSearchParams(hash.replace('#', ''));
+                window.history.replaceState(null, '', window.location.pathname);
+                loadAuth();
+                if (authToken) { await loadUserAndSessions(); return; }
+                showPanel('panel-email');
+                return;
+            }
+
+            // Handle token_hash from our custom email hook
+            if (hash.includes('token_hash=')) {
+                await handleTokenHash(hash);
+                return;
+            }
+
+            // Handle access_token from Supabase direct flow
+            if (hash.includes('access_token=')) {
+                await handleAccessToken(hash);
+                return;
+            }
 
             loadAuth();
-
             if (authToken) {
                 await loadUserAndSessions();
             } else {
@@ -473,18 +472,50 @@ async function init() {
             }
         }
 
-        // ── MAGIC LINK CALLBACK ──
-        async function handleMagicLinkCallback(hash) {
+        // ── HANDLE TOKEN HASH (from our Resend email hook) ──
+        async function handleTokenHash(hash) {
+            const params = new URLSearchParams(hash.replace('#', ''));
+            const tokenHash = params.get('token_hash');
+            const type = params.get('type') || 'magiclink';
+
+            if (!tokenHash) {
+                showPanel('panel-email');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                    },
+                    body: JSON.stringify({ token_hash: tokenHash, type })
+                });
+
+                if (!response.ok) throw new Error('Verify failed');
+                const data = await response.json();
+
+                saveAuth(data.access_token, data.user);
+                window.history.replaceState(null, '', window.location.pathname);
+                await loadUserAndSessions();
+
+            } catch (err) {
+                console.error('Token hash verify error:', err);
+                showPanel('panel-email');
+            }
+        }
+
+        // ── HANDLE ACCESS TOKEN (from Supabase direct flow) ──
+        async function handleAccessToken(hash) {
             const params = new URLSearchParams(hash.replace('#', ''));
             const accessToken = params.get('access_token');
-            const refreshToken = params.get('refresh_token');
 
             if (!accessToken) {
                 showPanel('panel-email');
                 return;
             }
 
-            // Get user from Supabase
             try {
                 const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
                     headers: {
@@ -497,10 +528,7 @@ async function init() {
                 const userData = await response.json();
 
                 saveAuth(accessToken, userData);
-
-                // Clean URL
                 window.history.replaceState(null, '', window.location.pathname);
-
                 await loadUserAndSessions();
 
             } catch (err) {
@@ -530,14 +558,12 @@ async function init() {
                 const data = await response.json();
                 currentUser = data.user;
 
-                // Check if intention is set
                 if (!currentUser.intention) {
                     showPanel('panel-intention');
                     document.getElementById('intentionInput').focus();
                     return;
                 }
 
-                // Show returning panel
                 showReturningPanel(data.user, data.sessions);
 
             } catch (err) {
@@ -563,7 +589,6 @@ async function init() {
                 });
 
                 if (!response.ok) throw new Error('Failed to send');
-
                 showPanel('panel-sent');
 
             } catch (err) {
@@ -629,7 +654,6 @@ async function init() {
             showPanel('panel-returning');
         }
 
-        // ── RESUME SESSION ──
         function resumeSession(session) {
             currentSession = session;
             history = [];
@@ -637,14 +661,12 @@ async function init() {
             openWinn(true);
         }
 
-        // ── NEW SESSION ──
         function startNewSession() {
             currentSession = null;
             history = [];
             openWinn(false);
         }
 
-        // ── OPEN WINN ──
         function openWinn(isResume) {
             const messagesEl = document.getElementById('messages');
             messagesEl.innerHTML = '';
@@ -652,7 +674,6 @@ async function init() {
             const name = currentUser ? (currentUser.name || currentUser.email.split('@')[0]) : 'You';
             document.getElementById('user-tag-name').textContent = name;
 
-            // Session marker
             const marker = document.createElement('div');
             marker.className = 'session-marker';
             marker.innerHTML = `<div class="session-line"></div><span class="session-text">${isResume ? 'Continuing' : 'Session'}</span><div class="session-line"></div>`;
@@ -669,12 +690,10 @@ async function init() {
             setupInput();
         }
 
-        // ── GO HOME ──
         function goHome() {
             loadUserAndSessions();
         }
 
-        // ── SIGN OUT ──
         async function signOut() {
             try {
                 await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
@@ -689,7 +708,6 @@ async function init() {
             showPanel('panel-email');
         }
 
-        // ── ADD MESSAGE ──
         function addMsg(role, text, animate = true) {
             const isWinn = role === 'winn';
             const name = currentUser ? (currentUser.name || currentUser.email.split('@')[0]) : 'You';
@@ -705,7 +723,6 @@ async function init() {
             el.scrollTop = el.scrollHeight;
         }
 
-        // ── TYPING ──
         function showTyping() {
             const div = document.createElement('div');
             div.className = 'typing-wrap'; div.id = 'typing';
@@ -716,7 +733,6 @@ async function init() {
         }
         function removeTyping() { const el = document.getElementById('typing'); if (el) el.remove(); }
 
-        // ── SETUP INPUT ──
         function setupInput() {
             const input = document.getElementById('founderInput');
             input.value = ''; input.style.height = 'auto'; input.focus();
@@ -729,7 +745,6 @@ async function init() {
             });
         }
 
-        // ── SEND MESSAGE ──
         async function sendMessage() {
             const input = document.getElementById('founderInput');
             const btn = document.getElementById('sendBtn');
@@ -768,7 +783,6 @@ async function init() {
                     history.push({ role: 'assistant', content: reply });
                     addMsg('winn', reply);
 
-                    // Store session ID from server
                     if (data.sessionId && !currentSession) {
                         currentSession = { id: data.sessionId };
                         saveSessionLocal(currentSession);
@@ -784,7 +798,6 @@ async function init() {
             document.getElementById('founderInput').focus();
         }
 
-        // ── BOOT ──
         init();
     </script>
 </body>
