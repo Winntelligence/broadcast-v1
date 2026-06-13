@@ -442,13 +442,23 @@
         }
 
         // ── INIT ──
-        async function init() {
-            // Check for magic link token in URL
-            const hash = window.location.hash;
-            if (hash.includes('access_token')) {
-                await handleMagicLinkCallback(hash);
-                return;
-            }
+async function init() {
+    // Check for magic link token in URL
+    const hash = window.location.hash;
+    if (hash.includes('access_token')) {
+        await handleMagicLinkCallback(hash);
+        return;
+    }
+    if (hash.includes('error=')) {
+        const params = new URLSearchParams(hash.replace('#', ''));
+        const errorDesc = params.get('error_description') || 'Link expired';
+        window.history.replaceState(null, '', window.location.pathname);
+        showPanel('panel-email');
+        loadAuth();
+        if (authToken) { await loadUserAndSessions(); return; }
+        alert('Your link expired. Please request a new one.');
+        return;
+    }
 
             loadAuth();
 
