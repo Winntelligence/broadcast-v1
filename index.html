@@ -464,8 +464,37 @@
             return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
 
+        // ── HANDLE OAUTH CODE (PKCE flow) ──
+        async function handleOAuthCode(code) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=pkce`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'apikey': SUPABASE_ANON_KEY,
+                    },
+                    body: `auth_code=${encodeURIComponent(code)}&code_verifier=`
+                });
+
+                if (!response.ok) throw new Error('Code exchange failed');
+                const data = await response.json();
+                saveAuth(data.access_token, data.user);
+                window.history.replaceState(null, '', window.location.pathname);
+                await loadUserAndSessions();
+
+            } catch (err) {
+                console.error('OAuth code error:', err);
+                showPanel('panel-email');
+            }
+        }
+
         // ── INIT ──
         async function init() {
+            // Handle PKCE OAuth callback (code in query string)
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            if (code) { await handleOAuthCode(code); return; }
+
             const hash = window.location.hash;
 
             // Handle error in hash
@@ -503,7 +532,7 @@
 
         // ── GOOGLE SIGN IN ──
         function handleGoogleSignIn() {
-           const redirectUrl = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent('https://winntelligence.ai')}&flow_type=implicit`;
+            const redirectUrl = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent('https://winntelligence.ai')}`;
             window.location.href = redirectUrl;
         }
 
