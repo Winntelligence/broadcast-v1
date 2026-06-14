@@ -111,6 +111,27 @@
 
         .hint { font-size: 12px; color: var(--text-hint); letter-spacing: 0.025em; }
 
+        .divider-line {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .divider-line-bar { flex: 1; height: 0.5px; background: rgba(13,115,119,0.2); }
+        .divider-line-text { font-size: 11px; color: #2a4040; }
+
+        .btn-google {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 13px 24px;
+            border-radius: 9px;
+            border: 0.5px solid var(--border-accent);
+            background: transparent;
+            color: var(--accent-pale);
+            font-size: 14px; font-weight: 500;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            letter-spacing: 0.02em;
+        }
+        .btn-google:hover { background: #111f1f; border-color: rgba(13,115,119,0.6); }
+
         .session-card {
             background: var(--bg-surface);
             border: 0.5px solid var(--border-accent);
@@ -230,7 +251,7 @@
         .send-btn svg { width: 17px; height: 17px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .input-hint { font-size: 11px; color: var(--text-hint); text-align: center; letter-spacing: 0.025em; }
 
-        .divider { width: 100%; max-width: 680px; border: 0; border-top: 0.5px solid #1a2f2f; margin: 48px 0 40px; }
+        .page-divider { width: 100%; max-width: 680px; border: 0; border-top: 0.5px solid #1a2f2f; margin: 48px 0 40px; }
         .build-section { width: 100%; max-width: 680px; }
         .build-section h2 { font-size: 1.1rem; color: #fff; margin-bottom: 28px; letter-spacing: -0.01em; }
         .log-meta { font-family: monospace; border: 0.5px solid #1a2f2f; background: #0f1a1a; padding: 3px 9px; font-size: 0.68rem; border-radius: 4px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
@@ -255,7 +276,7 @@
 
     <img src="logo.png" alt="Winntelligence" class="logo">
 
-    <!-- PANEL 1: EMAIL / MAGIC LINK -->
+    <!-- PANEL 1: EMAIL / MAGIC LINK + GOOGLE -->
     <div id="panel-email" class="panel">
         <div class="panel-header">
             <div class="w-mark">W</div>
@@ -264,6 +285,20 @@
         <div class="panel-title">
             Winn is here for venture builders.<br>
             <span>Enter your email to begin.</span>
+        </div>
+        <button class="btn-google" onclick="handleGoogleSignIn()">
+            <svg width="16" height="16" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Sign in with Google
+        </button>
+        <div class="divider-line">
+            <div class="divider-line-bar"></div>
+            <span class="divider-line-text">or use email</span>
+            <div class="divider-line-bar"></div>
         </div>
         <input class="input-field" id="emailInput" type="email" placeholder="your@email.com" autocomplete="email">
         <div class="btn-row">
@@ -342,7 +377,7 @@
         </div>
     </div>
 
-    <hr class="divider">
+    <hr class="page-divider">
 
     <div class="build-section">
         <h2>Current Build Status</h2>
@@ -407,11 +442,6 @@
             localStorage.setItem('winn_session', JSON.stringify(session));
         }
 
-        function loadSessionLocal() {
-            const s = localStorage.getItem('winn_session');
-            try { return s ? JSON.parse(s) : null; } catch { return null; }
-        }
-
         function showPanel(id) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.getElementById('winn-container').classList.remove('active');
@@ -440,7 +470,6 @@
 
             // Handle error in hash
             if (hash.includes('error=')) {
-                const params = new URLSearchParams(hash.replace('#', ''));
                 window.history.replaceState(null, '', window.location.pathname);
                 loadAuth();
                 if (authToken) { await loadUserAndSessions(); return; }
@@ -448,13 +477,13 @@
                 return;
             }
 
-            // Handle token_hash from our custom email hook
+            // Handle token_hash from Resend email hook
             if (hash.includes('token_hash=')) {
                 await handleTokenHash(hash);
                 return;
             }
 
-            // Handle access_token from Supabase direct flow
+            // Handle access_token from OAuth or Supabase direct flow
             if (hash.includes('access_token=')) {
                 await handleAccessToken(hash);
                 return;
@@ -472,16 +501,19 @@
             }
         }
 
-        // ── HANDLE TOKEN HASH (from our Resend email hook) ──
+        // ── GOOGLE SIGN IN ──
+        function handleGoogleSignIn() {
+            const redirectUrl = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent('https://winntelligence.ai')}`;
+            window.location.href = redirectUrl;
+        }
+
+        // ── HANDLE TOKEN HASH (from Resend email hook) ──
         async function handleTokenHash(hash) {
             const params = new URLSearchParams(hash.replace('#', ''));
             const tokenHash = params.get('token_hash');
             const type = params.get('type') || 'magiclink';
 
-            if (!tokenHash) {
-                showPanel('panel-email');
-                return;
-            }
+            if (!tokenHash) { showPanel('panel-email'); return; }
 
             try {
                 const response = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
@@ -495,7 +527,6 @@
 
                 if (!response.ok) throw new Error('Verify failed');
                 const data = await response.json();
-
                 saveAuth(data.access_token, data.user);
                 window.history.replaceState(null, '', window.location.pathname);
                 await loadUserAndSessions();
@@ -506,15 +537,12 @@
             }
         }
 
-        // ── HANDLE ACCESS TOKEN (from Supabase direct flow) ──
+        // ── HANDLE ACCESS TOKEN (OAuth + Supabase direct) ──
         async function handleAccessToken(hash) {
             const params = new URLSearchParams(hash.replace('#', ''));
             const accessToken = params.get('access_token');
 
-            if (!accessToken) {
-                showPanel('panel-email');
-                return;
-            }
+            if (!accessToken) { showPanel('panel-email'); return; }
 
             try {
                 const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
@@ -526,7 +554,6 @@
 
                 if (!response.ok) throw new Error('Auth failed');
                 const userData = await response.json();
-
                 saveAuth(accessToken, userData);
                 window.history.replaceState(null, '', window.location.pathname);
                 await loadUserAndSessions();
@@ -690,9 +717,7 @@
             setupInput();
         }
 
-        function goHome() {
-            loadUserAndSessions();
-        }
+        function goHome() { loadUserAndSessions(); }
 
         async function signOut() {
             try {
