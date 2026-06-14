@@ -503,7 +503,7 @@
 
         // ── GOOGLE SIGN IN ──
         function handleGoogleSignIn() {
-            const redirectUrl = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent('https://winntelligence.ai')}`;
+           const redirectUrl = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent('https://winntelligence.ai')}&flow_type=implicit`;
             window.location.href = redirectUrl;
         }
 
