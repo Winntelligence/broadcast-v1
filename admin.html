@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winntelligence // Admin</title>
+    <style>
+        :root {
+            --bg-main: #0a0f0f;
+            --bg-surface: #0f1a1a;
+            --bg-card: #101d1d;
+            --border-muted: #1a2f2f;
+            --border-accent: rgba(13,115,119,0.3);
+            --text-main: #e8f5f0;
+            --text-muted: #5a7a7a;
+            --text-hint: #2a4040;
+            --accent: #0D7377;
+            --accent-light: #5DCAA5;
+            --accent-pale: #9FE1CB;
+            --red: #e05252;
+            --yellow: #d4a843;
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: var(--font-stack);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── AUTH GATE ── */
+        #auth-gate {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            gap: 32px;
+        }
+
+        .auth-box {
+            width: 100%;
+            max-width: 420px;
+            background: var(--bg-surface);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 12px;
+            padding: 40px 36px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .auth-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .winn-mark {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .auth-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-pale);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .auth-prompt {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .btn-google {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: var(--bg-main);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 8px;
+            padding: 13px 20px;
+            font-size: 14px;
+            color: var(--text-main);
+            cursor: pointer;
+            font-family: var(--font-stack);
+            transition: border-color 0.2s, background 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-google:hover {
+            border-color: var(--accent);
+            background: rgba(13,115,119,0.06);
+        }
+
+        .auth-error {
+            font-size: 13px;
+            color: var(--red);
+            text-align: center;
+            display: none;
+        }
+
+        /* ── DASHBOARD ── */
+        #dashboard {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            border-bottom: 0.5px solid var(--border-accent);
+            position: sticky;
+            top: 0;
+            background: var(--bg-main);
+            z-index: 10;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-pale);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .topbar-badge {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-hint);
+            background: var(--bg-surface);
+            border: 0.5px solid var(--border-muted);
+            border-radius: 4px;
+            padding: 2px 8px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-user {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .btn-signout {
+            font-size: 12px;
+            color: var(--text-hint);
+            background: none;
+            border: 0.5px solid var(--border-muted);
+            border-radius: 6px;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-family: var(--font-stack);
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .btn-signout:hover {
+            color: var(--text-muted);
+            border-color: var(--text-hint);
+        }
+
+        .refresh-btn {
+            font-size: 12px;
+            color: var(--accent-light);
+            background: none;
+            border: 0.5px solid var(--border-accent);
+            border-radius: 6px;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-family: var(--font-stack);
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover { background: rgba(13,115,119,0.08); }
+
+        /* ── MAIN CONTENT ── */
+        .dashboard-content {
+            padding: 32px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        /* ── SECTION LABEL ── */
+        .section-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-hint);
+            margin-bottom: 14px;
+        }
+
+        /* ── STAT CARDS ── */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 10px;
+            padding: 22px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--accent-pale);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-sub {
+            font-size: 12px;
+            color: var(--text-hint);
+            margin-top: 2px;
+        }
+
+        .stat-card.highlight {
+            border-color: rgba(93,202,165,0.25);
+            background: rgba(13,115,119,0.06);
+        }
+
+        .stat-card.highlight .stat-value {
+            color: var(--accent-light);
+        }
+
+        /* ── VELOCITY SIGNAL ── */
+        .velocity-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .velocity-bar-track {
+            flex: 1;
+            height: 3px;
+            background: var(--border-muted);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .velocity-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--accent-light);
+            transition: width 0.6s ease;
+        }
+
+        .velocity-label {
+            font-size: 11px;
+            color: var(--accent-light);
+            font-family: var(--font-mono);
+            white-space: nowrap;
+        }
+
+        /* ── TABLE ── */
+        .table-wrap {
+            background: var(--bg-card);
+            border: 0.5px solid var(--border-accent);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 22px;
+            border-bottom: 0.5px solid var(--border-muted);
+        }
+
+        .table-title {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .table-count {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-hint);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead th {
+            text-align: left;
+            padding: 10px 22px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-hint);
+            border-bottom: 0.5px solid var(--border-muted);
+        }
+
+        tbody tr {
+            border-bottom: 0.5px solid rgba(26,47,47,0.6);
+            transition: background 0.15s;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(13,115,119,0.04); }
+
+        tbody td {
+            padding: 12px 22px;
+            color: var(--text-main);
+            vertical-align: top;
+        }
+
+        td.muted { color: var(--text-muted); }
+        td.mono { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+
+        .depth-pill {
+            display: inline-flex;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 0.5px solid;
+        }
+
+        .depth-low { color: var(--text-hint); border-color: var(--border-muted); }
+        .depth-mid { color: var(--yellow); border-color: rgba(212,168,67,0.3); }
+        .depth-high { color: var(--accent-light); border-color: rgba(93,202,165,0.3); }
+
+        /* ── INTENTION ANSWERS ── */
+        .intention-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .intention-item {
+            padding: 16px 22px;
+            border-bottom: 0.5px solid rgba(26,47,47,0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .intention-item:last-child { border-bottom: none; }
+
+        .intention-meta {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-hint);
+            letter-spacing: 0.06em;
+        }
+
+        .intention-text {
+            font-size: 14px;
+            color: var(--text-main);
+            line-height: 1.55;
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            padding: 40px 22px;
+            text-align: center;
+            color: var(--text-hint);
+            font-size: 13px;
+        }
+
+        /* ── LOADING ── */
+        .loading-row td {
+            padding: 32px 22px;
+            text-align: center;
+            color: var(--text-hint);
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        /* ── STATUS DOT ── */
+        .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            margin-right: 6px;
+            animation: pulse 2.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .topbar { padding: 14px 20px; }
+            .dashboard-content { padding: 20px; }
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+            thead th:nth-child(n+4), tbody td:nth-child(n+4) { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── AUTH GATE ── -->
+<div id="auth-gate">
+    <div class="auth-box">
+        <div class="auth-header">
+            <div class="winn-mark">W</div>
+            <span class="auth-title">Winntelligence Admin</span>
+        </div>
+        <p class="auth-prompt">Sign in with your Winntelligence account to access the dashboard.</p>
+        <button class="btn-google" onclick="signInWithGoogle()">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+                <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+                <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+                <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/>
+                <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
+            </svg>
+            Sign in with Google
+        </button>
+        <div class="auth-error" id="auth-error">Access denied. This dashboard is restricted.</div>
+    </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashboard">
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-logo">
+                <div class="winn-mark">W</div>
+                <span class="topbar-title">Winntelligence</span>
+            </div>
+            <span class="topbar-badge">Admin</span>
+        </div>
+        <div class="topbar-right">
+            <span class="topbar-user" id="admin-email"></span>
+            <button class="refresh-btn" onclick="loadDashboard()">Refresh</button>
+            <button class="btn-signout" onclick="signOut()">Sign out</button>
+        </div>
+    </div>
+
+    <div class="dashboard-content">
+
+        <!-- VELOCITY SIGNAL -->
+        <div>
+            <div class="section-label">Velocity Signal</div>
+            <div class="stat-card highlight" style="max-width:100%;">
+                <div class="stat-label"><span class="status-dot"></span>Live — sessions accumulating</div>
+                <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-top:4px;">
+                    <div>
+                        <div class="stat-value" id="velocity-sessions-week">—</div>
+                        <div class="stat-sub">sessions this week</div>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="velocity-messages-week">—</div>
+                        <div class="stat-sub">messages this week</div>
+                    </div>
+                    <div>
+                        <div class="stat-value" id="velocity-new-users-week">—</div>
+                        <div class="stat-sub">new users this week</div>
+                    </div>
+                </div>
+                <div class="velocity-bar-wrap" style="margin-top:12px;">
+                    <div class="velocity-bar-track">
+                        <div class="velocity-bar-fill" id="velocity-bar" style="width:0%"></div>
+                    </div>
+                    <span class="velocity-label" id="velocity-trend">calculating...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP-LINE STATS -->
+        <div>
+            <div class="section-label">Platform Totals</div>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="stat-users">—</div>
+                    <div class="stat-sub">authenticated via Google</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Sessions</div>
+                    <div class="stat-value" id="stat-sessions">—</div>
+                    <div class="stat-sub">coaching conversations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Messages</div>
+                    <div class="stat-value" id="stat-messages">—</div>
+                    <div class="stat-sub">exchanges with Winn</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Depth</div>
+                    <div class="stat-value" id="stat-depth">—</div>
+                    <div class="stat-sub">messages per session</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Sessions</div>
+                    <div class="stat-value" id="stat-sessions-per-user">—</div>
+                    <div class="stat-sub">per user</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SESSION DEPTH TABLE -->
+        <div>
+            <div class="section-label">Sessions — Depth & Recency</div>
+            <div class="table-wrap">
+                <div class="table-header">
+                    <span class="table-title">All Sessions</span>
+                    <span class="table-count" id="sessions-count"></span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Started</th>
+                            <th>Last Active</th>
+                            <th>Messages</th>
+                            <th>Depth</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessions-table-body">
+                        <tr class="loading-row"><td colspan="5">Loading sessions...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- USER TABLE -->
+        <div>
+            <div class="section-label">Users</div>
+            <div class="table-wrap">
+                <div class="table-header">
+                    <span class="table-title">Authenticated Users</span>
+                    <span class="table-count" id="users-count"></span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>First Seen</th>
+                            <th>Sessions</th>
+                            <th>Total Messages</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <tr class="loading-row"><td colspan="4">Loading users...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- INTENTION ANSWERS -->
+        <div>
+            <div class="section-label">Intention Question — "Why are you here?"</div>
+            <div class="table-wrap">
+                <div class="table-header">
+                    <span class="table-title">First Messages</span>
+                    <span class="table-count" id="intentions-count"></span>
+                </div>
+                <div class="intention-list" id="intention-list">
+                    <div class="empty-state">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // ── CONFIGURATION ──
+    const SUPABASE_URL = 'https://vxwsldczrpvjkivepnlb.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__PjjxzUjbyfev4TDEQ0Z3A_XTeBOnBX';
+    const ADMIN_EMAIL = 'winn@winntelligence.ai';
+
+    // ── SUPABASE CLIENT (vanilla JS, no SDK needed) ──
+    let supabaseSession = null;
+
+    async function supabaseFetch(path, options = {}) {
+        const headers = {
+            'apikey': SUPABASE_PUBLISHABLE_KEY,
+            'Content-Type': 'application/json',
+            ...(supabaseSession?.access_token
+                ? { 'Authorization': `Bearer ${supabaseSession.access_token}` }
+                : {}),
+            ...options.headers
+        };
+        const res = await fetch(`${SUPABASE_URL}${path}`, { ...options, headers });
+        if (!res.ok) {
+            const err = await res.text();
+            throw new Error(`Supabase error ${res.status}: ${err}`);
+        }
+        return res.json();
+    }
+
+    // ── AUTH ──
+    async function signInWithGoogle() {
+        const redirectTo = window.location.href.split('?')[0].split('#')[0];
+        const authUrl = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}&response_type=code`;
+        window.location.href = authUrl;
+    }
+
+    async function handleOAuthCallback() {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        if (!code) return false;
+
+        try {
+            const data = await supabaseFetch('/auth/v1/token?grant_type=pkce', {
+                method: 'POST',
+                body: JSON.stringify({ auth_code: code, code_verifier: '' })
+            });
+
+            if (data.access_token) {
+                supabaseSession = data;
+                // Clean URL
+                window.history.replaceState({}, '', window.location.pathname);
+                return true;
+            }
+        } catch (e) {
+            // Try standard code exchange
+            try {
+                const data = await supabaseFetch('/auth/v1/token?grant_type=authorization_code', {
+                    method: 'POST',
+                    body: JSON.stringify({ code })
+                });
+                if (data.access_token) {
+                    supabaseSession = data;
+                    window.history.replaceState({}, '', window.location.pathname);
+                    return true;
+                }
+            } catch (e2) {
+                console.error('OAuth callback error:', e2);
+            }
+        }
+        return false;
+    }
+
+    async function getSession() {
+        // Check sessionStorage for cached session
+        const cached = sessionStorage.getItem('winn_admin_session');
+        if (cached) {
+            try {
+                const parsed = JSON.parse(cached);
+                if (parsed.expires_at && new Date(parsed.expires_at * 1000) > new Date()) {
+                    supabaseSession = parsed;
+                    return parsed;
+                }
+            } catch (e) {}
+        }
+
+        // Check for OAuth callback
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('code')) {
+            const success = await handleOAuthCallback();
+            if (success && supabaseSession) {
+                sessionStorage.setItem('winn_admin_session', JSON.stringify(supabaseSession));
+                return supabaseSession;
+            }
+        }
+
+        return null;
+    }
+
+    async function signOut() {
+        sessionStorage.removeItem('winn_admin_session');
+        supabaseSession = null;
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('auth-gate').style.display = 'flex';
+    }
+
+    // ── FORMAT HELPERS ──
+    function formatDate(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        const now = new Date();
+        const diff = now - d;
+        if (diff < 60000) return 'just now';
+        if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+        if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+        if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+    }
+
+    function depthPill(count) {
+        const n = parseInt(count) || 0;
+        if (n <= 2) return `<span class="depth-pill depth-low">${n} msg</span>`;
+        if (n <= 8) return `<span class="depth-pill depth-mid">${n} msg</span>`;
+        return `<span class="depth-pill depth-high">${n} msg</span>`;
+    }
+
+    function truncate(str, len = 90) {
+        if (!str) return '';
+        return str.length > len ? str.slice(0, len) + '...' : str;
+    }
+
+    // ── LOAD DASHBOARD DATA ──
+    async function loadDashboard() {
+        try {
+            await loadStats();
+            await loadSessions();
+            await loadUsers();
+            await loadIntentions();
+        } catch (e) {
+            console.error('Dashboard load error:', e);
+        }
+    }
+
+    async function loadStats() {
+        // Totals — use service role via RPC or direct queries
+        // Users count from auth.users is service-role only; we count from our public.users table
+        const [usersData, sessionsData, messagesData] = await Promise.all([
+            supabaseFetch('/rest/v1/users?select=id,created_at&order=created_at.desc'),
+            supabaseFetch('/rest/v1/sessions?select=id,created_at,updated_at,user_id'),
+            supabaseFetch('/rest/v1/messages?select=id,created_at,session_id,role')
+        ]);
+
+        const totalUsers = usersData.length;
+        const totalSessions = sessionsData.length;
+        const totalMessages = messagesData.length;
+        const avgDepth = totalSessions > 0 ? (totalMessages / totalSessions).toFixed(1) : 0;
+        const avgSessionsPerUser = totalUsers > 0 ? (totalSessions / totalUsers).toFixed(1) : 0;
+
+        document.getElementById('stat-users').textContent = totalUsers;
+        document.getElementById('stat-sessions').textContent = totalSessions;
+        document.getElementById('stat-messages').textContent = totalMessages;
+        document.getElementById('stat-depth').textContent = avgDepth;
+        document.getElementById('stat-sessions-per-user').textContent = avgSessionsPerUser;
+
+        // Velocity — last 7 days
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        const sessionsThisWeek = sessionsData.filter(s => s.created_at >= weekAgo).length;
+        const messagesThisWeek = messagesData.filter(m => m.created_at >= weekAgo).length;
+        const usersThisWeek = usersData.filter(u => u.created_at >= weekAgo).length;
+
+        document.getElementById('velocity-sessions-week').textContent = sessionsThisWeek;
+        document.getElementById('velocity-messages-week').textContent = messagesThisWeek;
+        document.getElementById('velocity-new-users-week').textContent = usersThisWeek;
+
+        // Velocity bar — sessions this week vs total (simple ratio signal)
+        const velocityPct = totalSessions > 0 ? Math.min(100, Math.round((sessionsThisWeek / totalSessions) * 100)) : 0;
+        document.getElementById('velocity-bar').style.width = velocityPct + '%';
+
+        const trend = sessionsThisWeek === 0 ? 'No activity this week'
+            : sessionsThisWeek === 1 ? '1 session this week — moat is building'
+            : `${sessionsThisWeek} sessions this week — velocity positive`;
+        document.getElementById('velocity-trend').textContent = trend;
+    }
+
+    async function loadSessions() {
+        const sessions = await supabaseFetch(
+            '/rest/v1/sessions?select=id,created_at,updated_at,user_id,users(email)&order=updated_at.desc&limit=50'
+        );
+
+        // Get message counts per session
+        const messageCounts = await supabaseFetch(
+            '/rest/v1/messages?select=session_id&order=session_id'
+        );
+        const countMap = {};
+        messageCounts.forEach(m => {
+            countMap[m.session_id] = (countMap[m.session_id] || 0) + 1;
+        });
+
+        document.getElementById('sessions-count').textContent = sessions.length + ' total';
+
+        const tbody = document.getElementById('sessions-table-body');
+        if (sessions.length === 0) {
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="5">No sessions yet.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = sessions.map(s => {
+            const email = s.users?.email || s.user_id?.slice(0, 8) + '…' || '—';
+            const msgCount = countMap[s.id] || 0;
+            return `
+                <tr>
+                    <td class="muted">${email}</td>
+                    <td class="mono">${formatDate(s.created_at)}</td>
+                    <td class="mono">${formatDate(s.updated_at)}</td>
+                    <td class="mono">${msgCount}</td>
+                    <td>${depthPill(msgCount)}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    async function loadUsers() {
+        const users = await supabaseFetch(
+            '/rest/v1/users?select=id,email,created_at&order=created_at.desc'
+        );
+        const sessions = await supabaseFetch('/rest/v1/sessions?select=user_id');
+        const messages = await supabaseFetch('/rest/v1/messages?select=session_id,sessions(user_id)');
+
+        // Count sessions and messages per user
+        const sessionsByUser = {};
+        sessions.forEach(s => {
+            sessionsByUser[s.user_id] = (sessionsByUser[s.user_id] || 0) + 1;
+        });
+
+        document.getElementById('users-count').textContent = users.length + ' total';
+
+        const tbody = document.getElementById('users-table-body');
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="4">No users yet.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = users.map(u => {
+            const sessionCount = sessionsByUser[u.id] || 0;
+            return `
+                <tr>
+                    <td>${u.email || '—'}</td>
+                    <td class="mono">${formatDate(u.created_at)}</td>
+                    <td class="mono">${sessionCount}</td>
+                    <td class="mono">—</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    async function loadIntentions() {
+        // First message of each session = the intention answer
+        // Get first user message per session ordered by created_at
+        const messages = await supabaseFetch(
+            `/rest/v1/messages?select=id,session_id,content,created_at,role,sessions(user_id,users(email))&role=eq.user&order=created_at.asc&limit=100`
+        );
+
+        // Deduplicate — keep only first user message per session
+        const seen = new Set();
+        const firstMessages = messages.filter(m => {
+            if (seen.has(m.session_id)) return false;
+            seen.add(m.session_id);
+            return true;
+        });
+
+        document.getElementById('intentions-count').textContent = firstMessages.length + ' responses';
+
+        const list = document.getElementById('intention-list');
+        if (firstMessages.length === 0) {
+            list.innerHTML = '<div class="empty-state">No responses yet.</div>';
+            return;
+        }
+
+        list.innerHTML = firstMessages.reverse().map(m => {
+            const email = m.sessions?.users?.email || '—';
+            return `
+                <div class="intention-item">
+                    <div class="intention-meta">${email} · ${formatDate(m.created_at)}</div>
+                    <div class="intention-text">${truncate(m.content, 200)}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ── INIT ──
+    async function init() {
+        const session = await getSession();
+
+        if (!session) {
+            document.getElementById('auth-gate').style.display = 'flex';
+            return;
+        }
+
+        // Get user info to verify admin
+        let userEmail = null;
+        try {
+            const userData = await supabaseFetch('/auth/v1/user');
+            userEmail = userData.email;
+        } catch (e) {
+            // Try from session
+            userEmail = session.user?.email;
+        }
+
+        if (!userEmail || userEmail !== ADMIN_EMAIL) {
+            document.getElementById('auth-error').style.display = 'block';
+            document.getElementById('auth-gate').style.display = 'flex';
+            sessionStorage.removeItem('winn_admin_session');
+            return;
+        }
+
+        // Authorized — show dashboard
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'flex';
+        document.getElementById('admin-email').textContent = userEmail;
+
+        await loadDashboard();
+    }
+
+    init();
+</script>
+
+</body>
+</html>
