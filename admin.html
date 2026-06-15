@@ -632,22 +632,25 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     // ── CONFIGURATION ──
     const SUPABASE_URL = 'https://vxwsldczrpvjkivepnlb.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__PjjxzUjbyfev4TDEQ0Z3A_XTeBOnBX';
     const ADMIN_EMAIL = 'winn@winntelligence.ai';
 
-    // ── SUPABASE CLIENT (vanilla JS, no SDK needed) ──
-    let supabaseSession = null;
+    // ── SUPABASE CLIENT ──
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+    let currentSession = null;
 
     async function supabaseFetch(path, options = {}) {
+        const token = currentSession?.access_token;
         const headers = {
             'apikey': SUPABASE_PUBLISHABLE_KEY,
             'Content-Type': 'application/json',
-            ...(supabaseSession?.access_token
-                ? { 'Authorization': `Bearer ${supabaseSession.access_token}` }
-                : {}),
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             ...options.headers
         };
         const res = await fetch(`${SUPABASE_URL}${path}`, { ...options, headers });
@@ -660,76 +663,18 @@
 
     // ── AUTH ──
     async function signInWithGoogle() {
-        const redirectTo = window.location.href.split('?')[0].split('#')[0];
-        const authUrl = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}&response_type=code`;
-        window.location.href = authUrl;
-    }
-
-    async function handleOAuthCallback() {
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        if (!code) return false;
-
-        try {
-            const data = await supabaseFetch('/auth/v1/token?grant_type=pkce', {
-                method: 'POST',
-                body: JSON.stringify({ auth_code: code, code_verifier: '' })
-            });
-
-            if (data.access_token) {
-                supabaseSession = data;
-                // Clean URL
-                window.history.replaceState({}, '', window.location.pathname);
-                return true;
+        const { error } = await sb.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.href.split('?')[0].split('#')[0]
             }
-        } catch (e) {
-            // Try standard code exchange
-            try {
-                const data = await supabaseFetch('/auth/v1/token?grant_type=authorization_code', {
-                    method: 'POST',
-                    body: JSON.stringify({ code })
-                });
-                if (data.access_token) {
-                    supabaseSession = data;
-                    window.history.replaceState({}, '', window.location.pathname);
-                    return true;
-                }
-            } catch (e2) {
-                console.error('OAuth callback error:', e2);
-            }
-        }
-        return false;
-    }
-
-    async function getSession() {
-        // Check sessionStorage for cached session
-        const cached = sessionStorage.getItem('winn_admin_session');
-        if (cached) {
-            try {
-                const parsed = JSON.parse(cached);
-                if (parsed.expires_at && new Date(parsed.expires_at * 1000) > new Date()) {
-                    supabaseSession = parsed;
-                    return parsed;
-                }
-            } catch (e) {}
-        }
-
-        // Check for OAuth callback
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('code')) {
-            const success = await handleOAuthCallback();
-            if (success && supabaseSession) {
-                sessionStorage.setItem('winn_admin_session', JSON.stringify(supabaseSession));
-                return supabaseSession;
-            }
-        }
-
-        return null;
+        });
+        if (error) console.error('Sign in error:', error);
     }
 
     async function signOut() {
-        sessionStorage.removeItem('winn_admin_session');
-        supabaseSession = null;
+        await sb.auth.signOut();
+        currentSession = null;
         document.getElementById('dashboard').style.display = 'none';
         document.getElementById('auth-gate').style.display = 'flex';
     }
@@ -918,32 +863,17 @@
     }
 
     // ── INIT ──
-    async function init() {
-        const session = await getSession();
-
-        if (!session) {
-            document.getElementById('auth-gate').style.display = 'flex';
-            return;
-        }
-
-        // Get user info to verify admin
-        let userEmail = null;
-        try {
-            const userData = await supabaseFetch('/auth/v1/user');
-            userEmail = userData.email;
-        } catch (e) {
-            // Try from session
-            userEmail = session.user?.email;
-        }
+    async function showDashboard(session) {
+        const userEmail = session.user?.email;
 
         if (!userEmail || userEmail !== ADMIN_EMAIL) {
             document.getElementById('auth-error').style.display = 'block';
             document.getElementById('auth-gate').style.display = 'flex';
-            sessionStorage.removeItem('winn_admin_session');
+            await sb.auth.signOut();
             return;
         }
 
-        // Authorized — show dashboard
+        currentSession = session;
         document.getElementById('auth-gate').style.display = 'none';
         document.getElementById('dashboard').style.display = 'flex';
         document.getElementById('admin-email').textContent = userEmail;
@@ -951,7 +881,23 @@
         await loadDashboard();
     }
 
-    init();
+    // SDK handles OAuth callback automatically via onAuthStateChange
+    sb.auth.onAuthStateChange(async (event, session) => {
+        if (session) {
+            await showDashboard(session);
+        } else {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('auth-gate').style.display = 'flex';
+        }
+    });
+
+    // Check for existing session on load
+    (async () => {
+        const { data } = await sb.auth.getSession();
+        if (data.session) {
+            await showDashboard(data.session);
+        }
+    })();
 </script>
 
 </body>
