@@ -390,36 +390,6 @@
         .depth-mid { color: var(--yellow); border-color: rgba(212,168,67,0.3); }
         .depth-high { color: var(--accent-light); border-color: rgba(93,202,165,0.3); }
 
-        /* ── INTENTION ANSWERS ── */
-        .intention-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
-
-        .intention-item {
-            padding: 16px 22px;
-            border-bottom: 0.5px solid rgba(26,47,47,0.6);
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .intention-item:last-child { border-bottom: none; }
-
-        .intention-meta {
-            font-size: 10px;
-            font-family: var(--font-mono);
-            color: var(--text-hint);
-            letter-spacing: 0.06em;
-        }
-
-        .intention-text {
-            font-size: 14px;
-            color: var(--text-main);
-            line-height: 1.55;
-        }
-
         /* ── EMPTY STATE ── */
         .empty-state {
             padding: 40px 22px;
@@ -615,19 +585,17 @@
             </div>
         </div>
 
-        <!-- INTENTION ANSWERS -->
-        <div>
-            <div class="section-label">Intention Question — "Why are you here?"</div>
-            <div class="table-wrap">
-                <div class="table-header">
-                    <span class="table-title">First Messages</span>
-                    <span class="table-count" id="intentions-count"></span>
-                </div>
-                <div class="intention-list" id="intention-list">
-                    <div class="empty-state">Loading...</div>
-                </div>
-            </div>
-        </div>
+        <!--
+            PRIVACY (July 5, 2026): The "Intention Answers" section that
+            previously lived here has been removed. It queried the first
+            user message of every session directly from the messages table
+            and displayed up to 200 characters of it, mislabeled as an
+            "intention" response. That was real, private session content
+            surfaced as a permanent dashboard feature — the exact thing
+            Standing Question #9 in the repository register now holds this
+            platform to never doing again. Operational metadata only, no
+            content, on this surface, as a standing principle.
+        -->
 
     </div>
 </div>
@@ -699,26 +667,18 @@
         return `<span class="depth-pill depth-high">${n} msg</span>`;
     }
 
-    function truncate(str, len = 90) {
-        if (!str) return '';
-        return str.length > len ? str.slice(0, len) + '...' : str;
-    }
-
     // ── LOAD DASHBOARD DATA ──
     async function loadDashboard() {
         try {
             await loadStats();
             await loadSessions();
             await loadUsers();
-            await loadIntentions();
         } catch (e) {
             console.error('Dashboard load error:', e);
         }
     }
 
     async function loadStats() {
-        // Totals — use service role via RPC or direct queries
-        // Users count from auth.users is service-role only; we count from our public.users table
         const [usersData, sessionsData, messagesData] = await Promise.all([
             supabaseFetch('/rest/v1/users?select=id,created_at&order=created_at.desc'),
             supabaseFetch('/rest/v1/sessions?select=id,created_at,updated_at,user_id'),
@@ -747,7 +707,6 @@
         document.getElementById('velocity-messages-week').textContent = messagesThisWeek;
         document.getElementById('velocity-new-users-week').textContent = usersThisWeek;
 
-        // Velocity bar — sessions this week vs total (simple ratio signal)
         const velocityPct = totalSessions > 0 ? Math.min(100, Math.round((sessionsThisWeek / totalSessions) * 100)) : 0;
         document.getElementById('velocity-bar').style.width = velocityPct + '%';
 
@@ -762,7 +721,6 @@
             '/rest/v1/sessions?select=id,created_at,updated_at,user_id,users(email)&order=updated_at.desc&limit=50'
         );
 
-        // Get message counts per session
         const messageCounts = await supabaseFetch(
             '/rest/v1/messages?select=session_id&order=session_id'
         );
@@ -799,9 +757,7 @@
             '/rest/v1/users?select=id,email,created_at&order=created_at.desc'
         );
         const sessions = await supabaseFetch('/rest/v1/sessions?select=user_id');
-        const messages = await supabaseFetch('/rest/v1/messages?select=session_id,sessions(user_id)');
 
-        // Count sessions and messages per user
         const sessionsByUser = {};
         sessions.forEach(s => {
             sessionsByUser[s.user_id] = (sessionsByUser[s.user_id] || 0) + 1;
@@ -828,40 +784,6 @@
         }).join('');
     }
 
-    async function loadIntentions() {
-        // First message of each session = the intention answer
-        // Get first user message per session ordered by created_at
-        const messages = await supabaseFetch(
-            `/rest/v1/messages?select=id,session_id,content,created_at,role,sessions(user_id,users(email))&role=eq.user&order=created_at.asc&limit=100`
-        );
-
-        // Deduplicate — keep only first user message per session
-        const seen = new Set();
-        const firstMessages = messages.filter(m => {
-            if (seen.has(m.session_id)) return false;
-            seen.add(m.session_id);
-            return true;
-        });
-
-        document.getElementById('intentions-count').textContent = firstMessages.length + ' responses';
-
-        const list = document.getElementById('intention-list');
-        if (firstMessages.length === 0) {
-            list.innerHTML = '<div class="empty-state">No responses yet.</div>';
-            return;
-        }
-
-        list.innerHTML = firstMessages.reverse().map(m => {
-            const email = m.sessions?.users?.email || '—';
-            return `
-                <div class="intention-item">
-                    <div class="intention-meta">${email} · ${formatDate(m.created_at)}</div>
-                    <div class="intention-text">${truncate(m.content, 200)}</div>
-                </div>
-            `;
-        }).join('');
-    }
-
     // ── INIT ──
     async function showDashboard(session) {
         const userEmail = session.user?.email;
@@ -881,7 +803,6 @@
         await loadDashboard();
     }
 
-    // SDK handles OAuth callback automatically via onAuthStateChange
     sb.auth.onAuthStateChange(async (event, session) => {
         if (session) {
             await showDashboard(session);
@@ -891,7 +812,6 @@
         }
     });
 
-    // Check for existing session on load
     (async () => {
         const { data } = await sb.auth.getSession();
         if (data.session) {
