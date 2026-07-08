@@ -694,7 +694,7 @@
             const cards = document.getElementById('session-cards');
             cards.innerHTML = '';
 
-            sessions.slice(0, 3).forEach((session, i) => {
+            sessions.forEach((session, i) => {
                 const card = document.createElement('div');
                 card.className = 'session-card';
                 card.onclick = () => resumeSession(session);
