@@ -413,7 +413,7 @@
         let history = [];
         let thinking = false;
         let authToken = null;
-
+let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         function saveAuth(token, user) {
             localStorage.setItem('winn_token', token);
             localStorage.setItem('winn_user', JSON.stringify(user));
@@ -490,8 +490,22 @@
 
         // ── INIT ──
         async function init() {
-            // Handle PKCE OAuth callback (code in query string)
+            // Capture ?mode=case_study BEFORE anything strips the query string.
+            // Google OAuth round-trips through Supabase and comes back to a bare
+            // URL, and handleOAuthCode/handleAccessToken then call
+            // history.replaceState with pathname only. Without persisting the
+            // mode here, an invited contributor would click the intake link,
+            // sign in, land back on the site, and silently get a coaching
+            // session — with nobody able to tell it had happened.
             const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('mode') === 'case_study') {
+                sessionMode = 'case_study';
+                localStorage.setItem('winn_mode', 'case_study');
+            } else {
+                sessionMode = localStorage.getItem('winn_mode');
+            }
+
+            // Handle PKCE OAuth callback (code in query string)
             const code = urlParams.get('code');
             if (code) { await handleOAuthCode(code); return; }
 
@@ -737,8 +751,12 @@
 
             showPanel('winn');
 
-            if (!isResume) {
-                addMsg('winn', "Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.");
+           if (!isResume) {
+                if (sessionMode === 'case_study') {
+                    addMsg('winn', "Thanks for doing this. Start with the venture's name and your own — then tell me how it began, in your own words. Take whatever time you want.");
+                } else {
+                    addMsg('winn', "Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.");
+                }
             } else {
                 addMsg('winn', "Winn is here. Pick up where you left off.");
             }
@@ -819,10 +837,11 @@
                 const res = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers,
-                    body: JSON.stringify({
+                     body: JSON.stringify({
                         messages: history,
                         sessionId: currentSession?.id || null,
-                        newSession: !currentSession
+                        newSession: !currentSession,
+                        sessionType: sessionMode === 'case_study' ? 'case_study' : 'coaching'
                     })
                 });
 
