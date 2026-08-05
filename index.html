@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Winntelligence // The Venture Repository</title>
+    <title>Winn — your personal EIR // Winntelligence</title>
     <style>
         :root {
-            --bg-main: #0a0f0f;
-            --bg-surface: #0f1a1a;
-            --border-accent: rgba(13,115,119,0.3);
-            --text-main: #e8f5f0;
-            --text-muted: #5a7a7a;
-            --text-hint: #2a4040;
-            --accent: #0D7377;
-            --accent-light: #5DCAA5;
-            --accent-pale: #9FE1CB;
+            --bg-main: #0C1526;
+            --bg-surface: #14203A;
+            --border-accent: rgba(201,162,39,0.28);
+            --text-main: #EAF0FA;
+            --text-muted: #9DB0CE;
+            --text-hint: #5b6b86;
+            --navy: #1F3864;
+            --accent: #C9A227;
+            --accent-light: #E0C158;
+            --accent-pale: #F0DFA0;
+            --on-accent: #0C1526;
             --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,6 +32,12 @@
             -webkit-font-smoothing: antialiased;
         }
         .logo { width: 100%; max-width: 480px; height: auto; margin-bottom: 48px; display: block; }
+
+        .hero { width: 100%; max-width: 680px; margin-bottom: 44px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .wordmark { position: relative; display: inline-block; font-size: clamp(56px, 12vw, 104px); font-weight: 700; letter-spacing: -0.02em; line-height: 1; color: var(--text-main); }
+        .wordmark .tm { position: absolute; top: 0.08em; right: -0.64em; font-size: 0.22em; font-weight: 600; color: var(--accent); letter-spacing: 0; }
+        .hero-tagline { font-size: clamp(17px, 3.2vw, 22px); font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
+        .hero-sub { font-size: clamp(12px, 2.4vw, 14px); color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
 
         .panel {
             width: 100%; max-width: 680px;
@@ -48,7 +56,7 @@
             width: 32px; height: 32px; border-radius: 7px;
             background: var(--accent);
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px; font-weight: 700; color: white;
+            font-size: 15px; font-weight: 800; color: var(--on-accent);
             flex-shrink: 0;
         }
         .w-label {
@@ -76,8 +84,8 @@
             transition: border-color 0.15s;
             width: 100%;
         }
-        .input-field::placeholder { color: #283838; }
-        .input-field:focus { border-color: rgba(13,115,119,0.55); }
+        .input-field::placeholder { color: #3a4a68; }
+        .input-field:focus { border-color: rgba(201,162,39,0.55); }
 
         textarea.input-field {
             resize: none;
@@ -97,15 +105,15 @@
             letter-spacing: 0.02em;
         }
         .btn:active { transform: scale(0.97); }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-primary:hover { background: #0f9196; }
-        .btn-primary:disabled { background: #162020; cursor: not-allowed; }
+        .btn-primary { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+        .btn-primary:hover { background: #E0C158; }
+        .btn-primary:disabled { background: #1a2740; cursor: not-allowed; }
         .btn-ghost {
             background: transparent;
             border: 0.5px solid var(--border-accent);
             color: var(--accent-pale);
         }
-        .btn-ghost:hover { border-color: rgba(13,115,119,0.6); background: #111f1f; }
+        .btn-ghost:hover { border-color: rgba(201,162,39,0.6); background: #17233f; }
 
         .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
 
@@ -114,8 +122,8 @@
         .divider-line {
             display: flex; align-items: center; gap: 12px;
         }
-        .divider-line-bar { flex: 1; height: 0.5px; background: rgba(13,115,119,0.2); }
-        .divider-line-text { font-size: 11px; color: #2a4040; }
+        .divider-line-bar { flex: 1; height: 0.5px; background: rgba(201,162,39,0.2); }
+        .divider-line-text { font-size: 11px; color: #5b6b86; }
 
         .btn-google {
             display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -130,7 +138,7 @@
             transition: background 0.15s, border-color 0.15s;
             letter-spacing: 0.02em;
         }
-        .btn-google:hover { background: #111f1f; border-color: rgba(13,115,119,0.6); }
+        .btn-google:hover { background: #17233f; border-color: rgba(201,162,39,0.6); }
 
         .session-card {
             background: var(--bg-surface);
@@ -141,7 +149,7 @@
             transition: border-color 0.15s;
             display: flex; flex-direction: column; gap: 5px;
         }
-        .session-card:hover { border-color: rgba(13,115,119,0.6); background: #111f1f; }
+        .session-card:hover { border-color: rgba(201,162,39,0.6); background: #17233f; }
         .session-card-label {
             font-size: 10px; font-weight: 600;
             letter-spacing: 0.1em; text-transform: uppercase;
@@ -186,7 +194,7 @@
         .user-tag {
             font-size: 11px; color: var(--text-muted);
             padding: 3px 9px;
-            border: 0.5px solid rgba(13,115,119,0.2);
+            border: 0.5px solid rgba(201,162,39,0.2);
             border-radius: 20px;
             cursor: pointer;
             display: flex; align-items: center; gap: 5px;
@@ -203,7 +211,7 @@
         .session-marker {
             display: flex; align-items: center; gap: 12px;
         }
-        .session-line { flex: 1; height: 0.5px; background: rgba(13,115,119,0.15); }
+        .session-line { flex: 1; height: 0.5px; background: rgba(201,162,39,0.15); }
         .session-text { font-size: 10px; color: var(--text-hint); letter-spacing: 0.1em; text-transform: uppercase; }
 
         .msg { display: flex; flex-direction: column; gap: 5px; max-width: 82%; animation: fadeUp 0.35s ease-out; }
@@ -214,7 +222,7 @@
         .msg.user .msg-label { color: var(--text-muted); text-align: right; }
         .msg-bubble { padding: 13px 17px; border-radius: 10px; font-size: 15px; line-height: 1.65; }
         .msg.winn .msg-bubble { background: var(--bg-surface); color: var(--text-main); border: 0.5px solid var(--border-accent); border-top-left-radius: 3px; }
-        .msg.user .msg-bubble { background: #131e1e; color: #b8cec8; border: 0.5px solid rgba(255,255,255,0.06); border-top-right-radius: 3px; }
+        .msg.user .msg-bubble { background: #16223c; color: #c3d2ec; border: 0.5px solid rgba(255,255,255,0.06); border-top-right-radius: 3px; }
 
         .typing-wrap { display: flex; flex-direction: column; gap: 5px; max-width: 82%; align-self: flex-start; }
         .typing-bubble { display: flex; align-items: center; gap: 5px; padding: 13px 17px; background: var(--bg-surface); border: 0.5px solid var(--border-accent); border-radius: 10px; border-top-left-radius: 3px; width: fit-content; }
@@ -224,7 +232,7 @@
 
         .winn-input-area {
             padding: 14px 20px 18px;
-            border-top: 0.5px solid rgba(13,115,119,0.15);
+            border-top: 0.5px solid rgba(201,162,39,0.15);
             display: flex; flex-direction: column; gap: 10px;
         }
         .input-row { display: flex; gap: 10px; align-items: flex-end; }
@@ -237,24 +245,24 @@
             line-height: 1.5; min-height: 44px; max-height: 120px;
             transition: border-color 0.15s;
         }
-        .winn-input::placeholder { color: #283838; }
-        .winn-input:focus { border-color: rgba(13,115,119,0.55); }
+        .winn-input::placeholder { color: #3a4a68; }
+        .winn-input:focus { border-color: rgba(201,162,39,0.55); }
         .send-btn {
             width: 42px; height: 42px; border-radius: 9px;
             background: var(--accent); border: none; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; transition: background 0.15s, transform 0.1s;
         }
-        .send-btn:hover { background: #0f9196; }
+        .send-btn:hover { background: #E0C158; }
         .send-btn:active { transform: scale(0.95); }
-        .send-btn:disabled { background: #162020; cursor: not-allowed; }
-        .send-btn svg { width: 17px; height: 17px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .send-btn:disabled { background: #1a2740; cursor: not-allowed; }
+        .send-btn svg { width: 17px; height: 17px; fill: none; stroke: var(--on-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .input-hint { font-size: 11px; color: var(--text-hint); text-align: center; letter-spacing: 0.025em; }
 
-        .page-divider { width: 100%; max-width: 680px; border: 0; border-top: 0.5px solid #1a2f2f; margin: 48px 0 40px; }
+        .page-divider { width: 100%; max-width: 680px; border: 0; border-top: 0.5px solid #26324d; margin: 48px 0 40px; }
         .build-section { width: 100%; max-width: 680px; }
         .build-section h2 { font-size: 1.1rem; color: #fff; margin-bottom: 28px; letter-spacing: -0.01em; }
-        .log-meta { font-family: monospace; border: 0.5px solid #1a2f2f; background: #0f1a1a; padding: 3px 9px; font-size: 0.68rem; border-radius: 4px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+        .log-meta { font-family: monospace; border: 0.5px solid #26324d; background: #14203A; padding: 3px 9px; font-size: 0.68rem; border-radius: 4px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
         .log-item { margin-bottom: 32px; }
         .log-item h3 { margin: 12px 0 5px; font-size: 1rem; color: #fff; font-weight: 600; }
         .log-item p { color: var(--text-muted); margin: 0; font-size: 0.92rem; line-height: 1.6; }
@@ -274,16 +282,20 @@
 </head>
 <body>
 
-    <img src="logo.png" alt="Winntelligence" class="logo">
+    <div class="hero">
+        <div class="wordmark">Winn<span class="tm">™</span></div>
+        <div class="hero-tagline">your personal EIR</div>
+        <div class="hero-sub">from first idea to full scale</div>
+    </div>
 
     <!-- PANEL 1: EMAIL / MAGIC LINK + GOOGLE -->
     <div id="panel-email" class="panel">
         <div class="panel-header">
             <div class="w-mark">W</div>
-            <span class="w-label">Winntelligence</span>
+            <span class="w-label">Winn</span>
         </div>
         <div class="panel-title">
-            Winn is here for venture builders.<br>
+            Winn is your personal EIR — here from first idea to full scale.<br>
             <span>Enter your email to begin.</span>
         </div>
         <button class="btn-google" onclick="handleGoogleSignIn()">
@@ -311,7 +323,7 @@
     <div id="panel-sent" class="panel">
         <div class="panel-header">
             <div class="w-mark">W</div>
-            <span class="w-label">Winntelligence</span>
+            <span class="w-label">Winn</span>
         </div>
         <div class="panel-title">
             Check your email.<br>
@@ -324,7 +336,7 @@
     <div id="panel-intention" class="panel">
         <div class="panel-header">
             <div class="w-mark">W</div>
-            <span class="w-label">Winntelligence</span>
+            <span class="w-label">Winn</span>
         </div>
         <div class="panel-title" style="font-size: 22px; font-weight: 600; color: var(--accent-pale);">
             Why are you here?
@@ -352,7 +364,7 @@
         <div class="winn-header">
             <div class="winn-logo">
                 <div class="w-mark">W</div>
-                <span class="w-label">Winntelligence</span>
+                <span class="w-label">Winn</span>
             </div>
             <div class="winn-status">
                 <div class="user-tag" id="user-tag" onclick="goHome()">
@@ -383,18 +395,18 @@
         <h2>Current Build Status</h2>
         <div class="log-item">
             <span class="log-meta">Online</span>
-            <h3>Platform Data Integrations</h3>
-            <p>Connected operational data pipelines from X, Substack, and Reddit directly into the repository infrastructure to track real-time market signals.</p>
-        </div>
-        <div class="log-item">
-            <span class="log-meta">Online</span>
             <h3>Winn Diagnostic Agent</h3>
-            <p>First version of the Winn coaching intelligence is live. The Diagnostic Agent asks the right questions in the right sequence — surfacing the prior question every venture builder needs to answer before anything else.</p>
+            <p>The first version of the Winn coaching intelligence is live. The Diagnostic Agent asks the right questions in the right sequence — surfacing the prior question every venture builder needs to answer before anything else.</p>
         </div>
         <div class="log-item">
             <span class="log-meta">Online</span>
-            <h3>Founder Memory Layer</h3>
+            <h3>Memory Layer</h3>
             <p>Winn now remembers you across visits and across devices. Your conversation history is stored securely — Winn picks up where you left off and tracks your prior questions over time.</p>
+        </div>
+        <div class="log-item">
+            <span class="log-meta">Online</span>
+            <h3>Winn in Public</h3>
+            <p>Winn writes as your personal EIR — The Prior Question on Substack, short-form on X. No hype and no cheerleading: the question before the question, in Winn's own voice.</p>
         </div>
         <div class="log-item future-log">
             <span class="log-meta">Pending</span>
@@ -798,7 +810,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         function showTyping() {
             const div = document.createElement('div');
             div.className = 'typing-wrap'; div.id = 'typing';
-            div.innerHTML = `<span class="msg-label" style="color:#0D7377;font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Winn</span><div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+            div.innerHTML = `<span class="msg-label" style="color:#C9A227;font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">Winn</span><div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
             const el = document.getElementById('messages');
             el.appendChild(div);
             el.scrollTop = el.scrollHeight;
