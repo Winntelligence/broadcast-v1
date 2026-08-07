@@ -870,8 +870,20 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             yes.textContent = 'Yes, delete';
             yes.onclick = async (e) => {
                 e.stopPropagation();
-                const res = await sessionAction('/session/delete', { sessionId: session.id });
-                if (res.ok) { allSessions = allSessions.filter(s => s.id !== session.id); renderSessionCards(); }
+                yes.disabled = true; yes.textContent = 'Deleting…';
+                try {
+                    const res = await sessionAction('/session/delete', { sessionId: session.id });
+                    if (res.ok) { allSessions = allSessions.filter(s => s.id !== session.id); renderSessionCards(); return; }
+                    let body = '';
+                    try { body = await res.text(); } catch (_) {}
+                    warn.textContent = `Delete failed (${res.status}): ${body || 'no detail'}`;
+                    warn.style.color = '#ff9a9a';
+                    yes.style.display = 'none'; no.textContent = 'Close';
+                } catch (err) {
+                    warn.textContent = 'Delete failed: ' + ((err && err.message) || 'network error');
+                    warn.style.color = '#ff9a9a';
+                    yes.style.display = 'none'; no.textContent = 'Close';
+                }
             };
             const no = document.createElement('button');
             no.className = 'sess-btn';
