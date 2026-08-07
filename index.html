@@ -161,6 +161,17 @@
             font-size: 13px; color: var(--text-muted); font-style: italic;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
+        .session-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 11px; }
+        .sess-btn {
+            background: transparent; border: 0.5px solid var(--border-accent); color: var(--text-muted);
+            font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+            font-family: var(--font); transition: border-color 0.15s, color 0.15s;
+        }
+        .sess-btn:hover { border-color: rgba(201,162,39,0.6); color: var(--accent-pale); }
+        .sess-btn.danger:hover { border-color: rgba(214,96,96,0.75); color: #e79a9a; }
+        .sess-confirm { font-size: 11px; color: var(--accent-pale); margin-right: 2px; }
+        .archived-toggle { font-size: 12px; color: var(--text-muted); cursor: pointer; padding: 8px 2px 2px; text-align: center; transition: color 0.15s; }
+        .archived-toggle:hover { color: var(--accent-pale); }
 
         #winn-container {
             width: 100%; max-width: 680px;
@@ -709,31 +720,75 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
 
         // ── RETURNING PANEL ──
+        // ── SESSION MANAGEMENT (V2.7.4) ──
+        let allSessions = [];
+        let showArchived = false;
+
+        function escapeHtml(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+        function isVisibleActive(s){ return !s.archived && (s.message_count || 0) >= 1; }
+
         function showReturningPanel(user, sessions) {
+            allSessions = sessions || [];
+            showArchived = false;
             const greeting = document.getElementById('returning-greeting');
             const now = new Date().getHours();
             const timeword = now < 12 ? 'morning' : now < 17 ? 'afternoon' : 'evening';
             const name = user.name || user.email.split('@')[0];
+            const activeCount = allSessions.filter(isVisibleActive).length;
+            greeting.innerHTML = `Good ${timeword}, <strong style="color: var(--accent-pale)">${name}</strong>. Winn is here.<br><br>${activeCount > 0 ? `You have ${activeCount} conversation${activeCount !== 1 ? 's' : ''} with Winn. Pick up where you left off, or start something new.` : 'Ready to begin your first conversation.'}`;
+            renderSessionCards();
+            showPanel('panel-returning');
+        }
 
-            greeting.innerHTML = `Good ${timeword}, <strong style="color: var(--accent-pale)">${name}</strong>. Winn is here.<br><br>${sessions.length > 0 ? `You have ${sessions.length} conversation${sessions.length !== 1 ? 's' : ''} in the repository. Pick up where you left off, or start something new.` : 'Ready to begin your first conversation.'}`;
-
+        function renderSessionCards() {
             const cards = document.getElementById('session-cards');
             cards.innerHTML = '';
+            const list = allSessions.filter(s => showArchived ? s.archived : isVisibleActive(s));
 
-            sessions.forEach((session, i) => {
+            if (list.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'session-card-meta';
+                empty.style.padding = '2px';
+                empty.textContent = showArchived ? 'No archived conversations.' : 'No conversations yet — start something new below.';
+                cards.appendChild(empty);
+            }
+
+            list.forEach((session) => {
                 const card = document.createElement('div');
                 card.className = 'session-card';
                 card.onclick = () => resumeSession(session);
+                const preview = session.last_message_preview ? `<div class="session-card-preview">"${escapeHtml(session.last_message_preview)}..."</div>` : '';
                 card.innerHTML = `
-                    <span class="session-card-label">Session ${i + 1} · ${formatDate(session.updated_at)}</span>
-                    <div class="session-card-title">${session.title || 'Conversation'}</div>
+                    <div class="session-card-label">${formatDate(session.updated_at)}${session.archived ? ' · archived' : ''}</div>
+                    <div class="session-card-title">${escapeHtml(session.title || 'Conversation')}</div>
                     <div class="session-card-meta">${session.message_count || 0} exchange${session.message_count !== 1 ? 's' : ''}</div>
-                    ${session.last_message_preview ? `<div class="session-card-preview">"${session.last_message_preview}..."</div>` : ''}
+                    ${preview}
+                    <div class="session-actions"></div>
                 `;
+                const actions = card.querySelector('.session-actions');
+                const mk = (label, fn, danger) => {
+                    const b = document.createElement('button');
+                    b.className = 'sess-btn' + (danger ? ' danger' : '');
+                    b.textContent = label;
+                    b.onclick = (e) => { e.stopPropagation(); fn(session, card); };
+                    actions.appendChild(b);
+                };
+                mk('Rename', renameSession);
+                if (session.archived) mk('Unarchive', (s) => archiveSession(s, false));
+                else mk('Archive', (s) => archiveSession(s, true));
+                mk('Export', exportSession);
+                mk('Delete', confirmDelete, true);
                 cards.appendChild(card);
             });
 
-            showPanel('panel-returning');
+            const archivedCount = allSessions.filter(s => s.archived).length;
+            if (archivedCount > 0 || showArchived) {
+                const toggle = document.createElement('div');
+                toggle.className = 'archived-toggle';
+                toggle.textContent = showArchived ? '← Back to active conversations' : `Show archived (${archivedCount})`;
+                toggle.onclick = () => { showArchived = !showArchived; renderSessionCards(); };
+                cards.appendChild(toggle);
+            }
         }
 
         function resumeSession(session) {
@@ -777,6 +832,72 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
 
         function goHome() { loadUserAndSessions(); }
+
+        // ── SESSION ACTIONS (V2.7.4) ──
+        async function sessionAction(path, body) {
+            return fetch(`${WORKER_URL}${path}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify(body)
+            });
+        }
+
+        async function renameSession(session) {
+            const current = session.title || 'Conversation';
+            const name = window.prompt('Rename this conversation:', current);
+            if (name === null) return;
+            const t = name.trim();
+            if (!t || t === current) return;
+            const res = await sessionAction('/session/update', { sessionId: session.id, action: 'rename', title: t });
+            if (res.ok) { session.title = t.slice(0, 80); renderSessionCards(); }
+        }
+
+        async function archiveSession(session, archive) {
+            const res = await sessionAction('/session/update', { sessionId: session.id, action: archive ? 'archive' : 'unarchive' });
+            if (res.ok) { session.archived = archive; renderSessionCards(); }
+        }
+
+        // Delete = the deliberate exception: an inline two-step confirm, not a browser dialog.
+        function confirmDelete(session, card) {
+            const actions = card.querySelector('.session-actions');
+            if (!actions) return;
+            actions.innerHTML = '';
+            const warn = document.createElement('span');
+            warn.className = 'sess-confirm';
+            warn.textContent = 'Delete permanently?';
+            const yes = document.createElement('button');
+            yes.className = 'sess-btn danger';
+            yes.textContent = 'Yes, delete';
+            yes.onclick = async (e) => {
+                e.stopPropagation();
+                const res = await sessionAction('/session/delete', { sessionId: session.id });
+                if (res.ok) { allSessions = allSessions.filter(s => s.id !== session.id); renderSessionCards(); }
+            };
+            const no = document.createElement('button');
+            no.className = 'sess-btn';
+            no.textContent = 'Cancel';
+            no.onclick = (e) => { e.stopPropagation(); renderSessionCards(); };
+            actions.appendChild(warn); actions.appendChild(yes); actions.appendChild(no);
+        }
+
+        async function exportSession(session) {
+            const res = await sessionAction('/session/messages', { sessionId: session.id });
+            if (!res.ok) return;
+            const data = await res.json();
+            const title = (data.session && data.session.title) || 'Conversation';
+            let md = `# Winn — ${title}\n\n`;
+            (data.messages || []).forEach(m => {
+                const who = m.role === 'assistant' ? 'Winn' : 'You';
+                md += `**${who}:** ${m.content}\n\n`;
+            });
+            const blob = new Blob([md], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (title.replace(/[^a-z0-9]+/gi, '_').slice(0, 40) || 'winn') + '.md';
+            document.body.appendChild(a); a.click(); a.remove();
+            URL.revokeObjectURL(url);
+        }
 
         async function signOut() {
             try {
