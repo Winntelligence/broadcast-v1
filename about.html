@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>About — Winn</title>
+<meta name="description" content="Winn is a personal venture advisor — a free thinking partner for anyone with a venture on their mind." />
+<style>
+  :root{
+    --bg:#0C1526; --panel:#16223C; --panel2:#1F3864; --edge:#26324D;
+    --text:#EAF0FA; --muted:#9DB0CE; --hint:#6C7F9E;
+    --gold:#C9A227; --goldl:#E0C158; --goldp:#F0DFA0; --ongold:#0C1526;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:40px 24px 72px}
+  /* header */
+  header{display:flex; align-items:center; justify-content:space-between; padding-bottom:8px}
+  .brand{display:flex; align-items:baseline; gap:2px; text-decoration:none}
+  .brand .mark{font-size:34px; font-weight:800; color:var(--text); letter-spacing:.5px}
+  .brand .tm{font-size:13px; font-weight:700; color:var(--gold); transform:translateY(-10px)}
+  .back{color:var(--muted); text-decoration:none; font-size:14px; font-weight:600}
+  .back:hover{color:var(--goldl)}
+  .tagline{color:var(--gold); font-weight:700; font-size:15px; margin:2px 0 0}
+  /* hero */
+  h1{font-size:30px; font-weight:800; margin:36px 0 6px; letter-spacing:-.2px}
+  h1 .accent{color:var(--gold)}
+  .lede{color:var(--muted); font-size:16px; margin:0 0 8px}
+  /* sections */
+  section{margin-top:30px; padding:22px 24px; background:var(--panel); border:1px solid var(--edge); border-radius:12px}
+  section.feature{background:var(--panel2); border-color:var(--gold)}
+  h2{font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--gold); margin:0 0 10px}
+  p{margin:0 0 12px; font-size:16px; color:var(--text)}
+  p:last-child{margin-bottom:0}
+  .q{color:var(--goldp); font-style:italic}
+  /* cta */
+  .cta{margin-top:34px; text-align:center}
+  .btn{display:inline-block; background:var(--gold); color:var(--ongold); text-decoration:none;
+    font-weight:800; font-size:15px; padding:12px 26px; border-radius:10px}
+  .btn:hover{background:var(--goldl)}
+  .cta .note{color:var(--hint); font-size:13px; margin-top:10px}
+  /* footer */
+  footer{margin-top:48px; padding-top:18px; border-top:1px solid var(--edge); display:flex; align-items:center; gap:10px}
+  .wmark{width:22px; height:22px; border-radius:5px; background:var(--gold); color:var(--ongold);
+    font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center}
+  footer span{color:var(--hint); font-size:13px}
+  @media (max-width:520px){ h1{font-size:25px} .wrap{padding:28px 18px 56px} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="index.html">
+        <span class="mark">Winn</span><span class="tm">™</span>
+      </a>
+      <a class="back" href="index.html">← Back to Winn</a>
+    </header>
+    <p class="tagline">your personal venture advisor</p>
+
+    <h1>What is <span class="accent">Winn</span>?</h1>
+    <p class="lede">A plain introduction, if this is your first visit.</p>
+
+    <section>
+      <h2>What Winn is</h2>
+      <p>Winn is a personal venture advisor — a free thinking partner for anyone with a venture on their mind. A first-time founder, an operator starting the next thing, a researcher thinking about what their work could become, someone advising or teaching people who build. It won't write your pitch or run your business; it thinks <em>with</em> you — and if it thinks an idea isn't ready, it says so.</p>
+    </section>
+
+    <section>
+      <h2>What it does</h2>
+      <p>Most people arrive with a question already in hand — how do I scale, how do I raise, how do I price this. Winn's job is to find the question underneath it.</p>
+      <p>Ask <span class="q">"how do I scale to a thousand customers?"</span> and it might come back with <span class="q">"the handful you have now — are they staying, are they using it, and do you know why?"</span> You leave with a sharper question and a clearer next move — and because Winn remembers your venture between visits, the next conversation picks up where you left off.</p>
+    </section>
+
+    <section class="feature">
+      <h2>Getting started</h2>
+      <p>Free to start, and the core stays free. Sign in so Winn can remember your venture between visits — that continuity is most of the value. We use your email only to save your sessions; no spam, and we don't sell your data. Rather not sign in yet? You're free to look around first.</p>
+    </section>
+
+    <div class="cta">
+      <a class="btn" href="index.html">Start with Winn →</a>
+      <div class="note">Free to start · no obligation</div>
+    </div>
+
+    <footer>
+      <div class="wmark">W</div>
+      <span>Winn™ — your personal venture advisor</span>
+    </footer>
+  </div>
+</body>
+</html>
