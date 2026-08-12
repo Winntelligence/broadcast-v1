@@ -721,12 +721,29 @@
             '/rest/v1/sessions?select=id,created_at,updated_at,user_id,users(email)&order=updated_at.desc&limit=50'
         );
 
-        const messageCounts = await supabaseFetch(
-            '/rest/v1/messages?select=session_id&order=session_id'
+        // Per-session message count AND true last-activity (the newest message's
+        // timestamp). We label and order by real conversation time — not
+        // sessions.updated_at, which also moves on rename/archive, so it reads as
+        // "last modified," not "last active." (Client-side aggregate; PostgREST
+        // caps at ~1000 rows by default — fine at current volume; move to a
+        // server-side view/RPC when message volume grows past that.)
+        const messageRows = await supabaseFetch(
+            '/rest/v1/messages?select=session_id,created_at'
         );
         const countMap = {};
-        messageCounts.forEach(m => {
+        const lastActiveMap = {};
+        messageRows.forEach(m => {
             countMap[m.session_id] = (countMap[m.session_id] || 0) + 1;
+            if (!lastActiveMap[m.session_id] || m.created_at > lastActiveMap[m.session_id]) {
+                lastActiveMap[m.session_id] = m.created_at;
+            }
+        });
+        // Real last-activity = newest message; fall back to created_at (a session
+        // with no messages yet). Re-sort the fetched sessions by it.
+        const lastActive = s => lastActiveMap[s.id] || s.created_at;
+        sessions.sort((a, b) => {
+            const av = lastActive(a), bv = lastActive(b);
+            return bv > av ? 1 : bv < av ? -1 : 0;
         });
 
         document.getElementById('sessions-count').textContent = sessions.length + ' total';
@@ -744,7 +761,7 @@
                 <tr>
                     <td class="muted">${email}</td>
                     <td class="mono">${formatDate(s.created_at)}</td>
-                    <td class="mono">${formatDate(s.updated_at)}</td>
+                    <td class="mono">${formatDate(lastActive(s))}</td>
                     <td class="mono">${msgCount}</td>
                     <td>${depthPill(msgCount)}</td>
                 </tr>
