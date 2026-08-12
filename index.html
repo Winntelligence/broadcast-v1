@@ -38,8 +38,8 @@
         .wordmark .tm { position: absolute; top: 0.08em; right: -0.64em; font-size: 0.22em; font-weight: 600; color: var(--accent); letter-spacing: 0; }
         .hero-tagline { font-size: clamp(17px, 3.2vw, 22px); font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
         .hero-sub { font-size: clamp(12px, 2.4vw, 14px); color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
-        .hero-about { margin-top: 14px; font-size: 14px; font-weight: 600; color: var(--text-muted); text-decoration: none; border-bottom: 1px solid var(--border-accent); padding-bottom: 3px; transition: color 0.15s, border-color 0.15s; }
-        .hero-about:hover { color: var(--accent-light); border-color: var(--accent); }
+        .hero-about { display: inline-block; margin-top: 18px; font-size: 14px; font-weight: 700; color: var(--accent-light); text-decoration: none; border: 1px solid rgba(201,162,39,0.55); border-radius: 999px; padding: 8px 18px; letter-spacing: 0.01em; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+        .hero-about:hover { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 
         .panel {
             width: 100%; max-width: 680px;
@@ -309,9 +309,10 @@
             <span class="w-label">Winn</span>
         </div>
         <div class="panel-title">
-            Winn is your personal venture advisor — here from first idea to full scale.<br>
-            <span>Enter your email to begin.</span>
+            Winn is your personal venture advisor — a free thinking partner for anyone thinking through a venture. Tell it what you're working on, and it finds the question you haven't asked yet, before you spend months on the wrong one.<br>
+            <span>Enter your email to begin — free to start.</span>
         </div>
+        <div class="hint" style="margin-top: -12px;">Why the email? So Winn remembers your venture between visits and picks up where you left off. We use it only to save your sessions. No spam, and we don't sell your data.</div>
         <button class="btn-google" onclick="handleGoogleSignIn()">
             <svg width="16" height="16" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
