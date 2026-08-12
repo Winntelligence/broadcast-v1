@@ -440,11 +440,62 @@
         let thinking = false;
         let authToken = null;
 let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
-        function saveAuth(token, user) {
+        function saveAuth(token, user, refreshToken, expiresAtMs) {
             localStorage.setItem('winn_token', token);
-            localStorage.setItem('winn_user', JSON.stringify(user));
+            if (user) localStorage.setItem('winn_user', JSON.stringify(user));
+            if (refreshToken) localStorage.setItem('winn_refresh', refreshToken);
+            if (expiresAtMs) localStorage.setItem('winn_expires', String(expiresAtMs));
             authToken = token;
-            currentUser = user;
+            if (user) currentUser = user;
+        }
+
+        // ── TOKEN REFRESH ──
+        // Supabase access tokens expire in ~1h. We keep the refresh token and
+        // exchange it for a fresh access token before it lapses, so long or
+        // returning sessions never send a dead token (which the server rejects,
+        // silently skipping the save). Supabase rotates the refresh token on
+        // use, so we store the new one each time. A single in-flight promise
+        // prevents concurrent double-refreshes.
+        let _refreshInFlight = null;
+        function expiresAtFrom(data) {
+            return data.expires_at ? data.expires_at * 1000
+                 : Date.now() + ((data.expires_in || 3600) * 1000);
+        }
+        async function refreshAuthToken() {
+            if (_refreshInFlight) return _refreshInFlight;
+            const refresh = localStorage.getItem('winn_refresh');
+            if (!refresh) return false;
+            _refreshInFlight = (async () => {
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+                        body: JSON.stringify({ refresh_token: refresh })
+                    });
+                    if (!res.ok) return false;
+                    const data = await res.json();
+                    if (!data.access_token) return false;
+                    saveAuth(data.access_token, data.user, data.refresh_token, expiresAtFrom(data));
+                    return true;
+                } catch { return false; }
+            })();
+            const ok = await _refreshInFlight;
+            _refreshInFlight = null;
+            return ok;
+        }
+        // Refresh if the token has no known expiry or is within 2 minutes of it.
+        // Returns false when we cannot stay authenticated (caller re-logins).
+        async function ensureFreshToken() {
+            if (!authToken) return false;
+            const expMs = parseInt(localStorage.getItem('winn_expires') || '0', 10);
+            if (!expMs || Date.now() > expMs - 120000) {
+                return await refreshAuthToken();
+            }
+            return true;
+        }
+        function forceReauth() {
+            clearAuth();
+            showPanel('panel-email');
         }
 
         function loadAuth() {
@@ -459,6 +510,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             localStorage.removeItem('winn_token');
             localStorage.removeItem('winn_user');
             localStorage.removeItem('winn_session');
+            localStorage.removeItem('winn_refresh');
+            localStorage.removeItem('winn_expires');
             authToken = null;
             currentUser = null;
             currentSession = null;
@@ -504,7 +557,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
 
                 if (!response.ok) throw new Error('Code exchange failed');
                 const data = await response.json();
-                saveAuth(data.access_token, data.user);
+                saveAuth(data.access_token, data.user, data.refresh_token, expiresAtFrom(data));
                 window.history.replaceState(null, '', window.location.pathname);
                 await loadUserAndSessions();
 
@@ -560,6 +613,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
 
             loadAuth();
             if (authToken) {
+                await ensureFreshToken();
                 await loadUserAndSessions();
             } else {
                 showPanel('panel-email');
@@ -596,7 +650,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
 
                 if (!response.ok) throw new Error('Verify failed');
                 const data = await response.json();
-                saveAuth(data.access_token, data.user);
+                saveAuth(data.access_token, data.user, data.refresh_token, expiresAtFrom(data));
                 window.history.replaceState(null, '', window.location.pathname);
                 await loadUserAndSessions();
 
@@ -623,7 +677,9 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
 
                 if (!response.ok) throw new Error('Auth failed');
                 const userData = await response.json();
-                saveAuth(accessToken, userData);
+                const _rt = params.get('refresh_token');
+                const _ei = parseInt(params.get('expires_in') || '3600', 10);
+                saveAuth(accessToken, userData, _rt, Date.now() + _ei * 1000);
                 window.history.replaceState(null, '', window.location.pathname);
                 await loadUserAndSessions();
 
@@ -979,19 +1035,42 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             showTyping();
 
             try {
-                const headers = { 'Content-Type': 'application/json' };
-                if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+                // Make sure the token is valid before sending, so the server
+                // actually saves this turn instead of treating us as logged-out.
+                await ensureFreshToken();
 
-                const res = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers,
-                     body: JSON.stringify({
-                        messages: history,
-                        sessionId: currentSession?.id || null,
-                        newSession: !currentSession,
-                        sessionType: sessionMode === 'case_study' ? 'case_study' : 'coaching'
-                    })
-                });
+                const doSend = () => {
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+                    return fetch(WORKER_URL, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({
+                            messages: history,
+                            sessionId: currentSession?.id || null,
+                            newSession: !currentSession,
+                            sessionType: sessionMode === 'case_study' ? 'case_study' : 'coaching'
+                        })
+                    });
+                };
+
+                let res = await doSend();
+
+                // Token expired mid-session: refresh once and retry so the turn
+                // is saved, not silently lost. If we still can't authenticate,
+                // send them to sign in again rather than reply without saving.
+                if (res.status === 401) {
+                    const refreshed = await refreshAuthToken();
+                    if (refreshed) res = await doSend();
+                    if (res.status === 401) {
+                        removeTyping();
+                        addMsg('winn', "Your session expired. Please sign in again — I'll have your history when you're back.");
+                        history.pop();
+                        thinking = false; btn.disabled = false;
+                        forceReauth();
+                        return;
+                    }
+                }
 
                 const data = await res.json();
                 removeTyping();
@@ -1018,6 +1097,14 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             thinking = false; btn.disabled = false;
             document.getElementById('founderInput').focus();
         }
+
+        // Keep the access token fresh while the tab is open, so a long or
+        // returning session never sends an expired token. Refresh on refocus
+        // and every 10 minutes.
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') ensureFreshToken();
+        });
+        setInterval(() => { if (authToken) ensureFreshToken(); }, 10 * 60 * 1000);
 
         init();
     </script>
