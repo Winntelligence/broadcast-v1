@@ -1,841 +1,459 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Winntelligence // Admin</title>
-    <style>
-        :root {
-            --bg-main: #0a0f0f;
-            --bg-surface: #0f1a1a;
-            --bg-card: #101d1d;
-            --border-muted: #1a2f2f;
-            --border-accent: rgba(13,115,119,0.3);
-            --text-main: #e8f5f0;
-            --text-muted: #5a7a7a;
-            --text-hint: #2a4040;
-            --accent: #0D7377;
-            --accent-light: #5DCAA5;
-            --accent-pale: #9FE1CB;
-            --red: #e05252;
-            --yellow: #d4a843;
-            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            --font-mono: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: var(--font-stack);
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* ── AUTH GATE ── */
-        #auth-gate {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 40px 20px;
-            gap: 32px;
-        }
-
-        .auth-box {
-            width: 100%;
-            max-width: 420px;
-            background: var(--bg-surface);
-            border: 0.5px solid var(--border-accent);
-            border-radius: 12px;
-            padding: 40px 36px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .auth-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .winn-mark {
-            width: 30px;
-            height: 30px;
-            border-radius: 7px;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: #fff;
-            flex-shrink: 0;
-        }
-
-        .auth-title {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--accent-pale);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        .auth-prompt {
-            font-size: 15px;
-            color: var(--text-muted);
-            line-height: 1.6;
-        }
-
-        .btn-google {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: var(--bg-main);
-            border: 0.5px solid var(--border-accent);
-            border-radius: 8px;
-            padding: 13px 20px;
-            font-size: 14px;
-            color: var(--text-main);
-            cursor: pointer;
-            font-family: var(--font-stack);
-            transition: border-color 0.2s, background 0.2s;
-            text-decoration: none;
-        }
-
-        .btn-google:hover {
-            border-color: var(--accent);
-            background: rgba(13,115,119,0.06);
-        }
-
-        .auth-error {
-            font-size: 13px;
-            color: var(--red);
-            text-align: center;
-            display: none;
-        }
-
-        /* ── DASHBOARD ── */
-        #dashboard {
-            display: none;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* ── TOP BAR ── */
-        .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 32px;
-            border-bottom: 0.5px solid var(--border-accent);
-            position: sticky;
-            top: 0;
-            background: var(--bg-main);
-            z-index: 10;
-        }
-
-        .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .topbar-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .topbar-title {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--accent-pale);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        .topbar-badge {
-            font-family: var(--font-mono);
-            font-size: 10px;
-            color: var(--text-hint);
-            background: var(--bg-surface);
-            border: 0.5px solid var(--border-muted);
-            border-radius: 4px;
-            padding: 2px 8px;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .topbar-user {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .btn-signout {
-            font-size: 12px;
-            color: var(--text-hint);
-            background: none;
-            border: 0.5px solid var(--border-muted);
-            border-radius: 6px;
-            padding: 5px 12px;
-            cursor: pointer;
-            font-family: var(--font-stack);
-            transition: color 0.2s, border-color 0.2s;
-        }
-
-        .btn-signout:hover {
-            color: var(--text-muted);
-            border-color: var(--text-hint);
-        }
-
-        .refresh-btn {
-            font-size: 12px;
-            color: var(--accent-light);
-            background: none;
-            border: 0.5px solid var(--border-accent);
-            border-radius: 6px;
-            padding: 5px 12px;
-            cursor: pointer;
-            font-family: var(--font-stack);
-            transition: background 0.2s;
-        }
-
-        .refresh-btn:hover { background: rgba(13,115,119,0.08); }
-
-        /* ── MAIN CONTENT ── */
-        .dashboard-content {
-            padding: 32px;
-            max-width: 1100px;
-            margin: 0 auto;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-        }
-
-        /* ── SECTION LABEL ── */
-        .section-label {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--text-hint);
-            margin-bottom: 14px;
-        }
-
-        /* ── STAT CARDS ── */
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 0.5px solid var(--border-accent);
-            border-radius: 10px;
-            padding: 22px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .stat-label {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-
-        .stat-value {
-            font-size: 36px;
-            font-weight: 600;
-            color: var(--accent-pale);
-            line-height: 1;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .stat-sub {
-            font-size: 12px;
-            color: var(--text-hint);
-            margin-top: 2px;
-        }
-
-        .stat-card.highlight {
-            border-color: rgba(93,202,165,0.25);
-            background: rgba(13,115,119,0.06);
-        }
-
-        .stat-card.highlight .stat-value {
-            color: var(--accent-light);
-        }
-
-        /* ── VELOCITY SIGNAL ── */
-        .velocity-bar-wrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 4px;
-        }
-
-        .velocity-bar-track {
-            flex: 1;
-            height: 3px;
-            background: var(--border-muted);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .velocity-bar-fill {
-            height: 100%;
-            border-radius: 2px;
-            background: var(--accent-light);
-            transition: width 0.6s ease;
-        }
-
-        .velocity-label {
-            font-size: 11px;
-            color: var(--accent-light);
-            font-family: var(--font-mono);
-            white-space: nowrap;
-        }
-
-        /* ── TABLE ── */
-        .table-wrap {
-            background: var(--bg-card);
-            border: 0.5px solid var(--border-accent);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .table-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 22px;
-            border-bottom: 0.5px solid var(--border-muted);
-        }
-
-        .table-title {
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-
-        .table-count {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--text-hint);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        thead th {
-            text-align: left;
-            padding: 10px 22px;
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text-hint);
-            border-bottom: 0.5px solid var(--border-muted);
-        }
-
-        tbody tr {
-            border-bottom: 0.5px solid rgba(26,47,47,0.6);
-            transition: background 0.15s;
-        }
-
-        tbody tr:last-child { border-bottom: none; }
-        tbody tr:hover { background: rgba(13,115,119,0.04); }
-
-        tbody td {
-            padding: 12px 22px;
-            color: var(--text-main);
-            vertical-align: top;
-        }
-
-        td.muted { color: var(--text-muted); }
-        td.mono { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
-
-        .depth-pill {
-            display: inline-flex;
-            align-items: center;
-            font-family: var(--font-mono);
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            border: 0.5px solid;
-        }
-
-        .depth-low { color: var(--text-hint); border-color: var(--border-muted); }
-        .depth-mid { color: var(--yellow); border-color: rgba(212,168,67,0.3); }
-        .depth-high { color: var(--accent-light); border-color: rgba(93,202,165,0.3); }
-
-        /* ── EMPTY STATE ── */
-        .empty-state {
-            padding: 40px 22px;
-            text-align: center;
-            color: var(--text-hint);
-            font-size: 13px;
-        }
-
-        /* ── LOADING ── */
-        .loading-row td {
-            padding: 32px 22px;
-            text-align: center;
-            color: var(--text-hint);
-            font-size: 12px;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        /* ── STATUS DOT ── */
-        .status-dot {
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--accent-light);
-            margin-right: 6px;
-            animation: pulse 2.5s infinite ease-in-out;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.35; }
-        }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 640px) {
-            .topbar { padding: 14px 20px; }
-            .dashboard-content { padding: 20px; }
-            .stat-grid { grid-template-columns: 1fr 1fr; }
-            thead th:nth-child(n+4), tbody td:nth-child(n+4) { display: none; }
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Winntelligence — Admin Console</title>
+<style>
+  :root{
+    --bg:#0a0e13; --panel:#111823; --panel2:#0e141d; --border:#1e2732; --border2:#283544;
+    --ink:#e9eef3; --ink2:#9aa7b4; --muted:#5d6b78;
+    --teal:#5eead4; --gold:#d9ad3c; --green:#37d39a; --amber:#e0983a; --blue:#5aa2ea; --red:#e46a6a;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.45}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  header{display:flex;align-items:center;justify-content:space-between;padding:16px 26px;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#2bb39a,#1c8f7c);display:flex;align-items:center;justify-content:center;color:#04231d;font-weight:800;font-size:16px}
+  .brand h1{font-size:15px;letter-spacing:.16em;margin:0;font-weight:700}
+  .tag{font-size:10px;letter-spacing:.14em;color:var(--muted);border:1px solid var(--border2);border-radius:4px;padding:2px 6px;margin-left:4px}
+  .hright{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--ink2)}
+  .btn{border:1px solid var(--border2);background:transparent;color:var(--ink2);border-radius:7px;padding:6px 12px;font-size:13px;cursor:pointer}
+  .btn.go{color:var(--teal);border-color:#1f4a44}
+  input.k{background:#0c1219;border:1px solid var(--border2);color:var(--ink);border-radius:7px;padding:6px 10px;font-size:12px;width:230px}
+  .cfg{display:flex;align-items:center;gap:10px;padding:10px 26px;border-bottom:1px solid var(--border);background:var(--panel2);font-size:12px;color:var(--ink2);flex-wrap:wrap}
+  .cfg .status{margin-left:auto;font-size:11.5px}
+  .cfg .status.live{color:var(--green)} .cfg .status.demo{color:var(--gold)} .cfg .status.err{color:var(--red)}
+  .tabs{display:flex;gap:2px;padding:0 26px;border-bottom:1px solid var(--border);background:var(--panel2)}
+  .tab{padding:13px 20px;font-size:13px;letter-spacing:.06em;color:var(--ink2);cursor:pointer;border-bottom:2px solid transparent;position:relative;top:1px}
+  .tab .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);margin-right:7px;vertical-align:middle}
+  .tab.active{color:var(--ink);border-bottom-color:var(--gold)} .tab.active .dot{background:var(--green);box-shadow:0 0 8px var(--green)}
+  .tab.soon{color:var(--muted);cursor:default}
+  .tab.soon .lbl-soon{font-size:9px;letter-spacing:.12em;border:1px solid var(--border2);border-radius:4px;padding:1px 5px;margin-left:6px;color:var(--muted)}
+  main{max-width:1080px;margin:0 auto;padding:26px}
+  .view{display:none} .view.active{display:block}
+  .sec-label{font-size:11px;letter-spacing:.16em;color:var(--muted);margin:26px 2px 12px;text-transform:uppercase}
+  .sec-label:first-child{margin-top:4px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px} .pad{padding:20px 22px}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .tiles.five{grid-template-columns:repeat(5,1fr)}
+  .tile{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px}
+  .tile .k{font-size:10.5px;letter-spacing:.13em;color:var(--muted);text-transform:uppercase}
+  .tile .v{font-size:34px;font-weight:700;margin:6px 0 2px;color:var(--teal)} .tile .v.gold{color:var(--gold)} .tile .v.green{color:var(--green)} .tile .v.ink{color:var(--ink)}
+  .tile .s{font-size:12px;color:var(--ink2)} .tile .s b{color:var(--ink2)}
+  .velo .live{font-size:11px;letter-spacing:.13em;color:var(--ink2)} .velo .live b{color:var(--green)}
+  .velo .row{display:flex;gap:46px;align-items:flex-end;margin:14px 0}
+  .velo .n{font-size:38px;font-weight:700;color:var(--teal)} .velo .n small{display:block;font-size:12px;color:var(--ink2);font-weight:400;margin-top:2px}
+  .obs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .obs{background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:15px 16px;display:flex;flex-direction:column;gap:9px}
+  .obs .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .obs .id{font-size:12px;letter-spacing:.08em;color:var(--ink2);font-weight:700} .obs .title{font-size:13.5px;margin-top:3px}
+  .pill{font-size:9.5px;letter-spacing:.1em;padding:3px 8px;border-radius:20px;text-transform:uppercase;white-space:nowrap;font-weight:700}
+  .pill.watch{color:var(--amber);background:rgba(224,152,58,.12);border:1px solid rgba(224,152,58,.35)}
+  .pill.candidate{color:var(--teal);background:rgba(94,234,212,.10);border:1px solid rgba(94,234,212,.32)}
+  .pill.promoted{color:var(--green);background:rgba(55,211,154,.12);border:1px solid rgba(55,211,154,.35)}
+  .obs .meta{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .pips{display:inline-flex;gap:3px} .pip{width:9px;height:9px;border-radius:2px;background:#22303c} .pip.real{background:var(--teal)} .pip.self{background:var(--muted)}
+  .axis{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border2);border-radius:4px;padding:2px 6px}
+  .obs .note{font-size:11.5px;color:var(--ink2);border-top:1px solid var(--border);padding-top:8px}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:11.5px;color:var(--ink2);margin-top:12px}
+  .legend span{display:flex;align-items:center;gap:6px} .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .cap{font-size:12px;color:var(--ink2);margin-top:12px} .cap b{color:var(--ink)}
+  .feed .frow{display:grid;grid-template-columns:78px 96px 120px 1fr;gap:14px;padding:11px 4px;border-top:1px solid var(--border);font-size:12.5px;align-items:baseline}
+  .feed .frow:first-child{border-top:none}
+  .feed .d{color:var(--muted);font-size:11.5px} .feed .sid{color:var(--gold);font-weight:700;font-size:12px} .feed .wt{color:var(--ink2)} .feed .hd{color:var(--ink)}
+  .sessions .srow{display:grid;grid-template-columns:1fr 90px 96px 74px;gap:12px;padding:11px 4px;border-top:1px solid var(--border);font-size:12.5px;align-items:center}
+  .sessions .srow.h{color:var(--muted);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-top:none}
+  .chipmsg{font-size:11px;color:var(--teal);border:1px solid #1f4a44;border-radius:6px;padding:2px 7px;justify-self:start}
+  .note-inline{font-size:11px;color:var(--muted)}
+  .eir .er{display:grid;grid-template-columns:150px 1fr 1.2fr;gap:14px;padding:13px 4px;border-top:1px solid var(--border);font-size:12.5px;align-items:baseline}
+  .eir .er:first-child{border-top:none} .eir .er.h{color:var(--muted);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+  .eir .who{color:var(--ink);font-weight:700} .eir .sig{display:flex;flex-wrap:wrap;gap:6px} .eir .nt{color:var(--ink2);font-size:12px}
+  .sigchip{font-size:10px;color:var(--green);border:1px solid rgba(55,211,154,.32);background:rgba(55,211,154,.08);border-radius:20px;padding:2px 8px;white-space:nowrap}
+  .footer-note{font-size:11.5px;color:var(--muted);margin-top:22px;border-top:1px solid var(--border);padding-top:14px} .footer-note b{color:var(--ink2)}
+  .subhead{font-size:12.5px;color:var(--ink2);margin:4px 2px 14px;max-width:840px}
+  /* cohort */
+  .privacy-banner{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--gold);background:rgba(217,173,60,.07);border:1px solid rgba(217,173,60,.28);border-radius:8px;padding:10px 14px;margin-bottom:16px}
+  .privacy-banner b{color:var(--ink)}
+  .cohort .mrow{display:grid;grid-template-columns:150px 130px 90px 1fr;gap:14px;padding:14px 4px;border-top:1px solid var(--border);font-size:12.5px;align-items:baseline}
+  .cohort .mrow.h{color:var(--muted);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-top:none}
+  .cohort .who{color:var(--ink);font-weight:700} .cohort .who small{display:block;color:var(--muted);font-weight:400;font-size:10.5px;margin-top:2px}
+  .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .st-active .status-dot{background:var(--green)} .st-quiet .status-dot{background:var(--amber)} .st-dormant .status-dot{background:var(--muted)}
+  .cohort .eng{color:var(--ink2)} .cohort .qs{display:flex;flex-direction:column;gap:5px}
+  .qchip{font-size:11px;color:var(--teal);border:1px solid #1f4a44;border-radius:6px;padding:3px 8px;display:inline-block}
+  .prog{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+  /* ── AUTH GATE ── */
+  #auth-gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px}
+  .auth-box{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--border2);border-radius:12px;padding:38px 34px;display:flex;flex-direction:column;gap:22px}
+  .auth-header{display:flex;align-items:center;gap:10px}
+  .auth-title{font-size:13px;font-weight:700;color:var(--teal);letter-spacing:.14em;text-transform:uppercase}
+  .auth-prompt{font-size:14.5px;color:var(--ink2);line-height:1.6;margin:0}
+  .btn-google{display:flex;align-items:center;justify-content:center;gap:12px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:13px 20px;font-size:14px;color:var(--ink);cursor:pointer;transition:border-color .2s,background .2s}
+  .btn-google:hover{border-color:var(--teal);background:rgba(94,234,212,.05)}
+  .auth-error{font-size:13px;color:var(--red);text-align:center;display:none}
+  #dashboard{display:none}
+</style>
 </head>
 <body>
 
-<!-- ── AUTH GATE ── -->
+<!-- ── AUTH GATE (only winn@ passes; nothing else renders until then) ── -->
 <div id="auth-gate">
-    <div class="auth-box">
-        <div class="auth-header">
-            <div class="winn-mark">W</div>
-            <span class="auth-title">Winntelligence Admin</span>
-        </div>
-        <p class="auth-prompt">Sign in with your Winntelligence account to access the dashboard.</p>
-        <button class="btn-google" onclick="signInWithGoogle()">
-            <svg width="18" height="18" viewBox="0 0 18 18">
-                <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
-                <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
-                <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/>
-                <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
-            </svg>
-            Sign in with Google
-        </button>
-        <div class="auth-error" id="auth-error">Access denied. This dashboard is restricted.</div>
-    </div>
+  <div class="auth-box">
+    <div class="auth-header"><div class="logo">W</div><span class="auth-title">Winntelligence Admin</span></div>
+    <p class="auth-prompt">Sign in with your Winntelligence account to access the console.</p>
+    <button class="btn-google" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/>
+        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div class="auth-error" id="auth-error">Access denied. This console is restricted to the Winntelligence admin.</div>
+  </div>
 </div>
 
-<!-- ── DASHBOARD ── -->
+<!-- ── DASHBOARD (revealed only after winn@ auth) ── -->
 <div id="dashboard">
+<header>
+  <div class="brand"><div class="logo">W</div><h1>WINNTELLIGENCE</h1><span class="tag">ADMIN</span></div>
+  <div class="hright"><span id="whoami">—</span><button class="btn" onclick="loadAll()">Refresh</button><button class="btn" onclick="signOut()">Sign out</button></div>
+</header>
 
-    <div class="topbar">
-        <div class="topbar-left">
-            <div class="topbar-logo">
-                <div class="winn-mark">W</div>
-                <span class="topbar-title">Winntelligence</span>
-            </div>
-            <span class="topbar-badge">Admin</span>
-        </div>
-        <div class="topbar-right">
-            <span class="topbar-user" id="admin-email"></span>
-            <button class="refresh-btn" onclick="loadDashboard()">Refresh</button>
-            <button class="btn-signout" onclick="signOut()">Sign out</button>
-        </div>
-    </div>
-
-    <div class="dashboard-content">
-
-        <!-- VELOCITY SIGNAL -->
-        <div>
-            <div class="section-label">Velocity Signal</div>
-            <div class="stat-card highlight" style="max-width:100%;">
-                <div class="stat-label"><span class="status-dot"></span>Live — sessions accumulating</div>
-                <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-top:4px;">
-                    <div>
-                        <div class="stat-value" id="velocity-sessions-week">—</div>
-                        <div class="stat-sub">sessions this week</div>
-                    </div>
-                    <div>
-                        <div class="stat-value" id="velocity-messages-week">—</div>
-                        <div class="stat-sub">messages this week</div>
-                    </div>
-                    <div>
-                        <div class="stat-value" id="velocity-new-users-week">—</div>
-                        <div class="stat-sub">new users this week</div>
-                    </div>
-                </div>
-                <div class="velocity-bar-wrap" style="margin-top:12px;">
-                    <div class="velocity-bar-track">
-                        <div class="velocity-bar-fill" id="velocity-bar" style="width:0%"></div>
-                    </div>
-                    <span class="velocity-label" id="velocity-trend">calculating...</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- TOP-LINE STATS -->
-        <div>
-            <div class="section-label">Platform Totals</div>
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Users</div>
-                    <div class="stat-value" id="stat-users">—</div>
-                    <div class="stat-sub">authenticated via Google</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total Sessions</div>
-                    <div class="stat-value" id="stat-sessions">—</div>
-                    <div class="stat-sub">coaching conversations</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total Messages</div>
-                    <div class="stat-value" id="stat-messages">—</div>
-                    <div class="stat-sub">exchanges with Winn</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Avg Depth</div>
-                    <div class="stat-value" id="stat-depth">—</div>
-                    <div class="stat-sub">messages per session</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Avg Sessions</div>
-                    <div class="stat-value" id="stat-sessions-per-user">—</div>
-                    <div class="stat-sub">per user</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SESSION DEPTH TABLE -->
-        <div>
-            <div class="section-label">Sessions — Depth & Recency</div>
-            <div class="table-wrap">
-                <div class="table-header">
-                    <span class="table-title">All Sessions</span>
-                    <span class="table-count" id="sessions-count"></span>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Started</th>
-                            <th>Last Active</th>
-                            <th>Messages</th>
-                            <th>Depth</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sessions-table-body">
-                        <tr class="loading-row"><td colspan="5">Loading sessions...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- USER TABLE -->
-        <div>
-            <div class="section-label">Users</div>
-            <div class="table-wrap">
-                <div class="table-header">
-                    <span class="table-title">Authenticated Users</span>
-                    <span class="table-count" id="users-count"></span>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Email</th>
-                            <th>First Seen</th>
-                            <th>Sessions</th>
-                            <th>Total Messages</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-table-body">
-                        <tr class="loading-row"><td colspan="4">Loading users...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!--
-            PRIVACY (July 5, 2026): The "Intention Answers" section that
-            previously lived here has been removed. It queried the first
-            user message of every session directly from the messages table
-            and displayed up to 200 characters of it, mislabeled as an
-            "intention" response. That was real, private session content
-            surfaced as a permanent dashboard feature — the exact thing
-            Standing Question #9 in the repository register now holds this
-            platform to never doing again. Operational metadata only, no
-            content, on this surface, as a standing principle.
-        -->
-
-    </div>
+<div class="cfg">
+  <span>API</span>
+  <input class="k" id="api" value="https://winn-admin-api.winn-3d3.workers.dev">
+  <span>admin key</span>
+  <input class="k" id="key" type="password" placeholder="x-admin-key (kept in memory)">
+  <button class="btn go" onclick="loadAll()">Load</button>
+  <span class="status demo" id="status">— demo data —</span>
 </div>
+
+<div class="tabs">
+  <div class="tab" data-view="usage"><span class="dot"></span>USAGE</div>
+  <div class="tab active" data-view="intel"><span class="dot"></span>INTELLIGENCE</div>
+  <div class="tab" data-view="cohort"><span class="dot"></span>COHORT</div>
+  <div class="tab soon">FUNNEL<span class="lbl-soon">AT LAUNCH</span></div>
+</div>
+
+<main>
+  <section class="view" id="usage"></section>
+  <section class="view active" id="intel"></section>
+  <section class="view" id="cohort"></section>
+</main>
+</div><!-- /#dashboard -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // ── CONFIGURATION ──
-    const SUPABASE_URL = 'https://vxwsldczrpvjkivepnlb.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__PjjxzUjbyfev4TDEQ0Z3A_XTeBOnBX';
-    const ADMIN_EMAIL = 'winn@winntelligence.ai';
+// ============================ DEMO DATA (SYNTHETIC placeholder preview) =======
+// PUBLIC-SOURCE-SAFE: this page is served on GitHub Pages, so anything embedded
+// here is publicly viewable. Therefore NO real people, emails, ventures, prior
+// questions, or ledger content live in this block — it is entirely fabricated
+// sample data whose ONLY job is to preview the layout before a key is entered.
+// Real data arrives at runtime from the key-gated admin worker, never from here.
+const DEMO = {
+  usage: {
+    totals:{users:11,sessions:24,messages:531,avg_depth:22.1,avg_sessions_per_user:2.2},
+    velocity:{sessions_this_week:3,messages_this_week:138,new_users_this_week:1},
+    sessions:[
+      {email:'builder-a@example.com',started:'2026-07-25',last_active:'2026-08-14T20:32:43Z',messages:84},
+      {email:'builder-b@example.com',started:'2026-07-31',last_active:'2026-08-13T15:00:00Z',messages:114},
+      {email:'builder-a@example.com',started:'2026-08-14',last_active:'2026-08-14T13:02:00Z',messages:54},
+      {email:'builder-c@example.com',started:'2026-08-14',last_active:'2026-08-14T18:10:00Z',messages:32},
+      {email:'builder-d@example.com',started:'2026-08-06',last_active:'2026-08-06T00:00:00Z',messages:14}
+    ]
+  },
+  intelligence: {
+    tiles:{cold_pull_returns:0,builders_relying:2,sessions_analyzed:10,observations_tracked:8},
+    observations:[
+      {id:'OBS-001',title:'Sample observation — a recurring coaching pattern under watch',axis:'sample_axis',status:'candidate',disposition:'Placeholder disposition — sign in and load for the live ledger.',first_seen:'2026-08-01',real_user_recurrence:4,self_test_count:1,counter_instances:2},
+      {id:'OBS-002',title:'Sample observation — a credibility/safety pattern',axis:'sample_axis',status:'watch',disposition:'Placeholder disposition.',first_seen:'2026-08-06',real_user_recurrence:3,self_test_count:0,counter_instances:0},
+      {id:'OBS-003',title:'Sample observation — a return-hook pattern',axis:'sample_axis',status:'candidate',disposition:'Placeholder disposition.',first_seen:'2026-07-30',real_user_recurrence:2,self_test_count:0,counter_instances:0},
+      {id:'OBS-004',title:'Sample observation — a voice pattern',axis:'sample_axis',status:'watch',disposition:'Placeholder disposition.',first_seen:'2026-08-14',real_user_recurrence:1,self_test_count:1,counter_instances:0}
+    ],
+    returns:[
+      {id:'RE-01',builder:'Builder A',occurred_at:'2026-07-31',confound_shade:'self_initiated_task_seeded',is_cold_pull:false,counts_toward_v2:true,seed_note:'sample'},
+      {id:'RE-02',builder:'Builder A',occurred_at:'2026-08-05',confound_shade:'nudged',is_cold_pull:false,counts_toward_v2:false,seed_note:'sample'},
+      {id:'RE-03',builder:'Builder B',occurred_at:'2026-08-13',confound_shade:'builder_curiosity_seeded',is_cold_pull:false,counts_toward_v2:false,seed_note:'sample'},
+      {id:'RE-04',builder:'Builder A',occurred_at:'2026-08-14',confound_shade:'self_initiated_task_seeded',is_cold_pull:false,counts_toward_v2:true,seed_note:'sample'}
+    ],
+    eir:[
+      {builder:'Builder A',cohort:'cohort_1',signals:['un_nudged_work_return','deep_repeated_use'],counts:true},
+      {builder:'Builder B',cohort:'cohort_1',signals:['refers_others','deep_repeated_use'],counts:true},
+      {builder:'Advisor',cohort:'advisor',signals:['acted_on_prior_question'],counts:false}
+    ],
+    venture_map:[
+      {venture:'a sample venture',question:'What has to be true for this to work at scale?',
+       threads:[
+         {session_id:'sample01',label:'thread one',relation:'answers',note:'holds part of the answer'},
+         {session_id:'sample02',label:'thread two',relation:'circles',note:'circles the same question'}
+       ]}
+    ],
+    analysis_feed:[
+      {id:'S-EX1',analyzed_at:'2026-08-15',weight:'real_user',headline:'Sample analysis entry — a pattern instance was recorded',observations:['OBS-003']},
+      {id:'S-EX2',analyzed_at:'2026-08-14',weight:'real_user',headline:'Sample analysis entry — an observation was refined',observations:['OBS-001']},
+      {id:'S-EX3',analyzed_at:'2026-08-13',weight:'real_user',headline:'Sample analysis entry — a differentiation moment logged',observations:['OBS-001','OBS-002']},
+      {id:'S-EX4',analyzed_at:'2026-08-09',weight:'self_test',headline:'Sample analysis entry — a self-test run',observations:[]}
+    ]
+  },
+  cohort: {
+    cohort:{name:'Sample Panel',kind:'panel',leader:'Panel leader (you)',member_count:6,
+            privacy_note:'Dogfood of the portfolio view — metadata + emergence + progress only.'},
+    privacy:'Leader sees engagement, emergence, and progress only — never the raw session.',
+    members:[
+      {builder:'Builder A',cohort_tag:'cohort_1',venture:'a sample venture',threads:2,messages:138,last_active:'2026-08-14T20:32:43Z',
+        emergence:['What has to be true for this to work at scale?','Define success before the pilot ends — by whose measure?'],progress:['un_nudged_work_return','deep_repeated_use'],returns:4},
+      {builder:'Builder B',cohort_tag:'cohort_1',venture:'a sample consultancy',threads:1,messages:114,last_active:'2026-08-13T15:00:00Z',
+        emergence:[],progress:['refers_others','deep_repeated_use'],returns:1},
+      {builder:'Builder C',cohort_tag:'cohort_1',venture:null,threads:0,messages:0,last_active:null,emergence:[],progress:[],returns:0},
+      {builder:'Builder D',cohort_tag:'cohort_1',venture:null,threads:0,messages:0,last_active:null,emergence:[],progress:[],returns:0},
+      {builder:'Builder E',cohort_tag:'cohort_1',venture:null,threads:0,messages:0,last_active:null,emergence:[],progress:[],returns:0},
+      {builder:'Builder F',cohort_tag:'cohort_1',venture:null,threads:0,messages:0,last_active:null,emergence:[],progress:[],returns:0}
+    ]
+  }
+};
 
-    // ── SUPABASE CLIENT ──
-    const { createClient } = supabase;
-    const sb = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+// ============================ FETCH ==========================================
+async function apiGet(path){
+  const base=document.getElementById('api').value.replace(/\/$/,'');
+  const key=document.getElementById('key').value.trim();
+  const res=await fetch(base+path,{headers:{'x-admin-key':key}});
+  if(!res.ok){const t=await res.text();throw new Error('HTTP '+res.status+': '+t.slice(0,200));}
+  return res.json();
+}
+async function loadAll(){
+  const st=document.getElementById('status');
+  const key=document.getElementById('key').value.trim();
+  if(!key){ renderAll(DEMO); st.className='status demo'; st.textContent='— demo data (enter admin key + Load for live) —'; return; }
+  st.className='status'; st.textContent='loading…';
+  try{
+    const [usage,intelligence,cohort]=await Promise.all([
+      apiGet('/admin/dashboard/usage'),
+      apiGet('/admin/dashboard/intelligence'),
+      apiGet('/admin/dashboard/cohort').catch(()=>DEMO.cohort)
+    ]);
+    renderAll({usage,intelligence,cohort});
+    st.className='status live'; st.textContent='● live';
+  }catch(e){
+    renderAll(DEMO);
+    st.className='status err'; st.textContent='live fetch failed — showing demo · '+e.message;
+  }
+}
 
-    let currentSession = null;
+// ============================ RENDER =========================================
+const esc=s=>String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const SHADE={cold_pull:'#d9ad3c',self_initiated_task_seeded:'#37d39a',nudged:'#e0983a',builder_curiosity_seeded:'#e0983a',doubly_seeded:'#e0983a',larry_pushed:'#e46a6a'};
+const SHADE_LABEL={cold_pull:'cold-pull',self_initiated_task_seeded:'self-initiated',nudged:'nudged',builder_curiosity_seeded:'curiosity',doubly_seeded:'doubly-seeded',larry_pushed:'pushed'};
+function daysSince(iso){ if(!iso) return null; const d=(Date.parse('2026-08-18')-Date.parse(iso))/864e5; return d; }
 
-    async function supabaseFetch(path, options = {}) {
-        const token = currentSession?.access_token;
-        const headers = {
-            'apikey': SUPABASE_PUBLISHABLE_KEY,
-            'Content-Type': 'application/json',
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-            ...options.headers
-        };
-        const res = await fetch(`${SUPABASE_URL}${path}`, { ...options, headers });
-        if (!res.ok) {
-            const err = await res.text();
-            throw new Error(`Supabase error ${res.status}: ${err}`);
-        }
-        return res.json();
-    }
+function renderAll(d){ renderUsage(d.usage); renderIntel(d.intelligence); renderCohort(d.cohort); }
 
-    // ── AUTH ──
-    async function signInWithGoogle() {
-        const { error } = await sb.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.href.split('?')[0].split('#')[0]
-            }
-        });
-        if (error) console.error('Sign in error:', error);
-    }
+function renderUsage(u){
+  const t=u.totals,v=u.velocity;
+  let h=`<div class="sec-label">Velocity Signal</div>
+  <div class="card pad velo">
+    <div class="live">&#9679; <b>LIVE</b> — SESSIONS ACCUMULATING</div>
+    <div class="row"><div class="n">${v.sessions_this_week}<small>sessions this week</small></div>
+      <div class="n">${v.messages_this_week}<small>messages this week</small></div>
+      <div class="n">${v.new_users_this_week}<small>new users this week</small></div></div>
+  </div>
+  <div class="sec-label">Platform Totals</div>
+  <div class="tiles five">
+    ${tile('Total Users',t.users,'authenticated via Google')}
+    ${tile('Total Sessions',t.sessions,'coaching conversations')}
+    ${tile('Total Messages',t.messages,'exchanges with Winn')}
+    ${tile('Avg Depth',t.avg_depth,'messages per session')}
+    ${tile('Avg Sessions',t.avg_sessions_per_user,'per user')}
+  </div>
+  <div class="sec-label">Sessions — Depth &amp; Recency</div>
+  <div class="card pad sessions">
+    <div class="srow h"><span>User</span><span>Started</span><span>Last active</span><span>Messages</span></div>
+    ${u.sessions.map(s=>`<div class="srow"><span>${esc(s.email)}</span>
+      <span class="note-inline">${fmtDate(s.started)}</span>
+      <span class="note-inline">${fmtAgo(s.last_active)}</span>
+      <span class="chipmsg">${s.messages} msg</span></div>`).join('')}
+  </div>
+  <div class="footer-note">The <b>usage</b> instrument — who used Winn, how deep, how recently. Straight from Supabase.</div>`;
+  document.getElementById('usage').innerHTML=h;
+}
+const tile=(k,v,s,cls='')=>`<div class="tile"><div class="k">${k}</div><div class="v ${cls}">${v}</div><div class="s">${s}</div></div>`;
 
-    async function signOut() {
-        await sb.auth.signOut();
-        currentSession = null;
-        document.getElementById('dashboard').style.display = 'none';
-        document.getElementById('auth-gate').style.display = 'flex';
-    }
+function renderIntel(d){
+  const t=d.tiles;
+  let h=`<div class="sec-label">Analysis Loop — Live</div>
+  <div class="subhead">Two proofs: <b>cold-pull</b> is the <em>mechanism</em> proof (Winn's hook pulls, no outside trigger); <b>EIR adoption</b> is the <em>value</em> proof (builders rely on it). Different questions, not competing numbers.</div>
+  <div class="tiles">
+    ${tile('Cold-pull returns',t.cold_pull_returns,'Pulled back by Winn alone — the mechanism proof, still owed.','gold')}
+    ${tile('Builders relying',t.builders_relying,'Using Winn as an EIR — the value proof.','green')}
+    ${tile('Sessions analyzed',t.sessions_analyzed,'Diagnostics filed.','ink')}
+    ${tile('Observations',t.observations_tracked,'Recurring patterns tracked.','ink')}
+  </div>
+  <div class="sec-label">Observation Ledger — the doctrine scoreboard</div>
+  <div class="obs-grid">${d.observations.map(obsCard).join('')}</div>
+  <div class="sec-label">Return Events — only cold-pull proves the mechanism</div>
+  <div class="card pad">${returnsSvg(d.returns)}
+    <div class="legend">
+      <span><i class="sw" style="background:#d9ad3c"></i> Cold-pull (goal) — ${t.cold_pull_returns}</span>
+      <span><i class="sw" style="background:#37d39a"></i> Self-initiated / reliance</span>
+      <span><i class="sw" style="background:#e0983a"></i> Nudged / prompted</span>
+    </div></div>
+  <div class="sec-label">EIR Adoption — who's relying on Winn (the value proof)</div>
+  <div class="card pad eir">
+    <div class="er h"><span>Builder</span><span>Signals lit</span><span>Note</span></div>
+    ${d.eir.map(e=>`<div class="er"><span class="who">${esc(e.builder)}${e.counts?'':' <small style="color:var(--muted)">· advisor</small>'}</span>
+      <span class="sig">${(e.signals||[]).map(s=>`<span class="sigchip">${sigLabel(s)}</span>`).join('')}</span>
+      <span class="nt">${e.counts?'Counts toward EIR adoption.':'Advisor-tagged — shown, not counted.'}</span></div>`).join('')}
+  </div>
+  <div class="sec-label">Venture Map — cross-thread continuity (a V3 account-object preview)</div>
+  <div class="card pad">${ventureMapSvg(d.venture_map)}</div>
+  <div class="sec-label">Analysis Feed — updates when a diagnostic is filed</div>
+  <div class="card pad feed">${d.analysis_feed.map(f=>`<div class="frow">
+      <span class="d">${fmtDate(f.analyzed_at)}</span><span class="sid">${esc(f.id)}</span>
+      <span class="wt">${esc(f.weight.replace(/_/g,' '))}</span>
+      <span class="hd">${esc(f.headline)}${(f.observations&&f.observations.length)?' <span style="color:var(--muted)">· '+f.observations.join(', ')+'</span>':''}</span></div>`).join('')}
+  </div>`;
+  document.getElementById('intel').innerHTML=h;
+}
+function obsCard(o){
+  const pips=[]; for(let i=0;i<o.real_user_recurrence;i++)pips.push('<i class="pip real"></i>'); for(let i=0;i<o.self_test_count;i++)pips.push('<i class="pip self"></i>');
+  const wt=[]; if(o.real_user_recurrence)wt.push(o.real_user_recurrence+' real-user'); if(o.self_test_count)wt.push(o.self_test_count+' self-test'); if(o.counter_instances)wt.push(o.counter_instances+' counter');
+  return `<div class="obs"><div class="top"><div><div class="id">${esc(o.id)}</div><div class="title">${esc(o.title)}</div></div>
+    <span class="pill ${esc(o.status)}">${esc(o.status)}</span></div>
+    <div class="meta"><span class="axis">${esc((o.axis||'').replace(/_/g,' '))}</span>
+      <span>rec <span class="pips">${pips.join('')||'<i class="pip"></i>'}</span></span>
+      <span>${wt.join(' · ')||'—'}</span><span>· seen ${fmtDate(o.first_seen)}</span></div>
+    <div class="note">${esc(o.disposition||'')}</div></div>`;
+}
+function returnsSvg(returns){
+  const W=1000,x0=120,x1=970;
+  const times=returns.map(r=>Date.parse(r.occurred_at));
+  const min=Math.min(...times),max=Math.max(...times),span=(max-min)||1;
+  const X=t=>x0+((t-min)/span)*(x1-x0);
+  let dots=returns.map((r,i)=>{
+    const x=X(Date.parse(r.occurred_at)),y=92,c=SHADE[r.confound_shade]||'#9aa7b4',dy=140+((i%3)*34);
+    return `<line x1="${x}" y1="84" x2="${x}" y2="${dy}" stroke="#22303c"/>
+      <circle cx="${x}" cy="${y}" r="8" fill="${c}"/>
+      <text x="${x}" y="${dy+14}" fill="#e9eef3" font-size="10.5" text-anchor="middle" font-weight="700">${esc(r.id)}</text>
+      <text x="${x}" y="${dy+27}" fill="#9aa7b4" font-size="9.5" text-anchor="middle">${esc(r.builder.split(' ')[0])}</text>
+      <text x="${x}" y="${dy+39}" fill="#5d6b78" font-size="9" text-anchor="middle">${SHADE_LABEL[r.confound_shade]||''}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} 250" width="100%" role="img" aria-label="Return events timeline; cold-pull lane empty (0).">
+    <text x="0" y="30" fill="#d9ad3c" font-size="12" font-family="monospace" font-weight="700">COLD-PULL</text>
+    <text x="0" y="45" fill="#5d6b78" font-size="10">the goal · 0</text>
+    <rect x="120" y="14" width="850" height="34" rx="8" fill="none" stroke="#d9ad3c" stroke-opacity="0.5" stroke-dasharray="5 5"/>
+    <text x="545" y="36" fill="#7d6a2a" font-size="11.5" text-anchor="middle" font-style="italic">empty — no un-nudged, un-seeded return yet</text>
+    <line x1="120" y1="92" x2="970" y2="92" stroke="#283544"/>${dots}</svg>`;
+}
+function ventureMapSvg(vm){
+  if(!vm||!vm.length) return '<div class="cap">No cross-thread fragmentation detected.</div>';
+  const v=vm[0], th=v.threads||[];
+  const cx=500, positions=th.map((_,i)=> th.length===1?cx : 165+i*(670/(th.length-1)));
+  let threadBoxes=th.map((t,i)=>{
+    const x=positions[i]-165, col=t.relation==='answers'?'#37d39a':(t.relation==='circles'?'#5aa2ea':'#9aa7b4');
+    return `<rect x="${x}" y="238" width="330" height="80" rx="10" fill="#111823" stroke="#283544"/>
+      <text x="${x+20}" y="262" fill="#e9eef3" font-size="12.5" font-weight="700">${esc(t.label)}</text>
+      <text x="${x+20}" y="279" fill="#9aa7b4" font-size="10.5">${esc(t.relation)} · ${esc((t.session_id||'').slice(0,8))}</text>
+      <text x="${x+20}" y="299" fill="${col}" font-size="10.5">${esc((t.note||'').slice(0,52))}</text>
+      <line x1="${positions[i]}" y1="238" x2="${cx}" y2="196" stroke="#3a4655"/>`;
+  }).join('');
+  const gap = th.length>1?`<line x1="${positions[0]+165}" y1="278" x2="${positions[1]-165}" y2="278" stroke="#e46a6a" stroke-width="2" stroke-dasharray="6 6"/>
+      <rect x="${cx-64}" y="266" width="128" height="24" rx="6" fill="#0a0e13"/>
+      <text x="${cx}" y="282" fill="#e46a6a" font-size="10.5" text-anchor="middle" font-weight="700">no memory bridge</text>`:'';
+  return `<svg viewBox="0 0 1000 340" width="100%" role="img" aria-label="Venture map: two threads, one shared question, no memory bridge.">
+    <rect x="360" y="20" width="280" height="58" rx="10" fill="#141c26" stroke="#5eead4" stroke-opacity="0.55"/>
+    <text x="500" y="42" fill="#5eead4" font-size="12.5" text-anchor="middle" font-weight="700">The prior question</text>
+    <text x="500" y="62" fill="#c5d0da" font-size="10.5" text-anchor="middle">${esc(v.question.slice(0,58))}</text>
+    <rect x="410" y="150" width="180" height="46" rx="10" fill="#1a130a" stroke="#d9ad3c" stroke-opacity="0.6"/>
+    <text x="500" y="170" fill="#d9ad3c" font-size="12" text-anchor="middle" font-weight="700">${esc(v.venture.slice(0,22))}</text>
+    <text x="500" y="185" fill="#8a7a55" font-size="10" text-anchor="middle">venture</text>
+    <line x1="500" y1="78" x2="500" y2="150" stroke="#2f5a48"/>${threadBoxes}${gap}</svg>
+    <div class="cap">Two threads of one venture circling the same question, with no bridge between them — the case for V3 cross-thread memory. Derived, not drawn by hand.</div>`;
+}
+function renderCohort(c){
+  const co=c.cohort||{};
+  let rows=(c.members||[]).map(m=>{
+    const d=daysSince(m.last_active); let st='st-dormant',lbl='no activity';
+    if(d!=null&&d<=10){st='st-active';lbl='active';} else if(d!=null&&d<=25){st='st-quiet';lbl='quiet';}
+    const eng = m.threads? `${m.threads} thread${m.threads>1?'s':''} · ${m.messages} msg` : '—';
+    return `<div class="mrow">
+      <span class="who">${esc(m.builder)}<small>${esc(m.venture||'—')}</small></span>
+      <span class="${st}"><span class="status-dot"></span>${lbl}${m.last_active?' · '+fmtAgo(m.last_active):''}</span>
+      <span class="eng">${eng}</span>
+      <span class="qs">
+        ${(m.emergence||[]).slice(0,2).map(q=>`<span class="qchip">${esc(q.slice(0,70))}</span>`).join('')||'<span class="note-inline">no question surfaced yet</span>'}
+        <span class="prog">${(m.progress||[]).map(p=>`<span class="sigchip">${sigLabel(p)}</span>`).join('')}${m.returns?`<span class="sigchip">${m.returns} return${m.returns>1?'s':''}</span>`:''}</span>
+      </span></div>`;
+  }).join('');
+  document.getElementById('cohort').innerHTML=`
+    <div class="sec-label">${esc(co.name||'Cohort')} — the portfolio view (dogfood)</div>
+    <div class="subhead">Pillar three, tested on your own panel before Bobby: an EIR for every builder, and a read for the leader on who's stuck, who's moving, and what question is surfacing — <b>without</b> the raw sessions. Leader: ${esc(co.leader||'—')} · ${co.member_count||0} members.</div>
+    <div class="privacy-banner">🔒 <span><b>Privacy wall.</b> ${esc(c.privacy||'Leader sees engagement, emergence, and progress only — never the raw session.')}</span></div>
+    <div class="card pad cohort">
+      <div class="mrow h"><span>Builder</span><span>Status</span><span>Engagement</span><span>Emergence &amp; progress</span></div>
+      ${rows}
+    </div>
+    <div class="footer-note">This is the exact view a program operator (Bobby, a professor, a studio) would get — proven here on your panel. If it's useful to you watching these six, it's useful at 80. The privacy wall is the feature that makes it trustworthy to the builders <b>and</b> the leader.</div>`;
+}
+const sigLabel=s=>({un_nudged_work_return:'un-nudged work return',deep_repeated_use:'deep repeated use',acted_on_prior_question:'acted on prior question',refers_others:'refers others ★'}[s]||s);
+function fmtDate(s){ if(!s) return '—'; const d=new Date(s); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function fmtAgo(s){ if(!s) return '—'; const d=(Date.parse('2026-08-18')-Date.parse(s))/864e5; if(d<1)return 'today'; if(d<2)return '1d ago'; if(d<30)return Math.round(d)+'d ago'; return fmtDate(s); }
 
-    // ── FORMAT HELPERS ──
-    function formatDate(iso) {
-        if (!iso) return '—';
-        const d = new Date(iso);
-        const now = new Date();
-        const diff = now - d;
-        if (diff < 60000) return 'just now';
-        if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
-        if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
-        if (diff < 604800000) return Math.floor(diff / 86400000) + 'd ago';
-        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
-    }
+document.querySelectorAll('.tab[data-view]').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  const v=t.getAttribute('data-view'); document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
+  document.getElementById(v).classList.add('active'); window.scrollTo(0,0);
+}));
 
-    function depthPill(count) {
-        const n = parseInt(count) || 0;
-        if (n <= 2) return `<span class="depth-pill depth-low">${n} msg</span>`;
-        if (n <= 8) return `<span class="depth-pill depth-mid">${n} msg</span>`;
-        return `<span class="depth-pill depth-high">${n} msg</span>`;
-    }
+// ============================ AUTH GATE ======================================
+// Same model as the prior admin.html: Google OAuth via Supabase, restricted to
+// the admin email. Nothing in #dashboard is shown until winn@ is verified. The
+// publishable (anon) key is safe to expose — real data access is protected by
+// RLS on the DB and by the x-admin-key on the admin worker.
+const SUPABASE_URL = 'https://vxwsldczrpvjkivepnlb.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__PjjxzUjbyfev4TDEQ0Z3A_XTeBOnBX';
+const ADMIN_EMAIL = 'winn@winntelligence.ai';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-    // ── LOAD DASHBOARD DATA ──
-    async function loadDashboard() {
-        try {
-            await loadStats();
-            await loadSessions();
-            await loadUsers();
-        } catch (e) {
-            console.error('Dashboard load error:', e);
-        }
-    }
-
-    async function loadStats() {
-        const [usersData, sessionsData, messagesData] = await Promise.all([
-            supabaseFetch('/rest/v1/users?select=id,created_at&order=created_at.desc'),
-            supabaseFetch('/rest/v1/sessions?select=id,created_at,updated_at,user_id'),
-            supabaseFetch('/rest/v1/messages?select=id,created_at,session_id,role')
-        ]);
-
-        const totalUsers = usersData.length;
-        const totalSessions = sessionsData.length;
-        const totalMessages = messagesData.length;
-        const avgDepth = totalSessions > 0 ? (totalMessages / totalSessions).toFixed(1) : 0;
-        const avgSessionsPerUser = totalUsers > 0 ? (totalSessions / totalUsers).toFixed(1) : 0;
-
-        document.getElementById('stat-users').textContent = totalUsers;
-        document.getElementById('stat-sessions').textContent = totalSessions;
-        document.getElementById('stat-messages').textContent = totalMessages;
-        document.getElementById('stat-depth').textContent = avgDepth;
-        document.getElementById('stat-sessions-per-user').textContent = avgSessionsPerUser;
-
-        // Velocity — last 7 days
-        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-        const sessionsThisWeek = sessionsData.filter(s => s.created_at >= weekAgo).length;
-        const messagesThisWeek = messagesData.filter(m => m.created_at >= weekAgo).length;
-        const usersThisWeek = usersData.filter(u => u.created_at >= weekAgo).length;
-
-        document.getElementById('velocity-sessions-week').textContent = sessionsThisWeek;
-        document.getElementById('velocity-messages-week').textContent = messagesThisWeek;
-        document.getElementById('velocity-new-users-week').textContent = usersThisWeek;
-
-        const velocityPct = totalSessions > 0 ? Math.min(100, Math.round((sessionsThisWeek / totalSessions) * 100)) : 0;
-        document.getElementById('velocity-bar').style.width = velocityPct + '%';
-
-        const trend = sessionsThisWeek === 0 ? 'No activity this week'
-            : sessionsThisWeek === 1 ? '1 session this week — moat is building'
-            : `${sessionsThisWeek} sessions this week — velocity positive`;
-        document.getElementById('velocity-trend').textContent = trend;
-    }
-
-    async function loadSessions() {
-        const sessions = await supabaseFetch(
-            '/rest/v1/sessions?select=id,created_at,updated_at,user_id,users(email)&order=updated_at.desc&limit=50'
-        );
-
-        // Per-session message count AND true last-activity (the newest message's
-        // timestamp). We label and order by real conversation time — not
-        // sessions.updated_at, which also moves on rename/archive, so it reads as
-        // "last modified," not "last active." (Client-side aggregate; PostgREST
-        // caps at ~1000 rows by default — fine at current volume; move to a
-        // server-side view/RPC when message volume grows past that.)
-        const messageRows = await supabaseFetch(
-            '/rest/v1/messages?select=session_id,created_at'
-        );
-        const countMap = {};
-        const lastActiveMap = {};
-        messageRows.forEach(m => {
-            countMap[m.session_id] = (countMap[m.session_id] || 0) + 1;
-            if (!lastActiveMap[m.session_id] || m.created_at > lastActiveMap[m.session_id]) {
-                lastActiveMap[m.session_id] = m.created_at;
-            }
-        });
-        // Real last-activity = newest message; fall back to created_at (a session
-        // with no messages yet). Re-sort the fetched sessions by it.
-        const lastActive = s => lastActiveMap[s.id] || s.created_at;
-        sessions.sort((a, b) => {
-            const av = lastActive(a), bv = lastActive(b);
-            return bv > av ? 1 : bv < av ? -1 : 0;
-        });
-
-        document.getElementById('sessions-count').textContent = sessions.length + ' total';
-
-        const tbody = document.getElementById('sessions-table-body');
-        if (sessions.length === 0) {
-            tbody.innerHTML = '<tr class="loading-row"><td colspan="5">No sessions yet.</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = sessions.map(s => {
-            const email = s.users?.email || s.user_id?.slice(0, 8) + '…' || '—';
-            const msgCount = countMap[s.id] || 0;
-            return `
-                <tr>
-                    <td class="muted">${email}</td>
-                    <td class="mono">${formatDate(s.created_at)}</td>
-                    <td class="mono">${formatDate(lastActive(s))}</td>
-                    <td class="mono">${msgCount}</td>
-                    <td>${depthPill(msgCount)}</td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    async function loadUsers() {
-        const users = await supabaseFetch(
-            '/rest/v1/users?select=id,email,created_at&order=created_at.desc'
-        );
-        const sessions = await supabaseFetch('/rest/v1/sessions?select=user_id');
-
-        const sessionsByUser = {};
-        sessions.forEach(s => {
-            sessionsByUser[s.user_id] = (sessionsByUser[s.user_id] || 0) + 1;
-        });
-
-        document.getElementById('users-count').textContent = users.length + ' total';
-
-        const tbody = document.getElementById('users-table-body');
-        if (users.length === 0) {
-            tbody.innerHTML = '<tr class="loading-row"><td colspan="4">No users yet.</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = users.map(u => {
-            const sessionCount = sessionsByUser[u.id] || 0;
-            return `
-                <tr>
-                    <td>${u.email || '—'}</td>
-                    <td class="mono">${formatDate(u.created_at)}</td>
-                    <td class="mono">${sessionCount}</td>
-                    <td class="mono">—</td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    // ── INIT ──
-    async function showDashboard(session) {
-        const userEmail = session.user?.email;
-
-        if (!userEmail || userEmail !== ADMIN_EMAIL) {
-            document.getElementById('auth-error').style.display = 'block';
-            document.getElementById('auth-gate').style.display = 'flex';
-            await sb.auth.signOut();
-            return;
-        }
-
-        currentSession = session;
-        document.getElementById('auth-gate').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'flex';
-        document.getElementById('admin-email').textContent = userEmail;
-
-        await loadDashboard();
-    }
-
-    sb.auth.onAuthStateChange(async (event, session) => {
-        if (session) {
-            await showDashboard(session);
-        } else {
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('auth-gate').style.display = 'flex';
-        }
-    });
-
-    (async () => {
-        const { data } = await sb.auth.getSession();
-        if (data.session) {
-            await showDashboard(data.session);
-        }
-    })();
+async function signInWithGoogle(){
+  const { error } = await sb.auth.signInWithOAuth({
+    provider:'google',
+    options:{ redirectTo: window.location.href.split('?')[0].split('#')[0] }
+  });
+  if(error) console.error('Sign in error:', error);
+}
+async function signOut(){
+  await sb.auth.signOut();
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('auth-gate').style.display='flex';
+}
+async function showDashboard(session){
+  const email = session.user?.email;
+  if(!email || email !== ADMIN_EMAIL){
+    document.getElementById('auth-error').style.display='block';
+    document.getElementById('auth-gate').style.display='flex';
+    await sb.auth.signOut();
+    return;
+  }
+  document.getElementById('auth-gate').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  document.getElementById('whoami').textContent=email;
+  loadAll(); // renders demo until an admin key is entered
+}
+sb.auth.onAuthStateChange(async (event, session)=>{
+  if(session){ await showDashboard(session); }
+  else{
+    document.getElementById('dashboard').style.display='none';
+    document.getElementById('auth-gate').style.display='flex';
+  }
+});
+(async ()=>{
+  const { data } = await sb.auth.getSession();
+  if(data.session){ await showDashboard(data.session); }
+})();
 </script>
-
 </body>
 </html>
