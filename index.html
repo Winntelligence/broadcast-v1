@@ -699,12 +699,37 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         // an anonymous session to claim (from the email link, or one in progress),
         // claim it and open that thread; otherwise the normal returning-user flow.
         async function afterAuthRoute() {
+            // Reliable server-side path (build 04b): claim any anonymous session
+            // whose summary we emailed to this now-verified address. Works cross-
+            // device — no dependence on the magic-link redirect carrying an id.
+            try {
+                const landing = await claimPending();
+                if (landing && await claimAndOpen(landing)) return;
+            } catch (e) {}
+            // Same-browser fallbacks: the URL claim param, or an anon session held
+            // in this browser's local storage.
             const claimId = pendingClaimId || localStorage.getItem(ANON_SESSION_KEY);
             if (claimId) {
                 const ok = await claimAndOpen(claimId);
                 if (ok) return;
             }
             await loadUserAndSessions();
+        }
+
+        // Ask the worker to claim any anonymous session emailed to this user's
+        // verified address. Returns the session id to land in, or null.
+        async function claimPending() {
+            try {
+                await ensureFreshToken();
+                const res = await fetch(`${WORKER_URL}/session/claim-pending`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                    body: '{}'
+                });
+                if (!res.ok) return null;
+                const d = await res.json();
+                return d.landing || null;
+            } catch (e) { return null; }
         }
 
         // ── ANONYMOUS-FIRST FLOW (build 05) ──
