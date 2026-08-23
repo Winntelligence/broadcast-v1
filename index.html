@@ -502,6 +502,9 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         const ANON_SESSION_KEY = 'winn_anon_session';
         const ANON_HISTORY_KEY = 'winn_anon_history';
         const ANON_ASK_KEY = 'winn_anon_ask'; // '', 'done', or 'dismissed'
+        // DEBUG: winntelligence.ai/?resetask=1 clears the one-time ask suppression so
+        // the save-ask card can be re-triggered while testing. Invisible to real users.
+        try { if (new URLSearchParams(location.search).get('resetask')) localStorage.removeItem(ANON_ASK_KEY); } catch (e) {}
         function safeParse(s) { try { return JSON.parse(s); } catch { return null; } }
 
         // ── FUNNEL INSTRUMENTATION (build 06 pt.2) ──
