@@ -503,6 +503,41 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         const ANON_HISTORY_KEY = 'winn_anon_history';
         const ANON_ASK_KEY = 'winn_anon_ask'; // '', 'done', or 'dismissed'
         function safeParse(s) { try { return JSON.parse(s); } catch { return null; } }
+
+        // ── FUNNEL INSTRUMENTATION (build 06 pt.2) ──
+        let funnelChannel = null;       // where this visitor came from
+        let askShownLogged = false;     // fire ask_shown once per load
+        let justReturned = false;       // set on claim-land; drives 'continued'
+        function captureChannel() {
+            try {
+                const p = new URLSearchParams(window.location.search);
+                const c = p.get('ref') || p.get('utm_source');
+                if (c) { funnelChannel = c.slice(0, 40); localStorage.setItem('winn_channel', funnelChannel); return; }
+                const stored = localStorage.getItem('winn_channel');
+                if (stored) { funnelChannel = stored; return; }
+                const ref = document.referrer || '';
+                if (/substack\.com/i.test(ref)) funnelChannel = 'substack';
+                else if (/(x\.com|twitter\.com|t\.co)/i.test(ref)) funnelChannel = 'x';
+                else if (ref && !/winntelligence\.ai/i.test(ref)) funnelChannel = 'referral';
+                else funnelChannel = 'direct';
+                localStorage.setItem('winn_channel', funnelChannel);
+            } catch (e) { funnelChannel = 'direct'; }
+        }
+        // Fire-and-forget client event. Never blocks or errors the UI.
+        function logFunnel(event, extra) {
+            try {
+                const body = Object.assign(
+                    { event, sessionId: (currentSession && currentSession.id) || null, channel: funnelChannel || null },
+                    extra || {},
+                );
+                fetch(`${WORKER_URL}/event`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                    keepalive: true,
+                }).catch(() => {});
+            } catch (e) {}
+        }
         function saveAuth(token, user, refreshToken, expiresAtMs) {
             localStorage.setItem('winn_token', token);
             if (user) localStorage.setItem('winn_user', JSON.stringify(user));
@@ -632,6 +667,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
 
         // ── INIT ──
         async function init() {
+            captureChannel();
             // Capture ?mode=case_study BEFORE anything strips the query string.
             // Google OAuth round-trips through Supabase and comes back to a bare
             // URL, and handleOAuthCode/handleAccessToken then call
@@ -813,7 +849,10 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             const exchanges = history.filter(m => m.role === 'user').length;
             if (exchanges < 3) return;
             const card = document.getElementById('save-ask');
-            if (card) card.style.display = '';
+            if (card) {
+                card.style.display = '';
+                if (!askShownLogged) { askShownLogged = true; logFunnel('ask_shown'); }
+            }
         }
 
         // The conversion ask → POST /session/summary-email (build 04).
@@ -886,6 +925,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 currentSession = { id: sessionId, title };
                 history = msgs.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }));
                 saveSessionLocal(currentSession);
+                justReturned = true; // the next message they send is a 'continued'
                 openThreadWithHistory(true);
                 return true;
             } catch (e) {
@@ -1337,7 +1377,10 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                             messages: history,
                             sessionId: currentSession?.id || null,
                             newSession: !currentSession,
-                            sessionType: sessionMode === 'case_study' ? 'case_study' : 'coaching'
+                            sessionType: sessionMode === 'case_study' ? 'case_study' : 'coaching',
+                            // channel rides the first anonymous message; the worker
+                            // records it on session_start (top of the funnel).
+                            channel: !authToken ? (funnelChannel || null) : undefined
                         })
                     });
                 };
@@ -1378,6 +1421,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                     // Anonymous: persist the thread locally, and reveal the
                     // earned-close email ask once the session has real depth.
                     if (!authToken) { persistAnon(); maybeRevealAsk(); }
+                    // Funnel: the first message after a claim-and-land = continued.
+                    if (justReturned) { justReturned = false; logFunnel('continued'); }
                 }
             } catch {
                 removeTyping();

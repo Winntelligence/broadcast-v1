@@ -136,13 +136,14 @@
   <div class="tab" data-view="usage"><span class="dot"></span>USAGE</div>
   <div class="tab active" data-view="intel"><span class="dot"></span>INTELLIGENCE</div>
   <div class="tab" data-view="cohort"><span class="dot"></span>COHORT</div>
-  <div class="tab soon">FUNNEL<span class="lbl-soon">AT LAUNCH</span></div>
+  <div class="tab" data-view="funnel"><span class="dot"></span>FUNNEL</div>
 </div>
 
 <main>
   <section class="view" id="usage"></section>
   <section class="view active" id="intel"></section>
   <section class="view" id="cohort"></section>
+  <section class="view" id="funnel"></section>
 </main>
 </div><!-- /#dashboard -->
 
@@ -213,6 +214,20 @@ const DEMO = {
       {builder:'Builder E',cohort_tag:'cohort_1',venture:null,threads:0,messages:0,last_active:null,emergence:[],progress:[],returns:0},
       {builder:'Builder F',cohort_tag:'cohort_1',venture:null,threads:0,messages:0,last_active:null,emergence:[],progress:[],returns:0}
     ]
+  },
+  funnel: {
+    totals:{sessions:42,ask_shown:20,email_submitted:9,email_sent:9,returned:4,continued:3},
+    week:{sessions:12,email_submitted:3},
+    by_channel:[
+      {channel:'direct',sessions:24,converts:5},
+      {channel:'substack',sessions:12,converts:3},
+      {channel:'x',sessions:6,converts:1}
+    ],
+    recent:[
+      {event:'email_submitted',session_id:'sample',channel:'substack',created_at:'2026-08-22T13:40:00Z'},
+      {event:'ask_shown',session_id:'sample',channel:'substack',created_at:'2026-08-22T13:38:00Z'},
+      {event:'session_start',session_id:'sample',channel:'direct',created_at:'2026-08-22T13:30:00Z'}
+    ]
   }
 };
 
@@ -230,12 +245,13 @@ async function loadAll(){
   if(!key){ renderAll(DEMO); st.className='status demo'; st.textContent='— demo data (enter admin key + Load for live) —'; return; }
   st.className='status'; st.textContent='loading…';
   try{
-    const [usage,intelligence,cohort]=await Promise.all([
+    const [usage,intelligence,cohort,funnel]=await Promise.all([
       apiGet('/admin/dashboard/usage'),
       apiGet('/admin/dashboard/intelligence'),
-      apiGet('/admin/dashboard/cohort').catch(()=>DEMO.cohort)
+      apiGet('/admin/dashboard/cohort').catch(()=>DEMO.cohort),
+      apiGet('/admin/dashboard/funnel').catch(()=>DEMO.funnel)
     ]);
-    renderAll({usage,intelligence,cohort});
+    renderAll({usage,intelligence,cohort,funnel});
     st.className='status live'; st.textContent='● live';
   }catch(e){
     renderAll(DEMO);
@@ -249,7 +265,63 @@ const SHADE={cold_pull:'#d9ad3c',self_initiated_task_seeded:'#37d39a',nudged:'#e
 const SHADE_LABEL={cold_pull:'cold-pull',self_initiated_task_seeded:'self-initiated',nudged:'nudged',builder_curiosity_seeded:'curiosity',doubly_seeded:'doubly-seeded',larry_pushed:'pushed'};
 function daysSince(iso){ if(!iso) return null; const d=(Date.parse('2026-08-18')-Date.parse(iso))/864e5; return d; }
 
-function renderAll(d){ renderUsage(d.usage); renderIntel(d.intelligence); renderCohort(d.cohort); }
+function renderAll(d){ renderUsage(d.usage); renderIntel(d.intelligence); renderCohort(d.cohort); renderFunnel(d.funnel); }
+
+function renderFunnel(f){
+  f = f || {};
+  const t = f.totals||{}, wk = f.week||{};
+  const pct=(n,d)=> d? Math.round(100*n/d):0;
+  const steps=[
+    ['Sessions started', t.sessions||0],
+    ['Reached the ask', t.ask_shown||0],
+    ['Gave email — convert', t.email_submitted||0],
+    ['Summary sent', t.email_sent||0],
+    ['Returned to thread', t.returned||0],
+    ['Continued', t.continued||0]
+  ];
+  const top=steps[0][1]||0;
+  const convRate=pct(t.email_submitted||0, t.sessions||0);
+  const returnRate=pct(t.returned||0, t.email_sent||0);
+  let h=`<div class="sec-label">Conversion Funnel</div>
+  <div class="tiles" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">
+    <div class="tile"><div class="n" style="color:var(--gold)">${convRate}%<small>anon &rarr; email conversion</small></div></div>
+    <div class="tile"><div class="n" style="color:var(--green)">${returnRate}%<small>return rate (of emails sent)</small></div></div>
+    <div class="tile"><div class="n">${wk.email_submitted||0}<small>converts this week</small></div></div>
+  </div>
+  <div class="card pad">
+    <div class="live">&#9679; <b>LIVE</b> — THE ANON &rarr; EMAIL &rarr; RETURN FUNNEL</div>
+    <div style="margin-top:16px;display:flex;flex-direction:column;gap:11px">`;
+  steps.forEach((s,i)=>{
+    const [label,count]=s;
+    const w= top? Math.max(3, Math.round(100*count/top)) : 3;
+    const fromPrev= i>0 ? pct(count, steps[i-1][1]) : 100;
+    h+=`<div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink2);margin-bottom:4px">
+        <span>${label}</span><span><b style="color:var(--ink)">${count}</b>${i>0?` &middot; ${fromPrev}% of prev`:''}</span>
+      </div>
+      <div style="height:15px;background:var(--panel2);border:1px solid var(--border);border-radius:5px;overflow:hidden">
+        <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--gold),var(--green))"></div>
+      </div>
+    </div>`;
+  });
+  h+=`</div></div>`;
+  const ch=f.by_channel||[];
+  if(ch.length){
+    h+=`<div class="sec-label" style="margin-top:24px">By Channel</div>
+    <div class="card pad"><table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr style="color:var(--ink2);text-align:left"><th style="padding:6px 4px 6px 0">Channel</th><th style="padding:6px 4px">Sessions</th><th style="padding:6px 4px">Converts</th><th style="padding:6px 4px">Rate</th></tr>`;
+    ch.forEach(c=>{ h+=`<tr style="border-top:1px solid var(--border)"><td style="padding:7px 4px 7px 0;color:var(--ink)">${esc(c.channel)}</td><td style="padding:7px 4px">${c.sessions}</td><td style="padding:7px 4px">${c.converts}</td><td style="padding:7px 4px;color:var(--gold)">${pct(c.converts,c.sessions)}%</td></tr>`; });
+    h+=`</table></div>`;
+  }
+  const rec=f.recent||[];
+  if(rec.length){
+    h+=`<div class="sec-label" style="margin-top:24px">Recent Events</div>
+    <div class="card pad" style="font-size:12.5px;color:var(--ink2);display:flex;flex-direction:column;gap:6px">`;
+    rec.slice(0,20).forEach(r=>{ h+=`<div style="display:flex;justify-content:space-between"><span style="color:var(--ink)">${esc(r.event)}</span><span>${esc(r.channel||'—')} &middot; ${fmtAgo(r.created_at)}</span></div>`; });
+    h+=`</div>`;
+  }
+  const el=document.getElementById('funnel'); if(el) el.innerHTML=h;
+}
 
 function renderUsage(u){
   const t=u.totals,v=u.velocity;
