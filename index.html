@@ -326,6 +326,12 @@
             border-radius: 999px; padding: 4px 12px; font-size: 0.78rem; cursor: pointer; font-family: inherit;
         }
         .anon-signin:hover { color: var(--accent-pale); border-color: var(--accent); }
+        .email-summary-btn {
+            background: transparent; border: 1px solid var(--border-accent); color: var(--text-muted);
+            border-radius: 999px; padding: 4px 12px; font-size: 0.78rem; cursor: pointer; font-family: inherit;
+        }
+        .email-summary-btn:hover { color: var(--accent-pale); border-color: var(--accent); }
+        .email-summary-btn:disabled { opacity: 0.6; cursor: default; }
         .signin-back { margin-bottom: 14px; }
         .signin-back a { color: var(--text-muted); font-size: 0.85rem; text-decoration: none; }
         .signin-back a:hover { color: var(--accent-pale); }
@@ -426,6 +432,7 @@
                     <div class="user-tag-dot"></div>
                     <span id="user-tag-name"></span>
                 </div>
+                <button class="email-summary-btn" id="email-summary-btn" style="display:none;" onclick="emailMySummary()">Email me a summary</button>
                 <div class="status-dot-wrap">
                     <div class="status-dot"></div>
                     <span>Winn is here</span>
@@ -830,6 +837,40 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             } else {
                 if (signin) signin.style.display = '';
                 if (tag) tag.style.display = 'none';
+            }
+            maybeShowEmailBtn();
+        }
+
+        // Signed-in users can email themselves the summary of the current thread.
+        // Shown once the session has real depth; reuses the summary-email endpoint
+        // (whose anon claim-machinery no-ops on a session the user already owns).
+        function maybeShowEmailBtn() {
+            const btn = document.getElementById('email-summary-btn');
+            if (!btn) return;
+            const deep = currentSession && currentSession.id &&
+                history.filter(m => m.role === 'user').length >= 2;
+            btn.style.display = (authToken && currentUser && currentUser.email && deep) ? '' : 'none';
+        }
+
+        async function emailMySummary() {
+            if (!authToken || !currentUser || !currentUser.email) return;
+            if (!currentSession || !currentSession.id) return;
+            const btn = document.getElementById('email-summary-btn');
+            const orig = 'Email me a summary';
+            btn.disabled = true; btn.textContent = 'Sending…';
+            try {
+                const res = await fetch(`${WORKER_URL}/session/summary-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: currentSession.id, email: currentUser.email })
+                });
+                if (!res.ok) throw new Error('send failed');
+                btn.textContent = 'Sent ✓ — check your inbox';
+                setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 6000);
+            } catch (e) {
+                btn.textContent = 'Try again';
+                btn.disabled = false;
+                setTimeout(() => { if (btn.textContent === 'Try again') btn.textContent = orig; }, 4000);
             }
         }
 
@@ -1424,6 +1465,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                     // Anonymous: persist the thread locally, and reveal the
                     // earned-close email ask once the session has real depth.
                     if (!authToken) { persistAnon(); maybeRevealAsk(); }
+                    // Signed-in: surface the "email me a summary" affordance once deep.
+                    else { maybeShowEmailBtn(); }
                     // Funnel: the first message after a claim-and-land = continued.
                     if (justReturned) { justReturned = false; logFunnel('continued'); }
                 }
