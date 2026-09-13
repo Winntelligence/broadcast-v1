@@ -527,5 +527,17 @@ sb.auth.onAuthStateChange(async (event, session)=>{
   if(data.session){ await showDashboard(data.session); }
 })();
 </script>
+  <script>
+window.APP_VERSION = 'v2.7.1';
+console.log('%cWinntelligence ' + window.APP_VERSION, 'color:#4ade80;font-weight:600');
+document.addEventListener('DOMContentLoaded', () => {
+  const tag = document.createElement('div');
+  tag.textContent = window.APP_VERSION;
+  tag.style.cssText =
+    'position:fixed;bottom:6px;right:8px;font:11px system-ui;' +
+    'opacity:.35;z-index:9999;pointer-events:none';
+  document.body.appendChild(tag);
+});
+</script>
 </body>
 </html>
