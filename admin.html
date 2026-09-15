@@ -132,6 +132,14 @@
   <span class="status demo" id="status">— demo data —</span>
 </div>
 
+<div class="cfg" id="distillbar" style="border-top:1px solid var(--border)">
+  <span>distill</span>
+  <input class="k" id="distill-sid" placeholder="session_id (UUID) — paste and Distill" style="flex:1;min-width:240px">
+  <button class="btn go" onclick="runDistill()">Distill</button>
+  <span class="status" id="distill-status" style="color:var(--muted)">reuses the API + admin key above · de-identified only</span>
+</div>
+<pre id="distill-out" hidden style="white-space:pre-wrap;background:var(--panel2,#0e141d);border:1px solid var(--border);border-radius:8px;padding:14px;margin:0 14px 8px;max-height:52vh;overflow:auto;font-size:12px;line-height:1.5;color:var(--ink)"></pre>
+
 <div class="tabs">
   <div class="tab" data-view="usage"><span class="dot"></span>USAGE</div>
   <div class="tab active" data-view="intel"><span class="dot"></span>INTELLIGENCE</div>
@@ -238,6 +246,31 @@ async function apiGet(path){
   const res=await fetch(base+path,{headers:{'x-admin-key':key}});
   if(!res.ok){const t=await res.text();throw new Error('HTTP '+res.status+': '+t.slice(0,200));}
   return res.json();
+}
+async function apiPost(path, body){
+  const base=document.getElementById('api').value.replace(/\/$/,'');
+  const key=document.getElementById('key').value.trim();
+  const res=await fetch(base+path,{method:'POST',headers:{'content-type':'application/json','x-admin-key':key},body:JSON.stringify(body||{})});
+  const text=await res.text();
+  if(!res.ok) throw new Error('HTTP '+res.status+': '+text.slice(0,300));
+  try{return JSON.parse(text);}catch{return {raw:text};}
+}
+async function runDistill(){
+  const sid=(document.getElementById('distill-sid').value||'').trim();
+  const st=document.getElementById('distill-status');
+  const out=document.getElementById('distill-out');
+  const key=document.getElementById('key').value.trim();
+  if(!key){ st.textContent='enter the admin key above first'; st.style.color='var(--amber,#e0983a)'; return; }
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sid)){ st.textContent='that is not a session_id (UUID)'; st.style.color='var(--amber,#e0983a)'; return; }
+  st.textContent='distilling… (10–30s for a long session)'; st.style.color='var(--teal,#5eead4)'; out.hidden=true;
+  try{
+    const r=await apiPost('/admin/analysis/distill',{sessionId:sid});
+    const art=r.distilled||JSON.stringify(r,null,2);
+    out.textContent=art; out.hidden=false;
+    try{await navigator.clipboard.writeText(art); st.textContent='done — copied to clipboard ('+(r.total_pulled||'?')+' msgs)';}
+    catch{st.textContent='done ('+(r.total_pulled||'?')+' msgs) — select + copy below';}
+    st.style.color='var(--green,#37d39a)';
+  }catch(e){ st.textContent=e.message; st.style.color='var(--red,#e46a6a)'; out.hidden=true; }
 }
 async function loadAll(){
   const st=document.getElementById('status');
