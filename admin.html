@@ -136,6 +136,7 @@
   <span>distill</span>
   <input class="k" id="distill-sid" placeholder="session_id (UUID) — paste and Distill" style="flex:1;min-width:240px">
   <button class="btn go" onclick="runDistill()">Distill</button>
+  <button class="btn" onclick="clearDistill()">Clear</button>
   <span class="status" id="distill-status" style="color:var(--muted)">reuses the API + admin key above · de-identified only</span>
 </div>
 <pre id="distill-out" hidden style="white-space:pre-wrap;background:var(--panel2,#0e141d);border:1px solid var(--border);border-radius:8px;padding:14px;margin:0 14px 8px;max-height:52vh;overflow:auto;font-size:12px;line-height:1.5;color:var(--ink)"></pre>
@@ -271,6 +272,11 @@ async function runDistill(){
     catch{st.textContent='done ('+(r.total_pulled||'?')+' msgs) — select + copy below';}
     st.style.color='var(--green,#37d39a)';
   }catch(e){ st.textContent=e.message; st.style.color='var(--red,#e46a6a)'; out.hidden=true; }
+}
+function clearDistill(){
+  const out=document.getElementById('distill-out'); out.textContent=''; out.hidden=true;
+  document.getElementById('distill-sid').value='';
+  const st=document.getElementById('distill-status'); st.textContent='reuses the API + admin key above · de-identified only'; st.style.color='var(--muted)';
 }
 async function loadAll(){
   const st=document.getElementById('status');
