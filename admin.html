@@ -76,7 +76,7 @@
   /* cohort */
   .privacy-banner{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--gold);background:rgba(217,173,60,.07);border:1px solid rgba(217,173,60,.28);border-radius:8px;padding:10px 14px;margin-bottom:16px}
   .privacy-banner b{color:var(--ink)}
-  .cohort .mrow{display:grid;grid-template-columns:150px 130px 90px 1fr;gap:14px;padding:14px 4px;border-top:1px solid var(--border);font-size:12.5px;align-items:baseline}
+  .cohort .mrow{display:grid;grid-template-columns:172px 130px 96px 1fr;gap:14px;padding:14px 4px;border-top:1px solid var(--border);font-size:12.5px;align-items:baseline}
   .cohort .mrow.h{color:var(--muted);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-top:none}
   .cohort .who{color:var(--ink);font-weight:700} .cohort .who small{display:block;color:var(--muted);font-weight:400;font-size:10.5px;margin-top:2px}
   .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
@@ -84,6 +84,8 @@
   .cohort .eng{color:var(--ink2)} .cohort .qs{display:flex;flex-direction:column;gap:5px}
   .qchip{font-size:11px;color:var(--teal);border:1px solid #1f4a44;border-radius:6px;padding:3px 8px;display:inline-block}
   .prog{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+  .cohort .rank{display:inline-block;min-width:20px;color:var(--muted);font-weight:400;font-variant-numeric:tabular-nums}
+  .cohort .mrow.div{border-top:1px dashed var(--border2);padding:9px 4px}
   /* ── AUTH GATE ── */
   #auth-gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px}
   .auth-box{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--border2);border-radius:12px;padding:38px 34px;display:flex;flex-direction:column;gap:22px}
@@ -302,7 +304,7 @@ async function loadAll(){
 const esc=s=>String(s==null?'':s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const SHADE={cold_pull:'#d9ad3c',self_initiated_task_seeded:'#37d39a',nudged:'#e0983a',builder_curiosity_seeded:'#e0983a',doubly_seeded:'#e0983a',larry_pushed:'#e46a6a'};
 const SHADE_LABEL={cold_pull:'cold-pull',self_initiated_task_seeded:'self-initiated',nudged:'nudged',builder_curiosity_seeded:'curiosity',doubly_seeded:'doubly-seeded',larry_pushed:'pushed'};
-function daysSince(iso){ if(!iso) return null; const d=(Date.parse('2026-08-18')-Date.parse(iso))/864e5; return d; }
+function daysSince(iso){ if(!iso) return null; const d=(Date.now()-Date.parse(iso))/864e5; return d; }
 
 function renderAll(d){ renderUsage(d.usage); renderIntel(d.intelligence); renderCohort(d.cohort); renderFunnel(d.funnel); }
 
@@ -485,32 +487,41 @@ function ventureMapSvg(vm){
 }
 function renderCohort(c){
   const co=c.cohort||{};
-  let rows=(c.members||[]).map(m=>{
+  const mem=(c.members||[]);
+  const uses=m=>(m.messages||0), th=m=>(m.threads||0);
+  const isActive=m=>uses(m)>0||th(m)>0;
+  const used=mem.filter(isActive).sort((a,b)=>uses(b)-uses(a)||th(b)-th(a)||(Date.parse(b.last_active||0)-Date.parse(a.last_active||0)));
+  const notyet=mem.filter(m=>!isActive(m)).sort((a,b)=>String(a.builder).localeCompare(String(b.builder)));
+  const rowHtml=(m,rank)=>{
     const d=daysSince(m.last_active); let st='st-dormant',lbl='no activity';
     if(d!=null&&d<=10){st='st-active';lbl='active';} else if(d!=null&&d<=25){st='st-quiet';lbl='quiet';}
-    const eng = m.threads? `${m.threads} thread${m.threads>1?'s':''} · ${m.messages} msg` : '—';
+    const eng = th(m)? `${th(m)} thread${th(m)>1?'s':''} · ${uses(m)} msg` : '—';
     return `<div class="mrow">
-      <span class="who">${esc(m.builder)}<small>${esc(m.venture||'—')}</small></span>
+      <span class="who">${rank?`<span class="rank">${rank}.</span>`:'<span class="rank"></span>'}${esc(m.builder)}<small>${esc(m.venture||'—')}</small></span>
       <span class="${st}"><span class="status-dot"></span>${lbl}${m.last_active?' · '+fmtAgo(m.last_active):''}</span>
       <span class="eng">${eng}</span>
       <span class="qs">
-        ${(m.emergence||[]).slice(0,2).map(q=>`<span class="qchip">${esc(q.slice(0,70))}</span>`).join('')||'<span class="note-inline">no question surfaced yet</span>'}
+        ${(m.emergence||[]).slice(0,2).map(q=>`<span class="qchip">${esc(String(q).slice(0,70))}</span>`).join('')||'<span class="note-inline">no question surfaced yet</span>'}
         <span class="prog">${(m.progress||[]).map(p=>`<span class="sigchip">${sigLabel(p)}</span>`).join('')}${m.returns?`<span class="sigchip">${m.returns} return${m.returns>1?'s':''}</span>`:''}</span>
       </span></div>`;
-  }).join('');
+  };
+  let rows=used.map((m,i)=>rowHtml(m,i+1)).join('');
+  if(used.length&&notyet.length) rows+=`<div class="mrow div"><span class="who" style="font-weight:400;color:var(--muted);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase">Brought in — not yet active</span><span></span><span></span><span></span></div>`;
+  rows+=notyet.map(m=>rowHtml(m,null)).join('');
+  const total=mem.length, active=used.length;
   document.getElementById('cohort').innerHTML=`
     <div class="sec-label">${esc(co.name||'Cohort')} — the portfolio view (dogfood)</div>
-    <div class="subhead">Pillar three, tested on your own panel before Bobby: an EIR for every builder, and a read for the leader on who's stuck, who's moving, and what question is surfacing — <b>without</b> the raw sessions. Leader: ${esc(co.leader||'—')} · ${co.member_count||0} members.</div>
     <div class="privacy-banner">🔒 <span><b>Privacy wall.</b> ${esc(c.privacy||'Leader sees engagement, emergence, and progress only — never the raw session.')}</span></div>
     <div class="card pad cohort">
-      <div class="mrow h"><span>Builder</span><span>Status</span><span>Engagement</span><span>Emergence &amp; progress</span></div>
+      <div class="mrow h"><span>Builder · by uses</span><span>Status</span><span>Engagement</span><span>Emergence &amp; progress</span></div>
       ${rows}
     </div>
-    <div class="footer-note">This is the exact view a program operator (Bobby, a professor, a studio) would get — proven here on your panel. If it's useful to you watching these six, it's useful at 80. The privacy wall is the feature that makes it trustworthy to the builders <b>and</b> the leader.</div>`;
+    <div class="subhead" style="margin-top:14px">Everyone you bring in, ranked by use — <b>${active} of ${total}</b> active so far. Pillar three, tested on your own panel before Bobby: an EIR for every builder, and a read for the leader on who's stuck, who's moving, and what question is surfacing — <b>without</b> the raw sessions. Leader: ${esc(co.leader||'—')}.</div>
+    <div class="footer-note">This is the exact view a program operator (Bobby, a professor, a studio) would get — proven here on your panel. If it's useful to you watching these ${total}, it's useful at 80. The privacy wall is the feature that makes it trustworthy to the builders <b>and</b> the leader.</div>`;
 }
 const sigLabel=s=>({un_nudged_work_return:'un-nudged work return',deep_repeated_use:'deep repeated use',acted_on_prior_question:'acted on prior question',refers_others:'refers others ★'}[s]||s);
 function fmtDate(s){ if(!s) return '—'; const d=new Date(s); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
-function fmtAgo(s){ if(!s) return '—'; const d=(Date.parse('2026-08-18')-Date.parse(s))/864e5; if(d<1)return 'today'; if(d<2)return '1d ago'; if(d<30)return Math.round(d)+'d ago'; return fmtDate(s); }
+function fmtAgo(s){ if(!s) return '—'; const d=(Date.now()-Date.parse(s))/864e5; if(d<1)return 'today'; if(d<2)return '1d ago'; if(d<30)return Math.round(d)+'d ago'; return fmtDate(s); }
 
 document.querySelectorAll('.tab[data-view]').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
