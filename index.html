@@ -509,6 +509,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         const ANON_SESSION_KEY = 'winn_anon_session';
         const ANON_HISTORY_KEY = 'winn_anon_history';
         const ANON_ASK_KEY = 'winn_anon_ask'; // '', 'done', or 'dismissed'
+        const REQUESTED_SESSION_KEY = 'winn_requested_session'; // durable ?open_session target, survives the auth round-trip
         // DEBUG: winntelligence.ai/?resetask=1 clears the one-time ask suppression so
         // the save-ask card can be re-triggered while testing. Invisible to real users.
         try { if (new URLSearchParams(location.search).get('resetask')) localStorage.removeItem(ANON_ASK_KEY); } catch (e) {}
@@ -693,10 +694,13 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 sessionMode = localStorage.getItem('winn_mode');
             }
 
-            // A summary-email magic link returns with ?claim_session=<id>. Capture
-            // it before any hash handler strips the query string. (Fallback: an
-            // anon session in progress when the user signs in another way.)
-            pendingClaimId = urlParams.get('claim_session') || null;
+            // A summary-email link returns with ?claim_session=<id> (first-return
+            // claim) or ?open_session=<id> (durable re-open of an owned thread).
+            // Capture before any hash handler strips the query string, and persist:
+            // OAuth/magic-link round-trips through Supabase and come back to a bare
+            // URL, so the target must survive in localStorage.
+            pendingClaimId = urlParams.get('claim_session') || urlParams.get('open_session') || null;
+            if (pendingClaimId) { try { localStorage.setItem(REQUESTED_SESSION_KEY, pendingClaimId); } catch (e) {} }
 
             // The email-input listener is wired once, so the sign-in panel works
             // whenever it's shown (it's no longer the default view).
@@ -736,6 +740,13 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 await ensureFreshToken();
                 await afterAuthRoute();
             } else {
+                // Arrived on a return link (an expired/spent magic link is the
+                // common case) asking for a specific thread → send them to sign-in,
+                // not a fresh opening chat, so one email lands them back IN the
+                // thread (afterAuthRoute honors the persisted requested id below).
+                let requested = pendingClaimId;
+                try { requested = requested || localStorage.getItem(REQUESTED_SESSION_KEY); } catch (e) {}
+                if (requested) { showSignIn(); return; }
                 // ANONYMOUS-FIRST: a cold visitor lands straight in the chat.
                 openAnon();
             }
@@ -752,11 +763,17 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 const landing = await claimPending();
                 if (landing && await claimAndOpen(landing)) return;
             } catch (e) {}
-            // Same-browser fallbacks: the URL claim param, or an anon session held
-            // in this browser's local storage.
-            const claimId = pendingClaimId || localStorage.getItem(ANON_SESSION_KEY);
+            // Durable re-open + same-browser fallbacks: the requested id (from
+            // ?open_session / ?claim_session, persisted), then an anon session held
+            // in this browser. claimAndOpen is idempotent for a session THIS user
+            // already owns (worker /session/claim), so this also re-opens an
+            // already-claimed thread — the return-AGAIN case, not just first return.
+            let requested = pendingClaimId;
+            try { requested = requested || localStorage.getItem(REQUESTED_SESSION_KEY); } catch (e) {}
+            const claimId = requested || localStorage.getItem(ANON_SESSION_KEY);
             if (claimId) {
                 const ok = await claimAndOpen(claimId);
+                try { localStorage.removeItem(REQUESTED_SESSION_KEY); } catch (e) {}
                 if (ok) return;
             }
             await loadUserAndSessions();
