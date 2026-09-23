@@ -837,6 +837,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
 
             if (history.length === 0) {
                 addMsg('winn', "Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.");
+            addMsg('winn', "A slide or a few lines on what you're building works too — paste it in.");
             } else {
                 history.forEach(m => addMsg(m.role === 'assistant' ? 'winn' : 'user', m.content, false));
             }
@@ -1268,6 +1269,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                     addMsg('winn', "Thanks for doing this. Start with the venture's name and your own — then tell me how it began, in your own words. Take whatever time you want.");
                 } else {
                     addMsg('winn', "Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.");
+            addMsg('winn', "A slide or a few lines on what you're building works too — paste it in.");
                 }
             } else {
                 addMsg('winn', "Winn is here. Pick up where you left off.");
