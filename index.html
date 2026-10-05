@@ -728,6 +728,11 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 let requested = pendingClaimId;
                 try { requested = requested || localStorage.getItem(REQUESTED_SESSION_KEY); } catch (e) {}
                 if (requested) { showSignIn(); return; }
+                // CASE-STUDY DOOR: a contributor link is invite-only and
+                // attribution is the point, so sign in first — a different door
+                // from the public anonymous-first coaching entrance. An
+                // in-progress anonymous case-study thread resumes instead.
+                if (sessionMode === 'case_study' && !localStorage.getItem(ANON_SESSION_KEY)) { showSignIn(); return; }
                 // ANONYMOUS-FIRST: a cold visitor lands straight in the chat.
                 openAnon();
             }
@@ -756,6 +761,16 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 const ok = await claimAndOpen(claimId);
                 try { localStorage.removeItem(REQUESTED_SESSION_KEY); } catch (e) {}
                 if (ok) return;
+            }
+            // CASE-STUDY DOOR: a contributor who just signed in with nothing to
+            // claim → straight into a fresh case_study session with the warm
+            // opener, attributed from message one (skip the coaching intention
+            // panel and the sessions list). Clear the mode flag so a LATER plain
+            // visit correctly gets coaching, not another case study.
+            if (sessionMode === 'case_study') {
+                try { localStorage.removeItem('winn_mode'); } catch (e) {}
+                startNewSession();
+                return;
             }
             await loadUserAndSessions();
         }
@@ -830,7 +845,12 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             if (card) card.style.display = 'none';
 
             if (history.length === 0) {
-                enterIntro();
+                if (sessionMode === 'case_study') {
+                    exitIntro();
+                    addMsg('winn', "Thanks for doing this. Start with the venture's name and your own — then tell me how it began, in your own words. Take whatever time you want.");
+                } else {
+                    enterIntro();
+                }
             } else {
                 exitIntro();
                 history.forEach(m => addMsg(m.role === 'assistant' ? 'winn' : 'user', m.content, false));
