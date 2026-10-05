@@ -354,7 +354,7 @@
         </div>
         <div id="signin-back" class="signin-back" style="display:none;"><a href="#" onclick="openAnon();return false;">&larr; Keep talking to Winn</a></div>
         <div class="panel-title">
-            Winn is your personal venture advisor — a free thinking partner for anyone thinking through a venture. Tell it what you're working on, and it finds the question you haven't asked yet, before you spend months on the wrong one.<br>
+            Winn is your personal venture advisor — a free thinking partner for anyone working through an idea, a product, or a venture. Tell it what you're working on, and it finds the question you haven't asked yet, before you spend months on the wrong one.<br>
             <span>Enter your email to begin — free to start.</span>
         </div>
         <div class="hint" style="margin-top: -12px;">Why the email? So Winn remembers your venture between visits and picks up where you left off. We use it only to save your sessions. No spam, and we don't sell your data.</div>
@@ -454,7 +454,7 @@
                 <div class="save-ask-foot">I only use your email to remember your venture and send you this. No spam, and I never sell your data. <a href="#" onclick="dismissAsk();return false;">No thanks</a></div>
             </div>
             <div class="input-row">
-                <textarea class="winn-input" id="founderInput" placeholder="Tell Winn what you're building..." rows="1"></textarea>
+                <textarea class="winn-input" id="founderInput" placeholder="Tell Winn what you're working on..." rows="1"></textarea>
                 <button class="send-btn" id="sendBtn" onclick="sendMessage()">
                     <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
@@ -836,8 +836,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             if (card) card.style.display = 'none';
 
             if (history.length === 0) {
-                addMsg('winn', "Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.");
-            addMsg('winn', "A slide or a few lines on what you're building works too — paste it in.");
+                addMsg('winn', "Winn is a thinking partner for whatever you're working on — an emerging idea, a product, a service, something you're years into or rethinking. Tell me about it, and I'll find the question underneath the one you came in with.");
+            addMsg('winn', "A few lines, or your deck — whatever you've got, however rough.");
             } else {
                 history.forEach(m => addMsg(m.role === 'assistant' ? 'winn' : 'user', m.content, false));
             }
@@ -1268,8 +1268,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 if (sessionMode === 'case_study') {
                     addMsg('winn', "Thanks for doing this. Start with the venture's name and your own — then tell me how it began, in your own words. Take whatever time you want.");
                 } else {
-                    addMsg('winn', "Winn is here for venture builders. Tell me what you're building — not the pitch. The real version.");
-            addMsg('winn', "A slide or a few lines on what you're building works too — paste it in.");
+                    addMsg('winn', "Winn is a thinking partner for whatever you're working on — an emerging idea, a product, a service, something you're years into or rethinking. Tell me about it, and I'll find the question underneath the one you came in with.");
+            addMsg('winn', "A few lines, or your deck — whatever you've got, however rough.");
                 }
             } else {
                 addMsg('winn', "Winn is here. Pick up where you left off.");
