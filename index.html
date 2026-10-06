@@ -695,11 +695,19 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             // sign in, land back on the site, and silently get a coaching
             // session — with nobody able to tell it had happened.
             const urlParams = new URLSearchParams(window.location.search);
+            // case_study mode comes from the URL on a fresh click; from localStorage
+            // ONLY to survive the OAuth / magic-link round-trip (the URL returns bare).
+            // A PLAIN visit must NOT inherit a stale case_study flag — it would force
+            // sign-in on the public door and mis-tag a coaching session — so clear it.
+            const _authReturn = urlParams.get('code') || window.location.hash.includes('token_hash=') || window.location.hash.includes('access_token=');
             if (urlParams.get('mode') === 'case_study') {
                 sessionMode = 'case_study';
                 localStorage.setItem('winn_mode', 'case_study');
-            } else {
+            } else if (_authReturn) {
                 sessionMode = localStorage.getItem('winn_mode');
+            } else {
+                sessionMode = null;
+                try { localStorage.removeItem('winn_mode'); } catch (e) {}
             }
 
             // A summary-email link returns with ?claim_session=<id> (first-return
