@@ -137,6 +137,7 @@
 <div class="cfg" id="distillbar" style="border-top:1px solid var(--border)">
   <span>distill</span>
   <input class="k" id="distill-sid" placeholder="session_id (UUID) — paste and Distill" style="flex:1;min-width:240px">
+  <input class="k" id="distill-since" type="number" min="0" placeholder="from #" title="sinceCount — skip this many messages from the start. Blank or 0 = whole thread. Use e.g. 180 to grab just the tail of a long session without re-rendering the whole thing." style="width:92px">
   <button class="btn go" onclick="runDistill()">Distill</button>
   <button class="btn" onclick="clearDistill()">Clear</button>
   <span class="status" id="distill-status" style="color:var(--muted)">reuses the API + admin key above · de-identified only</span>
@@ -283,24 +284,28 @@ async function apiPost(path, body){
 }
 async function runDistill(){
   const sid=(document.getElementById('distill-sid').value||'').trim();
+  const since=Math.max(0, parseInt(document.getElementById('distill-since').value,10)||0);
   const st=document.getElementById('distill-status');
   const out=document.getElementById('distill-out');
   const key=document.getElementById('key').value.trim();
   if(!key){ st.textContent='enter the admin key above first'; st.style.color='var(--amber,#e0983a)'; return; }
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sid)){ st.textContent='that is not a session_id (UUID)'; st.style.color='var(--amber,#e0983a)'; return; }
-  st.textContent='distilling… (10–30s for a long session)'; st.style.color='var(--teal,#5eead4)'; out.hidden=true;
+  st.textContent=(since?('distilling from #'+since+'… '):'distilling… ')+'(10–30s for a long session)'; st.style.color='var(--teal,#5eead4)'; out.hidden=true;
   try{
-    const r=await apiPost('/admin/analysis/distill',{sessionId:sid});
+    const r=await apiPost('/admin/analysis/distill',{sessionId:sid, sinceCount:since});
     const art=r.distilled||JSON.stringify(r,null,2);
     out.textContent=art; out.hidden=false;
-    try{await navigator.clipboard.writeText(art); st.textContent='done — copied to clipboard ('+(r.total_pulled||'?')+' msgs)';}
-    catch{st.textContent='done ('+(r.total_pulled||'?')+' msgs) — select + copy below';}
-    st.style.color='var(--green,#37d39a)';
+    const rng=r.message_range?(' · msgs '+r.message_range[0]+'–'+r.message_range[1]):'';
+    const warn=r.truncated?' · ⚠ TRUNCATED — re-distill the tail with a higher "from #"':'';
+    try{await navigator.clipboard.writeText(art); st.textContent='done — copied'+rng+' ('+(r.total_pulled||'?')+' msgs)'+warn;}
+    catch{st.textContent='done'+rng+' ('+(r.total_pulled||'?')+' msgs) — select + copy below'+warn;}
+    st.style.color=r.truncated?'var(--amber,#e0983a)':'var(--green,#37d39a)';
   }catch(e){ st.textContent=e.message; st.style.color='var(--red,#e46a6a)'; out.hidden=true; }
 }
 function clearDistill(){
   const out=document.getElementById('distill-out'); out.textContent=''; out.hidden=true;
   document.getElementById('distill-sid').value='';
+  document.getElementById('distill-since').value='';
   const st=document.getElementById('distill-status'); st.textContent='reuses the API + admin key above · de-identified only'; st.style.color='var(--muted)';
 }
 async function loadAll(){
