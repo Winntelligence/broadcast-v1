@@ -131,6 +131,7 @@
   <span>admin key</span>
   <input class="k" id="key" type="password" placeholder="x-admin-key (kept in memory)">
   <button class="btn go" onclick="loadAll()">Load</button>
+  <label title="Count the operator's own accounts (larryweidman@, winn@winntelligence.ai) in Usage + Funnel. Off = external signal only." style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap"><input type="checkbox" id="incl-internal" onchange="loadAll()" style="margin:0"> include internal</label>
   <span class="status demo" id="status">— demo data —</span>
 </div>
 
@@ -314,11 +315,12 @@ async function loadAll(){
   if(!key){ renderAll(DEMO); st.className='status demo'; st.textContent='— demo data (enter admin key + Load for live) —'; return; }
   st.className='status'; st.textContent='loading…';
   try{
+    const inc=(document.getElementById('incl-internal')||{}).checked?'?include_internal=1':'';
     const [usage,intelligence,cohort,funnel]=await Promise.all([
-      apiGet('/admin/dashboard/usage'),
+      apiGet('/admin/dashboard/usage'+inc),
       apiGet('/admin/dashboard/intelligence'),
       apiGet('/admin/dashboard/cohort').catch(()=>DEMO.cohort),
-      apiGet('/admin/dashboard/funnel').catch(()=>DEMO.funnel)
+      apiGet('/admin/dashboard/funnel'+inc).catch(()=>DEMO.funnel)
     ]);
     renderAll({usage,intelligence,cohort,funnel});
     st.className='status live'; st.textContent='● live';
