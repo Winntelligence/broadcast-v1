@@ -437,6 +437,7 @@ function renderIntel(d){
     ${tile('Observations',t.observations_tracked,'Recurring patterns tracked.','ink')}
   </div>
   <div class="sec-label">Observation Ledger — the doctrine scoreboard</div>
+  <div class="note-inline" style="margin:-4px 2px 10px">Statuses are current; the recurrence pips and “sessions analyzed” derive from instance rows and can lag — a maintained snapshot of the prose ledger.</div>
   <div class="obs-grid">${d.observations.map(obsCard).join('')}</div>
   <div class="sec-label">Return Events — only cold-pull proves the mechanism</div>
   <div class="card pad">${returnsSvg(d.returns)}
