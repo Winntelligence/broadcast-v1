@@ -316,14 +316,15 @@ async function loadAll(){
   st.className='status'; st.textContent='loading…';
   try{
     const inc=(document.getElementById('incl-internal')||{}).checked?'?include_internal=1':'';
+    const degraded=[];
     const [usage,intelligence,cohort,funnel]=await Promise.all([
       apiGet('/admin/dashboard/usage'+inc),
       apiGet('/admin/dashboard/intelligence'),
-      apiGet('/admin/dashboard/cohort').catch(()=>DEMO.cohort),
-      apiGet('/admin/dashboard/funnel'+inc).catch(()=>DEMO.funnel)
+      apiGet('/admin/dashboard/cohort').catch(()=>{degraded.push('cohort');return DEMO.cohort;}),
+      apiGet('/admin/dashboard/funnel'+inc).catch(()=>{degraded.push('funnel');return DEMO.funnel;})
     ]);
     renderAll({usage,intelligence,cohort,funnel});
-    st.className='status live'; st.textContent='● live';
+    if(degraded.length){ st.className='status demo'; st.textContent='● live · '+degraded.join(' & ')+' unavailable — sample shown'; } else { st.className='status live'; st.textContent='● live'; }
   }catch(e){
     renderAll(DEMO);
     st.className='status err'; st.textContent='live fetch failed — showing demo · '+e.message;
@@ -365,10 +366,10 @@ function renderFunnel(f){
   steps.forEach((s,i)=>{
     const [label,count]=s;
     const w= top? Math.max(3, Math.round(100*count/top)) : 3;
-    const fromPrev= i>0 ? pct(count, steps[i-1][1]) : 100;
+    const ofStart= pct(count, top);
     h+=`<div>
       <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink2);margin-bottom:4px">
-        <span>${label}</span><span><b style="color:var(--ink)">${count}</b>${i>0?` &middot; ${fromPrev}% of prev`:''}</span>
+        <span>${label}</span><span><b style="color:var(--ink)">${count}</b>${i>0?` &middot; ${ofStart}% of started`:''}</span>
       </div>
       <div style="height:15px;background:var(--panel2);border:1px solid var(--border);border-radius:5px;overflow:hidden">
         <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--gold),var(--green))"></div>
@@ -376,6 +377,7 @@ function renderFunnel(f){
     </div>`;
   });
   h+=`</div></div>`;
+  h+=`<div class="cap" style="margin-top:10px">Each step as a share of <b>sessions started</b>. <b>Convert</b> can sit above <b>reached the ask</b> — the inline ask isn't the only path to email (sign-in converts too), so the steps aren't strictly nested.</div>`;
   const ch=f.by_channel||[];
   if(ch.length){
     h+=`<div class="sec-label" style="margin-top:24px">By Channel</div>
@@ -547,7 +549,7 @@ function renderCohort(c){
       ${rows}
     </div>
     <div class="subhead" style="margin-top:14px">Everyone you bring in, ranked by use — <b>${active} of ${total}</b> active so far. Pillar three, tested on your own panel before Bobby: an EIR for every builder, and a read for the leader on who's stuck, who's moving, and what question is surfacing — <b>without</b> the raw sessions. Leader: ${esc(co.leader||'—')}.</div>
-    <div class="footer-note">This is the exact view a program operator (Bobby, a professor, a studio) would get — proven here on your panel. If it's useful to you watching these ${total}, it's useful at 80. The privacy wall is the feature that makes it trustworthy to the builders <b>and</b> the leader.</div>`;
+    <div class="footer-note">This is your dogfood of the portfolio view — the same shape a program operator (Bobby, a professor, a studio) would eventually get, built then as a separate, fully-anonymized view. If it's useful to you watching these ${total}, it's useful at 80. The privacy wall is the feature that makes it trustworthy to the builders <b>and</b> the leader.</div>`;
 }
 const sigLabel=s=>({un_nudged_work_return:'un-nudged work return',deep_repeated_use:'deep repeated use',acted_on_prior_question:'acted on prior question',refers_others:'refers others ★'}[s]||s);
 function fmtDate(s){ if(!s) return '—'; const d=new Date(s); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
