@@ -137,6 +137,8 @@
 
 <div class="cfg" id="distillbar" style="border-top:1px solid var(--border)">
   <span>distill</span>
+  <select class="k" id="distill-pick" onchange="pickRecent()" title="Recent coaching sessions (metadata only — boundary-safe). Pick one to fill the session_id." style="max-width:340px"><option value="">recent sessions…</option></select>
+  <button class="btn" onclick="loadRecent()" title="Load / refresh recent sessions">↻</button>
   <input class="k" id="distill-sid" placeholder="session_id (UUID) — paste and Distill" style="flex:1;min-width:240px">
   <input class="k" id="distill-since" type="number" min="0" placeholder="from #" title="sinceCount — skip this many messages from the start. Blank or 0 = whole thread. Use e.g. 180 to grab just the tail of a long session without re-rendering the whole thing." style="width:92px">
   <button class="btn go" onclick="runDistill()">Distill</button>
@@ -307,7 +309,34 @@ function clearDistill(){
   const out=document.getElementById('distill-out'); out.textContent=''; out.hidden=true;
   document.getElementById('distill-sid').value='';
   document.getElementById('distill-since').value='';
+  const pick=document.getElementById('distill-pick'); if(pick) pick.selectedIndex=0;
   const st=document.getElementById('distill-status'); st.textContent='reuses the API + admin key above · de-identified only'; st.style.color='var(--muted)';
+}
+async function loadRecent(){
+  const sel=document.getElementById('distill-pick');
+  const st=document.getElementById('distill-status');
+  const key=document.getElementById('key').value.trim();
+  if(!key){ st.textContent='enter the admin key above first'; st.style.color='var(--amber,#e0983a)'; return; }
+  st.textContent='loading recent sessions…'; st.style.color='var(--teal,#5eead4)';
+  try{
+    const rows=await apiGet('/admin/analysis/recent');
+    sel.innerHTML='<option value="">recent sessions ('+rows.length+')…</option>';
+    rows.forEach(r=>{
+      const d=r.last_active?new Date(r.last_active).toLocaleDateString(undefined,{month:'short',day:'numeric'}):'—';
+      const who=r.is_anon?'anon':(r.email||'—');
+      const done=(r.analyzed_through>0)?(' · analyzed→'+r.analyzed_through):' · new';
+      const o=document.createElement('option'); o.value=r.session_id;
+      o.textContent=d+' · '+(r.msgs||0)+' msg · '+who+done;
+      sel.appendChild(o);
+    });
+    st.textContent='loaded '+rows.length+' — pick one, then Distill'; st.style.color='var(--green,#37d39a)';
+  }catch(e){ st.textContent=e.message; st.style.color='var(--red,#e46a6a)'; }
+}
+function pickRecent(){
+  const sel=document.getElementById('distill-pick'); const sid=sel.value; if(!sid) return;
+  document.getElementById('distill-sid').value=sid;
+  document.getElementById('distill-since').value='';
+  const st=document.getElementById('distill-status'); st.textContent='session selected — hit Distill'; st.style.color='var(--muted)';
 }
 async function loadAll(){
   const st=document.getElementById('status');
