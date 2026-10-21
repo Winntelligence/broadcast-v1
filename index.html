@@ -86,7 +86,7 @@
             transition: border-color 0.15s;
             width: 100%;
         }
-        .input-field::placeholder { color: #7E90B0; }
+        .input-field::placeholder { color: #3a4a68; }
         .input-field:focus { border-color: rgba(201,162,39,0.55); }
 
         textarea.input-field {
@@ -205,7 +205,7 @@
             animation: pulse 2.5s infinite ease-in-out;
         }
         .user-tag {
-            font-size: 11px; color: var(--text-muted); white-space: nowrap;
+            font-size: 11px; color: var(--text-muted);
             padding: 3px 9px;
             border: 0.5px solid rgba(201,162,39,0.2);
             border-radius: 20px;
@@ -215,7 +215,6 @@
         }
         .user-tag:hover { border-color: var(--border-accent); }
         .user-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-        .user-tag-nav { color: var(--text-hint); font-size: 10px; }
 
         .winn-messages {
             flex: 1; padding: 28px 24px 16px;
@@ -259,7 +258,7 @@
             line-height: 1.5; min-height: 44px; max-height: 120px;
             transition: border-color 0.15s;
         }
-        .winn-input::placeholder { color: #7E90B0; }
+        .winn-input::placeholder { color: #3a4a68; }
         .winn-input:focus { border-color: rgba(201,162,39,0.55); }
         .send-btn {
             width: 42px; height: 42px; border-radius: 9px;
@@ -348,10 +347,10 @@
         }
         .anon-signin:hover { color: var(--accent-pale); border-color: var(--accent); }
         .email-summary-btn {
-            background: transparent; border: 1px solid var(--border-accent); color: var(--text-muted);
-            border-radius: 999px; padding: 4px 12px; font-size: 0.78rem; cursor: pointer; font-family: inherit;
+            background: var(--accent); border: 1px solid var(--accent); color: var(--bg-main);
+            border-radius: 999px; padding: 5px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit;
         }
-        .email-summary-btn:hover { color: var(--accent-pale); border-color: var(--accent); }
+        .email-summary-btn:hover { background: var(--accent-pale); border-color: var(--accent-pale); color: var(--bg-main); }
         .email-summary-btn:disabled { opacity: 0.6; cursor: default; }
         .signin-back { margin-bottom: 14px; }
         .signin-back a { color: var(--text-muted); font-size: 0.85rem; text-decoration: none; }
@@ -375,7 +374,7 @@
         </div>
         <div id="signin-back" class="signin-back" style="display:none;"><a href="#" onclick="openAnon();return false;">&larr; Keep talking to Winn</a></div>
         <div class="panel-title">
-            Winn is your personal venture advisor — a free thinking partner for anyone working through an idea, a product, or a venture. Tell it what you're working on, and it'll help you think it through.<br>
+            Winn is your personal venture advisor — a free thinking partner for anyone working through an idea, a product, or a venture. Tell it what you're working on, and it finds the question you haven't asked yet, before you spend months on the wrong one.<br>
             <span>Enter your email to begin — free to start.</span>
         </div>
         <div class="hint" style="margin-top: -12px;">Why the email? So Winn remembers your venture between visits and picks up where you left off. We use it only to save your sessions. No spam, and we don't sell your data.</div>
@@ -449,10 +448,9 @@
             </div>
             <div class="winn-status">
                 <button class="anon-signin" id="anon-signin" style="display:none;" onclick="showSignIn()">Sign in to save</button>
-                <div class="user-tag" id="user-tag" onclick="goHome()" title="Back to your conversations">
+                <div class="user-tag" id="user-tag" onclick="goHome()">
                     <div class="user-tag-dot"></div>
                     <span id="user-tag-name"></span>
-                    <span class="user-tag-nav">· conversations</span>
                 </div>
                 <button class="email-summary-btn" id="email-summary-btn" style="display:none;" onclick="emailMySummary()">Email me a summary</button>
                 <div class="status-dot-wrap">
@@ -467,8 +465,11 @@
             <div class="starter-block" id="starterBlock">
                 <div class="starter-lead">Not sure where to start? Here’s the kind of thing builders bring Winn — tap one to begin, or say it your own way.</div>
                 <div class="starter-chips" id="starterChips">
-                    <button class="chip">I’ve got an idea still taking shape</button>
-                    <button class="chip">I’ve lived this problem and I’m onto something</button>
+                    <button class="chip">I have an idea — not sure it’s a venture yet</button>
+                    <button class="chip">I’ve lived this problem — is there a business here?</button>
+                    <button class="chip">We’ve got pilots, but no one’s paying yet</button>
+                    <button class="chip">I’m years in and quietly stuck</button>
+                    <button class="chip">My research might spin out — do I found it?</button>
                     <button class="chip">I’m raising and need to sharpen the story</button>
                     <button class="chip freeform" data-freeform="1">Something else — I’ll say it in my own words</button>
                 </div>
@@ -817,7 +818,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 startNewSession();
                 return;
             }
-            await loadUserAndSessions(true);
+            await loadUserAndSessions();
         }
 
         // Ask the worker to claim any anonymous session emailed to this user's
@@ -1121,7 +1122,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
 
         // ── LOAD USER AND SESSIONS ──
-        async function loadUserAndSessions(landOnComposer) {
+        async function loadUserAndSessions() {
             try {
                 const response = await fetch(`${WORKER_URL}/sessions/list`, {
                     method: 'POST',
@@ -1146,15 +1147,6 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                     document.getElementById('intentionInput').focus();
                     return;
                 }
-
-                // RETURNING-USER REACH: land every signed-in return at the
-                // upgraded door (composer + starter chips), not the sessions
-                // list. Past conversations are untouched and one tap away via
-                // the "your conversations" pill (goHome -> this returning panel).
-                // No empty session row is created -- openWinn(false) defers
-                // session creation to first send.
-                allSessions = data.sessions || [];
-                if (landOnComposer) { startNewSession(); return; }
 
                 showReturningPanel(data.user, data.sessions);
 
@@ -1210,7 +1202,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 });
 
                 currentUser.intention = intention;
-                await loadUserAndSessions(true);
+                await loadUserAndSessions();
 
             } catch (err) {
                 btn.disabled = false;
