@@ -205,7 +205,7 @@
             animation: pulse 2.5s infinite ease-in-out;
         }
         .user-tag {
-            font-size: 11px; color: var(--text-muted);
+            font-size: 11px; color: var(--text-muted); white-space: nowrap;
             padding: 3px 9px;
             border: 0.5px solid rgba(201,162,39,0.2);
             border-radius: 20px;
@@ -215,6 +215,7 @@
         }
         .user-tag:hover { border-color: var(--border-accent); }
         .user-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+        .user-tag-nav { color: var(--text-hint); font-size: 10px; }
 
         .winn-messages {
             flex: 1; padding: 28px 24px 16px;
@@ -448,9 +449,10 @@
             </div>
             <div class="winn-status">
                 <button class="anon-signin" id="anon-signin" style="display:none;" onclick="showSignIn()">Sign in to save</button>
-                <div class="user-tag" id="user-tag" onclick="goHome()">
+                <div class="user-tag" id="user-tag" onclick="goHome()" title="Back to your conversations">
                     <div class="user-tag-dot"></div>
                     <span id="user-tag-name"></span>
+                    <span class="user-tag-nav">· conversations</span>
                 </div>
                 <button class="email-summary-btn" id="email-summary-btn" style="display:none;" onclick="emailMySummary()">Email me a summary</button>
                 <div class="status-dot-wrap">
@@ -818,7 +820,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 startNewSession();
                 return;
             }
-            await loadUserAndSessions();
+            await loadUserAndSessions(true);
         }
 
         // Ask the worker to claim any anonymous session emailed to this user's
@@ -1122,7 +1124,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
 
         // ── LOAD USER AND SESSIONS ──
-        async function loadUserAndSessions() {
+        async function loadUserAndSessions(landOnComposer) {
             try {
                 const response = await fetch(`${WORKER_URL}/sessions/list`, {
                     method: 'POST',
@@ -1147,6 +1149,15 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                     document.getElementById('intentionInput').focus();
                     return;
                 }
+
+                // RETURNING-USER REACH: land every signed-in return at the
+                // upgraded door (composer + starter chips), not the sessions
+                // list. Past conversations are untouched and one tap away via
+                // the "your conversations" pill (goHome -> this returning panel).
+                // No empty session row is created -- openWinn(false) defers
+                // session creation to first send.
+                allSessions = data.sessions || [];
+                if (landOnComposer) { startNewSession(); return; }
 
                 showReturningPanel(data.user, data.sessions);
 
@@ -1202,7 +1213,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 });
 
                 currentUser.intention = intention;
-                await loadUserAndSessions();
+                await loadUserAndSessions(true);
 
             } catch (err) {
                 btn.disabled = false;
