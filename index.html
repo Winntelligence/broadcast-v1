@@ -40,6 +40,7 @@
         .hero-sub { font-size: clamp(12px, 2.4vw, 14px); color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
         .hero-about { display: inline-block; margin-top: 18px; font-size: 14px; font-weight: 700; color: var(--accent-light); text-decoration: none; border: 1px solid rgba(201,162,39,0.55); border-radius: 999px; padding: 8px 18px; letter-spacing: 0.01em; transition: background 0.15s, color 0.15s, border-color 0.15s; }
         .hero-about:hover { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+        .refer-note { margin-top: 18px; max-width: 36ch; font-size: 14px; line-height: 1.5; color: var(--text-main); background: rgba(201,162,39,0.08); border: 1px solid rgba(201,162,39,0.45); border-radius: 12px; padding: 11px 15px; }
 
         .panel {
             width: 100%; max-width: 680px;
@@ -205,7 +206,7 @@
             animation: pulse 2.5s infinite ease-in-out;
         }
         .user-tag {
-            font-size: 11px; color: var(--text-muted); white-space: nowrap;
+            font-size: 11px; color: var(--text-muted);
             padding: 3px 9px;
             border: 0.5px solid rgba(201,162,39,0.2);
             border-radius: 20px;
@@ -215,7 +216,6 @@
         }
         .user-tag:hover { border-color: var(--border-accent); }
         .user-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-        .user-tag-nav { color: var(--text-hint); font-size: 10px; }
 
         .winn-messages {
             flex: 1; padding: 28px 24px 16px;
@@ -365,6 +365,7 @@
         <div class="hero-tagline">your personal venture advisor</div>
         <div class="hero-sub">from first idea to full scale</div>
         <a class="hero-about" href="about.html">New here? What is Winn? &rarr;</a>
+        <div id="refer-note" class="refer-note" style="display:none;"></div>
     </div>
 
     <!-- PANEL 1: EMAIL / MAGIC LINK + GOOGLE -->
@@ -449,10 +450,9 @@
             </div>
             <div class="winn-status">
                 <button class="anon-signin" id="anon-signin" style="display:none;" onclick="showSignIn()">Sign in to save</button>
-                <div class="user-tag" id="user-tag" onclick="goHome()" title="Back to your conversations">
+                <div class="user-tag" id="user-tag" onclick="goHome()">
                     <div class="user-tag-dot"></div>
                     <span id="user-tag-name"></span>
-                    <span class="user-tag-nav">· conversations</span>
                 </div>
                 <button class="email-summary-btn" id="email-summary-btn" style="display:none;" onclick="emailMySummary()">Email me a summary</button>
                 <div class="status-dot-wrap">
@@ -687,8 +687,29 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
 
         // ── INIT ──
+        async function showReferNote() {
+            try {
+                const code = new URLSearchParams(location.search).get('ref');
+                if (!code) return;
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/lookup_referrer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+                    body: JSON.stringify({ p_ref_code: code })
+                });
+                if (!res.ok) return;
+                const rows = await res.json();
+                const name = rows && rows[0] && rows[0].display_name;
+                if (!name) return;
+                const el = document.getElementById('refer-note');
+                if (el) {
+                    el.textContent = name + " thought Winn could help with what you're building.";
+                    el.style.display = '';
+                }
+            } catch (e) {}
+        }
         async function init() {
             captureChannel();
+            showReferNote();
             // Capture ?mode=case_study BEFORE anything strips the query string.
             // Google OAuth round-trips through Supabase and comes back to a bare
             // URL, and handleOAuthCode/handleAccessToken then call
@@ -820,7 +841,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 startNewSession();
                 return;
             }
-            await loadUserAndSessions(true);
+            await loadUserAndSessions();
         }
 
         // Ask the worker to claim any anonymous session emailed to this user's
@@ -1124,7 +1145,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
 
         // ── LOAD USER AND SESSIONS ──
-        async function loadUserAndSessions(landOnComposer) {
+        async function loadUserAndSessions() {
             try {
                 const response = await fetch(`${WORKER_URL}/sessions/list`, {
                     method: 'POST',
@@ -1149,15 +1170,6 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                     document.getElementById('intentionInput').focus();
                     return;
                 }
-
-                // RETURNING-USER REACH: land every signed-in return at the
-                // upgraded door (composer + starter chips), not the sessions
-                // list. Past conversations are untouched and one tap away via
-                // the "your conversations" pill (goHome -> this returning panel).
-                // No empty session row is created -- openWinn(false) defers
-                // session creation to first send.
-                allSessions = data.sessions || [];
-                if (landOnComposer) { startNewSession(); return; }
 
                 showReturningPanel(data.user, data.sessions);
 
@@ -1213,7 +1225,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 });
 
                 currentUser.intention = intention;
-                await loadUserAndSessions(true);
+                await loadUserAndSessions();
 
             } catch (err) {
                 btn.disabled = false;
@@ -1516,7 +1528,10 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                             sessionType: sessionMode === 'case_study' ? 'case_study' : 'coaching',
                             // channel rides the first anonymous message; the worker
                             // records it on session_start (top of the funnel).
-                            channel: !authToken ? (funnelChannel || null) : undefined
+                            channel: !authToken ? (funnelChannel || null) : undefined,
+                            // REFER v1: same value the funnel captured; worker only
+                            // tags referred_by when it resolves a can_refer user.
+                            ref: !authToken ? (funnelChannel || null) : undefined
                         })
                     });
                 };
