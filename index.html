@@ -464,6 +464,7 @@
                         <div style="font-size:12.5px;padding:8px 9px;color:var(--text-hint);display:flex;justify-content:space-between;align-items:center;">Consented Snapshot <span style="font-size:8.5px;letter-spacing:0.8px;">AS IT SHIPS</span></div>
                     </div>
                 </div>
+                <a href="#" id="nav-signout" onclick="signOut();return false;" style="display:none;font-size:12px;color:var(--text-muted);text-decoration:none;white-space:nowrap;">Sign out</a>
             </div>
         </div>
         <div class="winn-messages" id="messages"></div>
@@ -978,6 +979,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             if (shw) shw.style.display = authToken ? '' : 'none';
             const about = document.getElementById('nav-about');
             if (about) about.style.display = authToken ? 'none' : '';
+            const signout = document.getElementById('nav-signout');
+            if (signout) signout.style.display = authToken ? '' : 'none';
             const c = document.getElementById('winn-container');
             if (c) c.classList.toggle('authed', !!authToken);
             const ih = document.getElementById('introHeading');
@@ -1002,6 +1005,10 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
 
         // ── INVITE v1: a signed-in builder invites a named new user; Winn sends it ──
+        function signOut() {
+            try { clearAuth(); } catch (e) {}
+            location.reload();
+        }
         function toggleShare(e) {
             if (e) e.stopPropagation();
             const m = document.getElementById('share-menu');
@@ -1700,7 +1707,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         init();
     </script>
     <script>
-window.APP_VERSION = 'v2.7.1';
+window.APP_VERSION = 'v3.0';
 console.log('%cWinntelligence ' + window.APP_VERSION, 'color:#4ade80;font-weight:600');
 </script>
 </body>
