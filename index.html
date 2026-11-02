@@ -34,7 +34,7 @@
         .logo { width: 100%; max-width: 480px; height: auto; margin-bottom: 48px; display: block; }
 
         .hero { width: 100%; max-width: 680px; margin-bottom: 44px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .wordmark { position: relative; display: inline-block; font-size: clamp(56px, 12vw, 104px); font-weight: 700; letter-spacing: -0.02em; line-height: 1; color: var(--text-main); }
+        .wordmark { position: relative; display: inline-block; font-size: clamp(30px, 6vw, 46px); font-weight: 700; letter-spacing: -0.02em; line-height: 1; color: var(--text-main); }
         .wordmark .tm { position: absolute; top: 0.08em; right: -0.64em; font-size: 0.22em; font-weight: 600; color: var(--accent); letter-spacing: 0; }
         .hero-tagline { font-size: clamp(17px, 3.2vw, 22px); font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
         .hero-sub { font-size: clamp(12px, 2.4vw, 14px); color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
@@ -365,7 +365,6 @@
         <div class="wordmark">Winn<span class="tm">™</span></div>
         <div class="hero-tagline">your personal venture advisor</div>
         <div class="hero-sub">from first idea to full scale</div>
-        <a class="hero-about" href="about.html">New here? What is Winn? &rarr;</a>
         <div id="refer-note" class="refer-note" style="display:none;"></div>
     </div>
 
@@ -450,6 +449,7 @@
                 <span class="w-label">Winn</span>
             </div>
             <div class="winn-status">
+                <a href="about.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;white-space:nowrap;">About</a>
                 <button class="anon-signin" id="anon-signin" style="display:none;" onclick="showSignIn()">Sign in to save</button>
                 <div class="user-tag" id="user-tag" onclick="goHome()" title="Back to your conversations">
                     <div class="user-tag-dot"></div>
@@ -457,7 +457,14 @@
                     <span class="user-tag-nav">· conversations</span>
                 </div>
                 <button class="email-summary-btn" id="email-summary-btn" style="display:none;" onclick="emailMySummary()">Email me a summary</button>
-                <button class="anon-signin" id="invite-btn" style="display:none;" onclick="openInvite()">Invite a builder</button>
+                <div id="share-wrap" style="display:none;position:relative;">
+                    <button class="anon-signin" onclick="toggleShare(event)">Share &#9662;</button>
+                    <div id="share-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:234px;background:#0f1d35;border:1px solid var(--border-accent);border-radius:10px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,0.45);">
+                        <div onclick="openInvite();toggleShare();" style="font-size:12.5px;padding:8px 9px;border-radius:7px;color:var(--text-main);cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--bg-surface);">Invite a builder <span style="font-size:8.5px;letter-spacing:0.8px;color:var(--accent);">LIVE</span></div>
+                        <div style="font-size:12.5px;padding:8px 9px;color:var(--text-hint);display:flex;justify-content:space-between;align-items:center;">Add a teammate <span style="font-size:8.5px;letter-spacing:0.8px;">AS IT SHIPS</span></div>
+                        <div style="font-size:12.5px;padding:8px 9px;color:var(--text-hint);display:flex;justify-content:space-between;align-items:center;">Consented Snapshot <span style="font-size:8.5px;letter-spacing:0.8px;">AS IT SHIPS</span></div>
+                    </div>
+                </div>
                 <div class="status-dot-wrap">
                     <div class="status-dot"></div>
                     <span>Winn is here</span>
@@ -466,17 +473,12 @@
         </div>
         <div class="winn-messages" id="messages"></div>
         <div class="winn-input-area">
-            <div class="intro-heading" id="introHeading">What are you working on?</div>
+            <div class="intro-heading" id="introHeading">What are you building?</div>
             <div class="starter-block" id="starterBlock">
-                <div class="starter-lead">Not sure where to start? Here’s the kind of thing builders bring Winn — tap one to begin, or say it your own way.</div>
                 <div class="starter-chips" id="starterChips">
-                    <button class="chip">I have an idea — not sure it’s a venture yet</button>
-                    <button class="chip">I’ve lived this problem — is there a business here?</button>
-                    <button class="chip">We’ve got pilots, but no one’s paying yet</button>
-                    <button class="chip">I’m years in and quietly stuck</button>
-                    <button class="chip">My research might spin out — do I found it?</button>
-                    <button class="chip">I’m raising and need to sharpen the story</button>
-                    <button class="chip freeform" data-freeform="1">Something else — I’ll say it in my own words</button>
+                    <button class="chip">I have an idea &mdash; is there a business here?</button>
+                    <button class="chip">We've got pilots, but no one's paying yet</button>
+                    <button class="chip">I'm raising &mdash; sharpen the story</button>
                 </div>
             </div>
             <!-- The earned-close email ask (anonymous conversion moment). Hidden
@@ -497,8 +499,7 @@
                     <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
             </div>
-            <div class="breadth"><span class="lead">Winn draws on patterns from ventures across</span> <span class="doms">AI, consumer, energy, deep-tech, robotics, fintech &amp; payments, health &amp; med-device</span> — and more. Whatever you’re working on, it looks for the question underneath the one you came in with.</div>
-            <div class="input-hint">This conversation is between you and Winn — honest, private, and in your corner.</div>
+            <div class="input-hint">Private &mdash; your notes stay yours.</div>
         </div>
     </div>
 
@@ -977,8 +978,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 if (signin) signin.style.display = '';
                 if (tag) tag.style.display = 'none';
             }
-            const invb = document.getElementById('invite-btn');
-            if (invb) invb.style.display = authToken ? '' : 'none';
+            const shw = document.getElementById('share-wrap');
+            if (shw) shw.style.display = authToken ? '' : 'none';
             maybeShowEmailBtn();
         }
 
@@ -994,6 +995,11 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
 
         // ── INVITE v1: a signed-in builder invites a named new user; Winn sends it ──
+        function toggleShare(e) {
+            if (e) e.stopPropagation();
+            const m = document.getElementById('share-menu');
+            if (m) m.style.display = (m.style.display === 'none' || !m.style.display) ? 'block' : 'none';
+        }
         function openInvite() {
             if (!authToken) { showSignIn(); return; }
             document.getElementById('inviteName').value = '';
