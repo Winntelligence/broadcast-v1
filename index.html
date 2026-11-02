@@ -982,6 +982,11 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             if (c) c.classList.toggle('authed', !!authToken);
             const ih = document.getElementById('introHeading');
             if (ih) ih.textContent = authToken ? 'Welcome back.' : 'What are you building?';
+            // The invite/referral vouch is a landing affordance for a new, logged-out
+            // visitor. A signed-in builder must never be told "X invited you" — hide it
+            // once we know they're authed (showReferNote runs before auth is restored).
+            const rn = document.getElementById('refer-note');
+            if (rn && authToken) rn.style.display = 'none';
             maybeShowEmailBtn();
         }
 
