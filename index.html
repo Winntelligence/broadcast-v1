@@ -457,6 +457,7 @@
                     <span class="user-tag-nav">· conversations</span>
                 </div>
                 <button class="email-summary-btn" id="email-summary-btn" style="display:none;" onclick="emailMySummary()">Email me a summary</button>
+                <button class="anon-signin" id="invite-btn" style="display:none;" onclick="openInvite()">Invite a builder</button>
                 <div class="status-dot-wrap">
                     <div class="status-dot"></div>
                     <span>Winn is here</span>
@@ -501,6 +502,21 @@
         </div>
     </div>
 
+    <!-- INVITE v1: a signed-in builder invites a named new user; Winn sends it -->
+    <div id="invite-modal" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(6,12,24,0.72);align-items:center;justify-content:center;">
+      <div style="width:min(420px,92vw);background:#0f1d35;border:1px solid rgba(201,162,39,0.35);border-radius:14px;padding:22px 20px;">
+        <div style="font-size:16px;font-weight:700;color:var(--accent-pale);margin-bottom:4px;">Invite a builder to Winn</div>
+        <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:16px;">We'll send them a note. Your name goes with it — nothing of your work.</div>
+        <input id="inviteName" class="input-field" type="text" placeholder="Their name" autocomplete="off" style="margin-bottom:10px;">
+        <input id="inviteEmail" class="input-field" type="email" placeholder="their@email.com" autocomplete="off">
+        <div id="inviteErr" style="color:#e2a0a0;font-size:12px;min-height:16px;margin-top:8px;"></div>
+        <div class="btn-row" style="margin-top:6px;">
+          <button class="btn btn-primary" id="inviteSend" onclick="submitInvite()">Send invite</button>
+          <button class="btn btn-ghost" onclick="closeInvite()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <script>
         const WORKER_URL = 'https://winn-api.winn-3d3.workers.dev';
         const SUPABASE_URL = 'https://vxwsldczrpvjkivepnlb.supabase.co';
@@ -529,6 +545,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
 
         // ── FUNNEL INSTRUMENTATION (build 06 pt.2) ──
         let funnelChannel = null;       // where this visitor came from
+        let inviteToken = null;         // INVITE v1: per-invite ?inv token (tags arrival)
         let askShownLogged = false;     // fire ask_shown once per load
         let justReturned = false;       // set on claim-land; drives 'continued'
         function captureChannel() {
@@ -691,6 +708,24 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         // ── INIT ──
         async function showReferNote() {
             try {
+                // INVITE v1: a ?inv landing shows "{inviter} invited you to Winn."
+                const invTok = new URLSearchParams(location.search).get('inv');
+                if (invTok) {
+                    const ires = await fetch(`${SUPABASE_URL}/rest/v1/rpc/lookup_invitation`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+                        body: JSON.stringify({ p_token: invTok })
+                    });
+                    if (ires.ok) {
+                        const irows = await ires.json();
+                        const iname = irows && irows[0] && irows[0].inviter_name;
+                        if (iname) {
+                            const iel = document.getElementById('refer-note');
+                            if (iel) { iel.textContent = iname + ' invited you to Winn.'; iel.style.display = ''; }
+                            return;
+                        }
+                    }
+                }
                 const code = new URLSearchParams(location.search).get('ref');
                 if (!code) return;
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/lookup_referrer`, {
@@ -711,6 +746,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
         async function init() {
             captureChannel();
+            inviteToken = new URLSearchParams(location.search).get('inv');
             showReferNote();
             // Capture ?mode=case_study BEFORE anything strips the query string.
             // Google OAuth round-trips through Supabase and comes back to a bare
@@ -941,6 +977,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 if (signin) signin.style.display = '';
                 if (tag) tag.style.display = 'none';
             }
+            const invb = document.getElementById('invite-btn');
+            if (invb) invb.style.display = authToken ? '' : 'none';
             maybeShowEmailBtn();
         }
 
@@ -955,6 +993,43 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             btn.style.display = (authToken && currentUser && currentUser.email && deep) ? '' : 'none';
         }
 
+        // ── INVITE v1: a signed-in builder invites a named new user; Winn sends it ──
+        function openInvite() {
+            if (!authToken) { showSignIn(); return; }
+            document.getElementById('inviteName').value = '';
+            document.getElementById('inviteEmail').value = '';
+            document.getElementById('inviteErr').textContent = '';
+            const m = document.getElementById('invite-modal');
+            if (m) m.style.display = 'flex';
+        }
+        function closeInvite() {
+            const m = document.getElementById('invite-modal');
+            if (m) m.style.display = 'none';
+        }
+        async function submitInvite() {
+            const name = (document.getElementById('inviteName').value || '').trim();
+            const email = (document.getElementById('inviteEmail').value || '').trim();
+            const err = document.getElementById('inviteErr');
+            const parts = email.split('@');
+            const okEmail = email.includes('@') && parts[1] && parts[1].includes('.');
+            if (!name || !okEmail) { err.textContent = 'A name and a valid email, please.'; return; }
+            const btn = document.getElementById('inviteSend');
+            err.textContent = ''; btn.disabled = true; btn.textContent = 'Sending…';
+            try {
+                await ensureFreshToken();
+                const res = await fetch(`${WORKER_URL}/invite`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                    body: JSON.stringify({ invitee_name: name, invitee_email: email })
+                });
+                if (!res.ok) throw new Error('send failed');
+                btn.textContent = 'Invite sent ✓';
+                setTimeout(() => { closeInvite(); btn.disabled = false; btn.textContent = 'Send invite'; }, 1400);
+            } catch (e) {
+                err.textContent = "Couldn't send that invite — try again in a moment.";
+                btn.disabled = false; btn.textContent = 'Send invite';
+            }
+        }
         async function emailMySummary() {
             if (!authToken || !currentUser || !currentUser.email) return;
             if (!currentSession || !currentSession.id) return;
@@ -1542,7 +1617,10 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                             channel: !authToken ? (funnelChannel || null) : undefined,
                             // REFER v1: same value the funnel captured; worker only
                             // tags referred_by when it resolves a can_refer user.
-                            ref: !authToken ? (funnelChannel || null) : undefined
+                            ref: !authToken ? (funnelChannel || null) : undefined,
+                            // INVITE v1: the per-invite ?inv token; worker ties the
+                            // new session to the invitation and stamps arrival.
+                            inv: !authToken ? (inviteToken || null) : undefined
                         })
                     });
                 };
