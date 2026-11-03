@@ -211,15 +211,15 @@
         .user-tag {
             font-size: 11px; color: var(--text-muted); white-space: nowrap;
             padding: 3px 9px;
-            border: 0.5px solid rgba(201,162,39,0.2);
+            border: 0.5px solid rgba(201,162,39,0.38);
             border-radius: 20px;
             cursor: pointer;
             display: flex; align-items: center; gap: 5px;
-            transition: border-color 0.15s;
+            transition: border-color 0.15s, background 0.15s;
         }
-        .user-tag:hover { border-color: var(--border-accent); }
+        .user-tag:hover { border-color: var(--accent); background: rgba(201,162,39,0.09); }
         .user-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-        .user-tag-nav { color: var(--text-hint); font-size: 10px; }
+        .user-tag-nav { color: var(--accent-light); font-size: 10.5px; }
 
         .winn-messages {
             flex: 1; padding: 28px 24px 16px;
@@ -453,7 +453,7 @@
                 <div class="user-tag" id="user-tag" onclick="goHome()" title="Back to your conversations">
                     <div class="user-tag-dot"></div>
                     <span id="user-tag-name"></span>
-                    <span class="user-tag-nav">· conversations</span>
+                    <span class="user-tag-nav">· conversations&nbsp;&rsaquo;</span>
                 </div>
                 <button class="email-summary-btn" id="email-summary-btn" style="display:none;" onclick="emailMySummary()">Email me a summary</button>
                 <div id="share-wrap" style="display:none;position:relative;">
