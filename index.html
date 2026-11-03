@@ -278,6 +278,16 @@
         #winn-container.intro .winn-messages { display: none; }
         #winn-container.intro .winn-input-area { flex: 1 1 auto; justify-content: flex-start; gap: 18px; border-top: none; padding: 26px 24px; }
         #winn-container.intro .intro-heading { display: block; font-size: 22px; font-weight: 600; color: var(--text-main); line-height: 1.3; letter-spacing: -0.01em; }
+        .hero-lede-wrap { display: none; }
+        #winn-container.intro .hero-lede-wrap { display: block; }
+        #heroSub { display: none; font-size: 14.5px; line-height: 1.5; color: var(--text-muted); margin-top: 8px; max-width: 48ch; }
+        #winn-container.intro .hero-lede-wrap #heroSub { display: block; }
+        #winn-container.intro.authed .hero-lede-wrap #heroSub { display: none; }
+        #heroPills { display: none; flex-wrap: wrap; gap: 8px; }
+        #winn-container.intro.authed.has-sessions #heroPills { display: flex; }
+        .hero-pill { font-size: 13px; font-family: var(--font); padding: 8px 14px; border-radius: 999px; cursor: pointer; background: transparent; border: 0.5px solid var(--border-accent); color: var(--accent-pale); white-space: nowrap; transition: border-color 0.15s, background 0.15s; }
+        .hero-pill:hover { border-color: var(--accent); }
+        .hero-pill.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
         #winn-container.intro .winn-input { min-height: 160px; max-height: 320px; align-self: stretch; padding: 14px 16px; }
         /* ── Starter chips ("permission" affordance) — intro state only ── */
         .starter-block { display: none; }
@@ -474,14 +484,9 @@
         </div>
         <div class="winn-messages" id="messages"></div>
         <div class="winn-input-area">
-            <div id="refer-note" class="refer-note" style="display:none;"></div>
-            <div class="intro-heading" id="introHeading">What are you building?</div>
-            <div class="starter-block" id="starterBlock">
-                <div class="starter-chips" id="starterChips">
-                    <button class="chip">I have an idea &mdash; is there a business here?</button>
-                    <button class="chip">We've got pilots, but no one's paying yet</button>
-                    <button class="chip">I'm raising &mdash; sharpen the story</button>
-                </div>
+            <div class="hero-lede-wrap">
+                <div class="intro-heading" id="introHeading">Your personal venture advisor.</div>
+                <div id="heroSub">Not a chatbot &mdash; it remembers your venture and picks up where you left off.</div>
             </div>
             <!-- The earned-close email ask (anonymous conversion moment). Hidden
                  until the session has real depth; dismissable; never blocks chat. -->
@@ -500,6 +505,11 @@
                 <button class="send-btn" id="sendBtn" onclick="sendMessage()">
                     <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
+            </div>
+            <div id="heroPills">
+                <button class="hero-pill primary" id="pillResume" onclick="heroResume()">Pick up where you left off &rarr;</button>
+                <button class="hero-pill" onclick="heroShare()">Share Winn</button>
+                <button class="hero-pill" onclick="heroTellStory()">Tell us your story</button>
             </div>
             <div class="input-hint">Private &mdash; your notes stay yours.</div>
         </div>
@@ -548,6 +558,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
 
         // ── FUNNEL INSTRUMENTATION (build 06 pt.2) ──
         let funnelChannel = null;       // where this visitor came from
+        let heroVouch = null;           // referred-vouch headline (set by showReferNote)
         let inviteToken = null;         // INVITE v1: per-invite ?inv token (tags arrival)
         let askShownLogged = false;     // fire ask_shown once per load
         let justReturned = false;       // set on claim-land; drives 'continued'
@@ -724,8 +735,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                         const irows = await ires.json();
                         const iname = irows && irows[0] && irows[0].inviter_name;
                         if (iname) {
-                            const iel = document.getElementById('refer-note');
-                            if (iel) { iel.textContent = iname + ' invited you to Winn.'; iel.style.display = ''; }
+                            heroVouch = iname + " thought Winn could help with what you're building.";
+                            applyHeroState();
                             return;
                         }
                     }
@@ -741,11 +752,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 const rows = await res.json();
                 const name = rows && rows[0] && rows[0].display_name;
                 if (!name) return;
-                const el = document.getElementById('refer-note');
-                if (el) {
-                    el.textContent = name + " thought Winn could help with what you're building.";
-                    el.style.display = '';
-                }
+                heroVouch = name + " thought Winn could help with what you're building.";
+                applyHeroState();
             } catch (e) {}
         }
         async function init() {
@@ -927,8 +935,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         function enterIntro() {
             const c = document.getElementById('winn-container');
             if (c) c.classList.add('intro');
-            const input = document.getElementById('founderInput');
-            if (input) input.placeholder = "An idea, a product or service, a company you're years in, a pivot you're weighing, a problem you can't crack. A few lines, however rough — paste what you've got…";
+            applyHeroState();
         }
         function exitIntro() {
             const c = document.getElementById('winn-container');
@@ -970,6 +977,49 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             maybeRevealAsk();
         }
 
+        // Context-matched hero: cold (lede + continuity, no pills) / referred
+        // (vouch + continuity, no pills) / signed-in builder (welcome + the pill row).
+        function applyHeroState() {
+            const c = document.getElementById('winn-container');
+            const inIntro = c && c.classList.contains('intro');
+            const h = document.getElementById('introHeading');
+            const sub = document.getElementById('heroSub');
+            const input = document.getElementById('founderInput');
+            const returner = !!(allSessions && allSessions.length > 0);
+            if (c) c.classList.toggle('has-sessions', !!authToken && returner);
+            let ph;
+            if (authToken && currentUser) {
+                const nm = currentUser.name || (currentUser.email ? currentUser.email.split('@')[0] : '');
+                if (h) { h.textContent = returner ? (nm ? ('Welcome back, ' + nm + '.') : 'Welcome back.') : 'What are you building?'; h.style.color = ''; }
+                ph = returner ? 'What are you working on today?' : 'What are you building?';
+                const pr = document.getElementById('pillResume');
+                if (pr) pr.style.display = (allSessions || []).find(isVisibleActive) ? '' : 'none';
+            } else if (heroVouch) {
+                if (h) { h.textContent = heroVouch; h.style.color = 'var(--accent-pale)'; }
+                if (sub) sub.textContent = 'It remembers your venture and picks up where you left off.';
+                ph = 'What are you building?';
+            } else {
+                if (h) { h.textContent = 'Your personal venture advisor.'; h.style.color = ''; }
+                if (sub) sub.textContent = 'Not a chatbot \u2014 it remembers your venture and picks up where you left off.';
+                ph = 'What are you building?';
+            }
+            if (inIntro && input && ph) input.placeholder = ph;
+        }
+        function heroResume() {
+            logFunnel('hero_pill', { meta: { pill: 'resume' } });
+            const sx = (allSessions || []).find(isVisibleActive);
+            if (sx) resumeSession(sx);
+        }
+        function heroShare() {
+            logFunnel('hero_pill', { meta: { pill: 'share' } });
+            openInvite();
+        }
+        function heroTellStory() {
+            logFunnel('hero_pill', { meta: { pill: 'tellstory' } });
+            sessionMode = 'case_study';
+            startNewSession();
+        }
+
         // Toggle the anonymous vs authenticated header affordances.
         function updateAnonUi() {
             const signin = document.getElementById('anon-signin');
@@ -989,13 +1039,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             if (signout) signout.style.display = authToken ? '' : 'none';
             const c = document.getElementById('winn-container');
             if (c) c.classList.toggle('authed', !!authToken);
-            const ih = document.getElementById('introHeading');
-            if (ih) ih.textContent = authToken ? 'Welcome back.' : 'What are you building?';
-            // The invite/referral vouch is a landing affordance for a new, logged-out
-            // visitor. A signed-in builder must never be told "X invited you" — hide it
-            // once we know they're authed (showReferNote runs before auth is restored).
-            const rn = document.getElementById('refer-note');
-            if (rn && authToken) rn.style.display = 'none';
+            // Context-matched hero (cold / referred / signed-in) + the state-3 pills.
+            applyHeroState();
             maybeShowEmailBtn();
         }
 
@@ -1268,11 +1313,9 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 const data = await response.json();
                 currentUser = data.user;
 
-                if (!currentUser.intention) {
-                    showPanel('panel-intention');
-                    document.getElementById('intentionInput').focus();
-                    return;
-                }
+                // One door (Nov 3): the composer is the single signed-in entrance;
+                // the old "Why are you here?" intention gate is retired — a new
+                // builder lands on the composer, same as a returner.
 
                 // RETURNING-USER REACH: land every signed-in return at the
                 // upgraded door (composer + starter chips), not the sessions
