@@ -549,6 +549,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         function captureChannel() {
             try {
                 const p = new URLSearchParams(window.location.search);
+                if (p.get('inv')) { funnelChannel = 'invite'; localStorage.setItem('winn_channel', funnelChannel); return; }
                 const c = p.get('ref') || p.get('utm_source');
                 if (c) { funnelChannel = c.slice(0, 40); localStorage.setItem('winn_channel', funnelChannel); return; }
                 const stored = localStorage.getItem('winn_channel');
