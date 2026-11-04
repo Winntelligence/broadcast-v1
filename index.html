@@ -317,6 +317,10 @@
         .pb-foot { margin-top: 11px; font-size: 11.5px; }
         .pb-foot a { color: var(--accent-light); text-decoration: none; }
         @media (max-width: 620px) { .pb-grid { grid-template-columns: 1fr; gap: 13px; } }
+        /* Persistent contact line — shown in all entrance states (cold / referred / signed-in home) */
+        .winn-contact { display: none; font-size: 12px; color: var(--text-hint); letter-spacing: 0.01em; }
+        #winn-container.intro .winn-contact { display: block; }
+        .winn-contact a { color: var(--accent-light); text-decoration: none; }
 
         .page-divider { width: 100%; max-width: 680px; border: 0; border-top: 0.5px solid #26324d; margin: 48px 0 40px; }
         .build-section { width: 100%; max-width: 680px; }
@@ -537,6 +541,7 @@
                 </div>
                 <div class="pb-foot"><a href="privacy.html">How Winn handles your data &rarr;</a></div>
             </div>
+            <div class="winn-contact">Questions? <a href="mailto:winn@winntelligence.ai">winn@winntelligence.ai</a></div>
         </div>
     </div>
 
