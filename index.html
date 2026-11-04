@@ -11,7 +11,7 @@
             --border-accent: rgba(201,162,39,0.28);
             --text-main: #EAF0FA;
             --text-muted: #9DB0CE;
-            --text-hint: #5b6b86;
+            --text-hint: #8A9CBA;
             --navy: #1F3864;
             --accent: #C9A227;
             --accent-light: #E0C158;
@@ -120,13 +120,13 @@
 
         .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
 
-        .hint { font-size: 12px; color: var(--text-hint); letter-spacing: 0.025em; }
+        .hint { font-size: 13px; line-height: 1.5; color: var(--text-hint); letter-spacing: 0.02em; }
 
         .divider-line {
             display: flex; align-items: center; gap: 12px;
         }
         .divider-line-bar { flex: 1; height: 0.5px; background: rgba(201,162,39,0.2); }
-        .divider-line-text { font-size: 11px; color: #5b6b86; }
+        .divider-line-text { font-size: 11.5px; color: var(--text-hint); }
 
         .btn-google {
             display: flex; align-items: center; justify-content: center; gap: 10px;
@@ -196,7 +196,7 @@
         .winn-logo { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
         .brand-mark { position: relative; display: inline-block; font-size: 22px; font-weight: 800; letter-spacing: 0.2px; line-height: 1; color: var(--text-main); }
         .brand-tm { position: absolute; top: 0.05em; right: -0.62em; font-size: 0.4em; font-weight: 600; color: var(--accent); }
-        .brand-sub { font-size: 12px; color: var(--accent); letter-spacing: 0.01em; }
+        .brand-sub { font-size: 12.5px; color: var(--accent-light); letter-spacing: 0.01em; }
         .winn-status { display: flex; align-items: center; gap: 14px; }
 
         .status-dot-wrap {
@@ -219,7 +219,7 @@
         }
         .user-tag:hover { border-color: var(--accent); background: rgba(201,162,39,0.09); }
         .user-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-        .user-tag-nav { color: var(--accent-light); font-size: 10.5px; }
+        .user-tag-nav { color: var(--accent-light); font-size: 11.5px; }
 
         .winn-messages {
             flex: 1; padding: 28px 24px 16px;
@@ -277,10 +277,10 @@
         .intro-heading { display: none; }
         #winn-container.intro .winn-messages { display: none; }
         #winn-container.intro .winn-input-area { flex: 1 1 auto; justify-content: flex-start; gap: 18px; border-top: none; padding: 26px 24px; }
-        #winn-container.intro .intro-heading { display: block; font-size: 22px; font-weight: 600; color: var(--text-main); line-height: 1.3; letter-spacing: -0.01em; }
+        #winn-container.intro .intro-heading { display: block; font-size: 31px; font-weight: 700; color: var(--text-main); line-height: 1.2; letter-spacing: -0.015em; }
         .hero-lede-wrap { display: none; }
         #winn-container.intro .hero-lede-wrap { display: block; }
-        #heroSub { display: none; font-size: 14.5px; line-height: 1.5; color: var(--text-muted); margin-top: 8px; max-width: 48ch; }
+        #heroSub { display: none; font-size: 16.5px; line-height: 1.55; color: var(--text-muted); margin-top: 12px; max-width: 56ch; }
         #winn-container.intro .hero-lede-wrap #heroSub { display: block; }
         #winn-container.intro.authed .hero-lede-wrap #heroSub { display: none; }
         #heroPills { display: none; flex-wrap: wrap; gap: 8px; }
@@ -296,7 +296,7 @@
         #winn-container.authed.intro .starter-block { display: none; }
         #winn-container.intro .breadth { display: block; }
         .starter-lead { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
-        .starter-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .starter-chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start; }
         .chip { background: var(--bg-surface); border: 0.5px solid var(--border-accent); color: var(--accent-pale); font-size: 13px; font-family: var(--font); padding: 8px 13px; border-radius: 999px; cursor: pointer; line-height: 1.3; transition: border-color 0.15s, background 0.15s, color 0.15s; }
         .chip:hover { border-color: rgba(201,162,39,0.65); background: #17233f; }
         .chip:active { transform: scale(0.98); }
@@ -306,7 +306,17 @@
         .breadth .doms { color: var(--text-main); }
         .send-btn:disabled { background: #1a2740; cursor: not-allowed; }
         .send-btn svg { width: 17px; height: 17px; fill: none; stroke: var(--on-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .input-hint { font-size: 11px; color: var(--text-hint); text-align: center; letter-spacing: 0.025em; }
+        .input-hint { font-size: 12.5px; color: var(--text-hint); text-align: center; letter-spacing: 0.02em; }
+        /* ── Your-privacy footer band — logged-out intro only (cold + referred) ── */
+        .privacy-band { display: none; border-top: 0.5px solid rgba(157,176,206,0.14); padding-top: 16px; margin-top: 6px; }
+        #winn-container.intro:not(.authed) .privacy-band { display: block; }
+        .pb-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 9px; }
+        .pb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .pb-item { font-size: 11.5px; line-height: 1.4; color: var(--text-muted); }
+        .pb-item b { color: var(--text-main); font-weight: 600; }
+        .pb-foot { margin-top: 11px; font-size: 11.5px; }
+        .pb-foot a { color: var(--accent-light); text-decoration: none; }
+        @media (max-width: 620px) { .pb-grid { grid-template-columns: 1fr; gap: 13px; } }
 
         .page-divider { width: 100%; max-width: 680px; border: 0; border-top: 0.5px solid #26324d; margin: 48px 0 40px; }
         .build-section { width: 100%; max-width: 680px; }
@@ -385,9 +395,9 @@
         </div>
         <div id="signin-back" class="signin-back" style="display:none;"><a href="#" onclick="openAnon();return false;">&larr; Keep talking to Winn</a></div>
         <div class="panel-title">
-            <span>Sign in to save your work — free to start.</span>
+            <span>Sign in to save your work — or pick up where you left off.</span>
         </div>
-        <div class="hint">So Winn remembers your venture between visits and picks up where you left off. Your email is only used to save your sessions — no spam, and we never sell your data.</div>
+        <div class="hint">Free to start. Your email is only used to save your sessions and remember your venture between visits — no spam, and we never sell your data.</div>
         <button class="btn-google" onclick="handleGoogleSignIn()">
             <svg width="16" height="16" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -463,7 +473,7 @@
             </div>
             <div class="winn-status">
                 <a href="about.html" id="nav-about" style="font-size:12px;color:var(--text-muted);text-decoration:none;white-space:nowrap;">About</a>
-                <button class="anon-signin" id="anon-signin" style="display:none;" onclick="showSignIn()">Sign in to save</button>
+                <button class="anon-signin" id="anon-signin" style="display:none;" onclick="showSignIn()">Sign in</button>
                 <div class="user-tag" id="user-tag" onclick="goHome()" title="Back to your conversations">
                     <div class="user-tag-dot"></div>
                     <span id="user-tag-name"></span>
@@ -485,7 +495,7 @@
         <div class="winn-input-area">
             <div class="hero-lede-wrap">
                 <div class="intro-heading" id="introHeading">Your personal venture advisor.</div>
-                <div id="heroSub">Not a chatbot &mdash; it remembers your venture and picks up where you left off.</div>
+                <div id="heroSub">Not a chatbot &mdash; it works the real question under your venture.</div>
             </div>
             <!-- The earned-close email ask (anonymous conversion moment). Hidden
                  until the session has real depth; dismissable; never blocks chat. -->
@@ -505,12 +515,28 @@
                     <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                 </button>
             </div>
+            <div class="starter-block">
+                <div class="starter-lead">Not sure where to start? Begin with what's real right now:</div>
+                <div class="starter-chips" id="starterChips">
+                    <button class="chip">I've got an idea &mdash; is there a business here?</button>
+                    <button class="chip">We have pilots, but no one's paying yet</button>
+                    <button class="chip">I'm raising &mdash; help me sharpen the story</button>
+                </div>
+            </div>
             <div id="heroPills">
                 <button class="hero-pill primary" id="pillResume" onclick="heroResume()">Pick up where you left off &rarr;</button>
                 <button class="hero-pill" onclick="heroShare()">Share Winn</button>
                 <button class="hero-pill" onclick="heroTellStory()">Tell us your story</button>
             </div>
-            <div class="input-hint">Private &mdash; your notes stay yours.</div>
+            <div class="privacy-band">
+                <div class="pb-eyebrow">Your privacy</div>
+                <div class="pb-grid">
+                    <div class="pb-item"><b>Anonymous to start.</b> No account needed &mdash; we ask for an email only to save your work.</div>
+                    <div class="pb-item"><b>Never sold, never trained on.</b> Your notes aren't sold, shared, or used to train AI models.</div>
+                    <div class="pb-item"><b>Yours to keep.</b> Nothing is published, and sharing Winn never exposes your work.</div>
+                </div>
+                <div class="pb-foot"><a href="#" onclick="return false;">How Winn handles your data &rarr;</a></div>
+            </div>
         </div>
     </div>
 
@@ -999,7 +1025,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 ph = 'What are you building?';
             } else {
                 if (h) { h.textContent = 'Your personal venture advisor.'; h.style.color = ''; }
-                if (sub) sub.textContent = 'Not a chatbot \u2014 it remembers your venture and picks up where you left off.';
+                if (sub) sub.textContent = 'Not a chatbot \u2014 it works the real question under your venture.';
                 ph = 'What are you building?';
             }
             if (inIntro && input && ph) input.placeholder = ph;
