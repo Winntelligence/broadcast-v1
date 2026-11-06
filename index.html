@@ -209,7 +209,7 @@
             animation: pulse 2.5s infinite ease-in-out;
         }
         .user-tag {
-            font-size: 11px; color: var(--text-muted); white-space: nowrap;
+            font-size: 12px; color: var(--text-muted); white-space: nowrap;
             padding: 3px 9px;
             border: 0.5px solid rgba(201,162,39,0.38);
             border-radius: 20px;
@@ -218,8 +218,9 @@
             transition: border-color 0.15s, background 0.15s;
         }
         .user-tag:hover { border-color: var(--accent); background: rgba(201,162,39,0.09); }
+        .user-tag:hover .user-tag-nav { text-decoration: underline; }
         .user-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-        .user-tag-nav { color: var(--accent-light); font-size: 11.5px; }
+        .user-tag-nav { color: var(--accent-light); font-size: 13px; font-weight: 600; }
 
         .winn-messages {
             flex: 1; padding: 28px 24px 16px;
@@ -542,8 +543,8 @@
             </div>
             <div id="heroPills">
                 <button class="hero-pill primary" id="pillResume" onclick="heroResume()">Pick up where you left off &rarr;</button>
-                <button class="hero-pill" onclick="heroShare()">Share Winn</button>
-                <button class="hero-pill" onclick="heroTellStory()">Tell us your story</button>
+                <button class="hero-pill" onclick="heroShare()">Invite a builder</button>
+                <button class="hero-pill" onclick="heroTellStory()">Share a case study</button>
             </div>
             <div class="privacy-band">
                 <div class="pb-eyebrow">Your privacy</div>
