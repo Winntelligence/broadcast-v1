@@ -316,6 +316,8 @@
         .attach-chip { position: relative; width: 56px; height: 56px; border-radius: 8px; overflow: hidden; border: 0.5px solid var(--border-accent); }
         .attach-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .attach-chip .x { position: absolute; top: 2px; right: 2px; width: 17px; height: 17px; border-radius: 50%; background: rgba(12,21,38,0.9); color: #fff; font-size: 12px; line-height: 16px; text-align: center; cursor: pointer; }
+        .attach-hint { display: none; margin-top: 10px; font-size: 12px; color: var(--text-muted); line-height: 1.45; }
+        #winn-container.intro.authed .attach-hint { display: block; }
         .msg-img { display: block; max-width: 220px; max-height: 220px; border-radius: 8px; margin-top: 8px; border: 0.5px solid var(--border-accent); }
         .input-hint { font-size: 12.5px; color: var(--text-hint); text-align: center; letter-spacing: 0.02em; }
         /* ── Your-privacy footer band — logged-out intro only (cold + referred) ── */
@@ -332,6 +334,12 @@
         .winn-contact { display: none; font-size: 12px; color: var(--text-hint); letter-spacing: 0.01em; }
         #winn-container.intro .winn-contact { display: block; }
         .winn-contact a { color: var(--accent-light); text-decoration: none; }
+        /* ── Trust strip — the slim traveler (signed-in surfaces) ── */
+        .trust-strip { display: none; font-size: 11.5px; color: var(--text-muted); letter-spacing: 0.01em; line-height: 1.5; border-top: 0.5px solid rgba(157,176,206,0.14); padding-top: 12px; margin-top: 14px; }
+        .trust-strip a { color: var(--accent-light); text-decoration: none; white-space: nowrap; }
+        .trust-strip a:hover { text-decoration: underline; }
+        #winn-container.intro.authed .trust-strip,
+        #panel-returning .trust-strip { display: block; }
 
         .page-divider { width: 100%; max-width: 680px; border: 0; border-top: 0.5px solid #26324d; margin: 48px 0 40px; }
         .build-section { width: 100%; max-width: 680px; }
@@ -477,6 +485,7 @@
             <button class="btn btn-primary" onclick="startNewSession()">Start a new conversation</button>
             <button class="btn btn-ghost" onclick="signOut()">Sign out</button>
         </div>
+        <div class="trust-strip">What you bring stays yours &mdash; never sold, never published. <a href="privacy.html">How Winn handles your data &rarr;</a></div>
     </div>
 
     <!-- WINN CONVERSATION -->
@@ -533,6 +542,7 @@
                 </button>
             </div>
             <div class="attach-chips" id="attachChips"></div>
+            <div class="attach-hint" id="attachHint">Bringing a deck or doc? Paste a screenshot or paste the text &mdash; images also attach with the clip.</div>
             <div class="starter-block">
                 <div class="starter-lead">Not sure where to start? Begin with what's real right now:</div>
                 <div class="starter-chips" id="starterChips">
@@ -555,6 +565,7 @@
                 </div>
                 <div class="pb-foot"><a href="privacy.html">How Winn handles your data &rarr;</a></div>
             </div>
+            <div class="trust-strip">What you bring stays yours &mdash; never sold, never published. <a href="privacy.html">How Winn handles your data &rarr;</a></div>
             <div class="winn-contact">Questions? <a href="mailto:winn@winntelligence.ai">winn@winntelligence.ai</a></div>
         </div>
     </div>
