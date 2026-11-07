@@ -1444,11 +1444,10 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             allSessions = sessions || [];
             showArchived = false;
             const greeting = document.getElementById('returning-greeting');
-            const now = new Date().getHours();
-            const timeword = now < 12 ? 'morning' : now < 17 ? 'afternoon' : 'evening';
-            const name = user.name || user.email.split('@')[0];
             const activeCount = allSessions.filter(isVisibleActive).length;
-            greeting.innerHTML = `Good ${timeword}, <strong style="color: var(--accent-pale)">${name}</strong>. Winn is here.<br><br>${activeCount > 0 ? `You have ${activeCount} conversation${activeCount !== 1 ? 's' : ''} with Winn. Pick up where you left off, or start something new.` : 'Ready to begin your first conversation.'}`;
+            greeting.innerHTML = activeCount > 0
+                ? `Your conversations<br><br>${activeCount} conversation${activeCount !== 1 ? 's' : ''} · pick up where you left off, or start a new one below.`
+                : `Ready to begin your first conversation.`;
             renderSessionCards();
             showPanel('panel-returning');
         }
