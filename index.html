@@ -1111,10 +1111,6 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
 
         // ── INVITE v1: a signed-in builder invites a named new user; Winn sends it ──
-        function signOut() {
-            try { clearAuth(); } catch (e) {}
-            location.reload();
-        }
         function toggleShare(e) {
             if (e) e.stopPropagation();
             const m = document.getElementById('share-menu');
@@ -1665,6 +1661,11 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             localStorage.removeItem(ANON_SESSION_KEY);
             localStorage.removeItem(ANON_HISTORY_KEY);
             localStorage.removeItem(ANON_ASK_KEY);
+            // Clear any invite/referral landing context so a signed-out return shows
+            // the generic home, not a stale "{inviter} thought Winn could help" vouch —
+            // both now (openAnon re-render) and on any later manual reload.
+            heroVouch = null; inviteToken = null;
+            try { if (location.search || location.hash) history.replaceState(null, '', location.pathname); } catch (e) {}
             openAnon();
         }
 
