@@ -175,6 +175,17 @@
         .sess-confirm { font-size: 11px; color: var(--accent-pale); margin-right: 2px; }
         .archived-toggle { font-size: 12px; color: var(--text-muted); cursor: pointer; padding: 8px 2px 2px; text-align: center; transition: color 0.15s; }
         .archived-toggle:hover { color: var(--accent-pale); }
+        /* ── R0 TAKEAWAYS (V3 v1): keep any Winn reply — Copy / Download / Save ── */
+        .msg-keep { display: flex; gap: 16px; flex-wrap: wrap; margin: 1px 2px 0; }
+        .msg-keep button { background: none; border: 0; padding: 2px 0; color: var(--text-hint); font-family: var(--font); font-size: 11.5px; letter-spacing: 0.02em; cursor: pointer; transition: color 0.15s; }
+        .msg-keep button:hover:not(:disabled) { color: var(--accent-pale); }
+        .msg-keep button.done { color: var(--accent); cursor: default; }
+        .msg-keep button:disabled { cursor: default; }
+        #takeaways-section { display: none; margin-top: 6px; }
+        .takeaways-head { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 4px 2px 10px; }
+        #takeaway-cards { display: flex; flex-direction: column; gap: 10px; }
+        .takeaway-body { display: none; font-size: 13.5px; line-height: 1.62; color: var(--text-main); white-space: pre-wrap; margin-top: 8px; padding-top: 10px; border-top: 0.5px solid var(--border-accent); cursor: text; }
+        .takeaway-card.open .takeaway-body { display: block; }
 
         #winn-container {
             width: 100%; max-width: 680px;
@@ -481,6 +492,10 @@
         <div class="w-mark" style="margin-bottom: 4px;">W</div>
         <div id="returning-greeting" class="panel-title"></div>
         <div id="session-cards" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div id="takeaways-section">
+            <div class="takeaways-head">My takeaways</div>
+            <div id="takeaway-cards"></div>
+        </div>
         <div class="btn-row">
             <button class="btn btn-primary" onclick="startNewSession()">Start a new conversation</button>
             <button class="btn btn-ghost" onclick="signOut()">Sign out</button>
@@ -1026,7 +1041,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 }
             } else {
                 exitIntro();
-                history.forEach(m => addMsg(m.role === 'assistant' ? 'winn' : 'user', m.content, false));
+                history.forEach(m => addMsg(m.role === 'assistant' ? 'winn' : 'user', m.content, false, null, m.role === 'assistant'));
             }
             setupInput();
             maybeRevealAsk();
@@ -1457,6 +1472,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 : `Ready to begin your first conversation.`;
             renderSessionCards();
             showPanel('panel-returning');
+            loadTakeaways();
         }
 
         function renderSessionCards() {
@@ -1647,6 +1663,170 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             URL.revokeObjectURL(url);
         }
 
+        // ── R0 TAKEAWAYS (V3 v1) ──
+        // Any Winn reply can be copied or downloaded. Signed-in builders can also
+        // save it as a takeaway. The database accepts only text that matches one of
+        // Winn's replies in the builder's own conversation, and a saved takeaway is
+        // private to the builder (sharing with an advisor arrives in R1).
+        function wvRpc(fn, args) {
+            return fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify(args || {})
+            });
+        }
+        function keepFlash(b, label, ms) {
+            if (!b.dataset.label) b.dataset.label = b.textContent;
+            const orig = b.dataset.label;
+            b.textContent = label;
+            setTimeout(() => { if (!b.classList.contains('done')) b.textContent = orig; }, ms || 1800);
+        }
+        function downloadTakeaway(text, title) {
+            const ymd = new Date().toISOString().slice(0, 10);
+            const md = `# ${title || 'Takeaway from Winn'}\n\n_${ymd}_\n\n${text}\n`;
+            const blob = new Blob([md], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `winn_takeaway_${ymd}.md`;
+            document.body.appendChild(a); a.click(); a.remove();
+            URL.revokeObjectURL(url);
+        }
+        async function copyTakeaway(b, text) {
+            try { await navigator.clipboard.writeText(text); keepFlash(b, 'Copied'); }
+            catch (e) { keepFlash(b, 'Copy not available here'); }
+        }
+        async function saveTakeaway(b, text) {
+            if (b.classList.contains('done') || b.disabled) return;
+            if (!authToken || !currentSession || !currentSession.id) { keepFlash(b, 'Sign in to save'); return; }
+            b.disabled = true; b.textContent = 'Saving…';
+            try {
+                await ensureFreshToken();
+                const res = await wvRpc('save_takeaway', { p_session_id: currentSession.id, p_content: text, p_title: null });
+                if (!res.ok) throw new Error('save failed');
+                b.textContent = 'Saved to My takeaways'; b.classList.add('done');
+            } catch (e) {
+                b.disabled = false; b.textContent = 'Save as takeaway';
+                keepFlash(b, "Couldn't save — try again", 2600);
+            }
+        }
+        function addKeepRow(msgDiv, text) {
+            const row = document.createElement('div');
+            row.className = 'msg-keep';
+            const mk = (label, fn) => {
+                const b = document.createElement('button');
+                b.type = 'button'; b.textContent = label;
+                b.onclick = () => fn(b);
+                row.appendChild(b);
+            };
+            mk('Copy', (b) => copyTakeaway(b, text));
+            mk('Download', () => downloadTakeaway(text));
+            if (authToken) mk('Save as takeaway', (b) => saveTakeaway(b, text));
+            msgDiv.appendChild(row);
+        }
+
+        let myTakeaways = [];
+        let showAllTakeaways = false;
+        const takeawayText = {};   // id -> full text, fetched the first time a card opens
+        async function loadTakeaways() {
+            const section = document.getElementById('takeaways-section');
+            if (!section) return;
+            section.style.display = 'none';
+            if (!authToken) return;
+            try {
+                await ensureFreshToken();
+                const res = await wvRpc('list_my_objects');
+                if (!res.ok) return;
+                const rows = await res.json();
+                myTakeaways = (rows || []).filter(r => r.kind === 'takeaway');
+                renderTakeaways();
+            } catch (e) {}
+        }
+        async function takeawayFullText(id) {
+            if (takeawayText[id]) return takeawayText[id];
+            try {
+                await ensureFreshToken();
+                const res = await wvRpc('get_shared_object', { p_object_id: id });
+                if (!res.ok) return null;
+                const rows = await res.json();
+                const txt = rows && rows[0] && rows[0].content && rows[0].content.text;
+                if (txt) takeawayText[id] = txt;
+                return txt || null;
+            } catch (e) { return null; }
+        }
+        function renderTakeaways() {
+            const section = document.getElementById('takeaways-section');
+            const cards = document.getElementById('takeaway-cards');
+            if (!section || !cards) return;
+            cards.innerHTML = '';
+            section.style.display = myTakeaways.length ? 'block' : 'none';
+            const list = showAllTakeaways ? myTakeaways : myTakeaways.slice(0, 5);
+            list.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'session-card takeaway-card';
+                const label = document.createElement('div'); label.className = 'session-card-label'; label.textContent = formatDate(t.created_at);
+                const title = document.createElement('div'); title.className = 'session-card-title'; title.textContent = t.title || 'Takeaway';
+                const body = document.createElement('div'); body.className = 'takeaway-body';
+                body.onclick = (e) => e.stopPropagation();
+                const actions = document.createElement('div'); actions.className = 'session-actions';
+                card.append(label, title, body, actions);
+                const mk = (txt, fn, danger) => {
+                    const b = document.createElement('button');
+                    b.className = 'sess-btn' + (danger ? ' danger' : '');
+                    b.textContent = txt;
+                    b.onclick = (e) => { e.stopPropagation(); fn(b); };
+                    actions.appendChild(b);
+                };
+                mk('Copy', async (b) => { const x = await takeawayFullText(t.id); if (x) copyTakeaway(b, x); });
+                mk('Download', async () => { const x = await takeawayFullText(t.id); if (x) downloadTakeaway(x, t.title); });
+                mk('Rename', () => renameTakeaway(t));
+                mk('Delete', () => confirmDeleteTakeaway(t, actions), true);
+                card.onclick = async () => {
+                    if (card.classList.contains('open')) { card.classList.remove('open'); return; }
+                    const x = await takeawayFullText(t.id);
+                    body.textContent = x || 'This takeaway could not be loaded.';
+                    card.classList.add('open');
+                };
+                cards.appendChild(card);
+            });
+            if (myTakeaways.length > 5) {
+                const toggle = document.createElement('div');
+                toggle.className = 'archived-toggle';
+                toggle.textContent = showAllTakeaways ? 'Show fewer' : `Show all takeaways (${myTakeaways.length})`;
+                toggle.onclick = () => { showAllTakeaways = !showAllTakeaways; renderTakeaways(); };
+                cards.appendChild(toggle);
+            }
+        }
+        async function renameTakeaway(t) {
+            const current = t.title || 'Takeaway';
+            const name = window.prompt('Rename this takeaway:', current);
+            if (name === null) return;
+            const nt = name.trim();
+            if (!nt || nt === current) return;
+            try {
+                await ensureFreshToken();
+                const res = await wvRpc('rename_my_object', { p_object_id: t.id, p_title: nt });
+                if (res.ok) { t.title = nt; renderTakeaways(); }
+            } catch (e) {}
+        }
+        function confirmDeleteTakeaway(t, actions) {
+            actions.innerHTML = '';
+            const q = document.createElement('span'); q.className = 'sess-confirm'; q.textContent = 'Delete this takeaway for good?';
+            const yes = document.createElement('button'); yes.className = 'sess-btn danger'; yes.textContent = 'Delete';
+            const no = document.createElement('button'); no.className = 'sess-btn'; no.textContent = 'Keep';
+            yes.onclick = async (e) => {
+                e.stopPropagation(); yes.disabled = true;
+                try {
+                    await ensureFreshToken();
+                    const res = await wvRpc('delete_my_object', { p_object_id: t.id });
+                    if (res.ok) { myTakeaways = myTakeaways.filter(x => x.id !== t.id); delete takeawayText[t.id]; renderTakeaways(); return; }
+                } catch (e2) {}
+                yes.disabled = false; q.textContent = "Couldn't delete — try again.";
+            };
+            no.onclick = (e) => { e.stopPropagation(); renderTakeaways(); };
+            actions.append(q, yes, no);
+        }
+
         async function signOut() {
             try {
                 await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
@@ -1665,11 +1845,11 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             // the generic home, not a stale "{inviter} thought Winn could help" vouch —
             // both now (openAnon re-render) and on any later manual reload.
             heroVouch = null; inviteToken = null;
-            try { if (location.search || location.hash) history.replaceState(null, '', location.pathname); } catch (e) {}
+            try { if (location.search || location.hash) window.history.replaceState(null, '', location.pathname); } catch (e) {}
             openAnon();
         }
 
-        function addMsg(role, text, animate = true, images = null) {
+        function addMsg(role, text, animate = true, images = null, keepable = false) {
             const isWinn = role === 'winn';
             const name = currentUser ? (currentUser.name || currentUser.email.split('@')[0]) : 'You';
             const div = document.createElement('div');
@@ -1683,6 +1863,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 const _b = div.querySelector('.msg-bubble');
                 images.forEach(src => { const im = document.createElement('img'); im.className = 'msg-img'; im.src = src; _b.appendChild(im); });
             }
+            if (isWinn && keepable) addKeepRow(div, text);
             const el = document.getElementById('messages');
             el.appendChild(div);
             el.scrollTop = el.scrollHeight;
@@ -1840,7 +2021,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 } else {
                     const reply = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
                     history.push({ role: 'assistant', content: reply });
-                    addMsg('winn', reply);
+                    addMsg('winn', reply, true, null, true);
 
                     if (data.sessionId && !currentSession) {
                         currentSession = { id: data.sessionId };
@@ -1875,7 +2056,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         init();
     </script>
     <script>
-window.APP_VERSION = 'v3.0';
+window.APP_VERSION = 'v3.1';
 console.log('%cWinntelligence ' + window.APP_VERSION, 'color:#4ade80;font-weight:600');
 </script>
 </body>
