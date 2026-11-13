@@ -353,6 +353,7 @@
         .attach-chip .x { position: absolute; top: 2px; right: 2px; width: 17px; height: 17px; border-radius: 50%; background: rgba(12,21,38,0.9); color: #fff; font-size: 12px; line-height: 16px; text-align: center; cursor: pointer; }
         .attach-hint { display: none; margin-top: 10px; font-size: 12px; color: var(--text-muted); line-height: 1.45; }
         #winn-container.intro.authed .attach-hint { display: block; }
+        .discuss-hint { display: none; margin: 0 0 10px; font-size: 13.5px; line-height: 1.5; color: var(--accent-pale); background: rgba(201,162,39,0.08); border: 1px solid rgba(201,162,39,0.4); border-radius: 10px; padding: 10px 14px; }
         .msg-img { display: block; max-width: 220px; max-height: 220px; border-radius: 8px; margin-top: 8px; border: 0.5px solid var(--border-accent); }
         .input-hint { font-size: 12.5px; color: var(--text-hint); text-align: center; letter-spacing: 0.02em; }
         /* ── Your-privacy footer band — logged-out intro only (cold + referred) ── */
@@ -502,7 +503,7 @@
                 Why are you here?
             </div>
             <div style="font-size: 14px; line-height: 1.55; color: var(--text-muted); margin-top: 8px; max-width: 48ch;">
-                Tell me what you&rsquo;re working on &mdash; an idea, a company you&rsquo;re years into, a pivot you&rsquo;re weighing, a problem you can&rsquo;t crack &mdash; and I&rsquo;ll pick up the real question underneath it.
+                Tell me what you&rsquo;re working on &mdash; an idea, a company you&rsquo;re years into, a pivot you&rsquo;re weighing, a problem you can&rsquo;t crack &mdash; and I&rsquo;ll find the question under it.
             </div>
         </div>
         <textarea class="input-field" id="intentionInput" placeholder="Take your time." rows="4"></textarea>
@@ -569,14 +570,14 @@
         <div class="winn-input-area">
             <div class="hero-lede-wrap">
                 <div class="intro-heading" id="introHeading">Your personal venture advisor.</div>
-                <div id="heroSub">Not a chatbot &mdash; it works the real question under your venture.</div>
+                <div id="heroSub">Not a chatbot &mdash; it finds the question under your venture.</div>
                 <div id="heroBuilt">Built from real ventures in robotics, health, payments, energy and more &mdash; failures included. <a href="about.html#library">How &rarr;</a></div>
             </div>
             <!-- The earned-close email ask (anonymous conversion moment). Hidden
                  until the session has real depth; dismissable; never blocks chat. -->
             <div id="save-ask" class="save-ask" style="display:none;">
                 <div class="save-ask-head">Want me to hold onto this?</div>
-                <div class="save-ask-body">I'll email you the question underneath the one you came in with, plus your next move — and keep your venture in mind so we pick up right here next time. No starting over.</div>
+                <div class="save-ask-body">I'll email you the question behind the one you asked, plus your next move — and keep your venture in mind so we pick up right here next time. No starting over.</div>
                 <div class="save-ask-row">
                     <input class="save-ask-input" id="saveAskEmail" type="email" placeholder="your@email.com" autocomplete="email">
                     <button class="save-ask-btn" id="saveAskBtn" onclick="submitSummaryAsk()">Email me my summary</button>
@@ -584,6 +585,7 @@
                 <div class="save-ask-err" id="saveAskErr"></div>
                 <div class="save-ask-foot">I only use your email to remember your venture and send you this. No spam, and I never sell your data. <a href="#" onclick="dismissAsk();return false;">No thanks</a></div>
             </div>
+            <div class="discuss-hint" id="discussHint">Your advisor's comment is in the box below. Add what you make of it where the cursor is, then send.</div>
             <div class="input-row">
                 <button type="button" class="attach-btn" id="attachBtn" title="Bring an image — a slide, a screenshot, a photo" onclick="document.getElementById('attachInput').click()"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button>
                 <input type="file" id="attachInput" accept="image/png,image/jpeg,image/webp,image/gif" multiple style="display:none" onchange="handleAttachSelect(event)">
@@ -595,11 +597,11 @@
             <div class="attach-chips" id="attachChips"></div>
             <div class="attach-hint" id="attachHint">Bringing a deck or doc? Paste a screenshot or paste the text &mdash; images also attach with the clip.</div>
             <div class="starter-block">
-                <div class="starter-lead">Not sure where to start? Begin with what's real right now:</div>
+                <div class="starter-lead">Not sure where to start? Try one of these:</div>
                 <div class="starter-chips" id="starterChips">
                     <button class="chip">I've got an idea &mdash; is there a business here?</button>
                     <button class="chip">We have pilots, but no one's paying yet</button>
-                    <button class="chip">I'm raising &mdash; help me sharpen the story</button>
+                    <button class="chip">I'm raising &mdash; is my story ready?</button>
                 </div>
             </div>
             <div id="heroPills">
@@ -1117,7 +1119,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 ph = 'What are you building?';
             } else {
                 if (h) { h.textContent = 'Your personal venture advisor.'; h.style.color = ''; }
-                if (sub) sub.textContent = 'Not a chatbot \u2014 it works the real question under your venture.';
+                if (sub) sub.textContent = 'Not a chatbot \u2014 it finds the question under your venture.';
                 ph = 'What are you building?';
             }
             if (inIntro && input && ph) input.placeholder = ph;
@@ -1995,7 +1997,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 wvEl('div', 'session-card-label', obj.is_owner ? 'Your takeaway' : 'Consented snapshot'),
                 wvEl('div', 'shared-title', obj.title || 'Takeaway'),
                 wvEl('div', 'shared-prov', obj.is_owner
-                    ? `Saved ${wvDay(obj.created_at)} from your conversation with Winn. Sealed: only the people you share it with can open it, and they can't pass it on.`
+                    ? `Saved ${wvDay(obj.created_at)} from your conversation with Winn. Private until you share it.`
                     : `Shared with you by ${obj.owner_name}, with their consent, on ${wvDay(obj.shared_at || obj.created_at)}. Saved from their conversation with Winn on ${wvDay(obj.created_at)}. Sealed: only you can open it. This records who shared it and when, not whether it's right.`),
                 wvEl('div', 'shared-body', text)
             );
@@ -2009,7 +2011,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             const blk = wvEl('div', 'share-block');
             blk.append(
                 wvEl('div', 'takeaways-head', 'Share with my advisor'),
-                wvEl('div', 'hint', "Name one person by email. They sign in with that address to read it and can comment beside it; they can't pass it on. Their email has a link, nothing from the takeaway.")
+                wvEl('div', 'hint', "Only they can read it and comment. The email is just a link.")
             );
             const row = wvEl('div', 'share-row');
             const input = document.createElement('input');
@@ -2147,16 +2149,23 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         function discussWithWinn(obj, c) {
             if (!obj.is_owner) return;
             const text = (obj.content && obj.content.text) || '';
-            const prefill = `My advisor ${c.author_name} read a takeaway from one of our conversations and commented:\n\n"${c.body}"\n\nThe takeaway was:\n\n${text}\n\nWhat I make of it: `;
+            // The builder's own line comes first, so the cursor sits near the top;
+            // the takeaway follows as context for Winn.
+            const head = `My advisor ${c.author_name} commented on a takeaway from one of our conversations:\n\n"${c.body}"\n\nWhat I make of it: `;
+            const prefill = head + `\n\n— The takeaway, for context —\n\n${text}`;
             viewingShared = null;
             startNewSession();
+            composerMax = Math.max(200, Math.round(window.innerHeight * 0.45));
+            const dh = document.getElementById('discussHint');
+            if (dh) dh.style.display = 'block';
             const box = document.getElementById('founderInput');
             if (box) {
                 box.value = prefill;
                 box.style.height = 'auto';
-                box.style.height = Math.min(box.scrollHeight, 120) + 'px';
+                box.style.height = Math.min(box.scrollHeight, composerMax) + 'px';
                 box.focus();
-                box.selectionStart = box.selectionEnd = box.value.length;
+                box.selectionStart = box.selectionEnd = head.length;
+                box.scrollTop = 0;
             }
         }
 
@@ -2258,12 +2267,15 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         }
         function clearAttachments() { pendingAttachments = []; renderAttachChips(); }
 
+        let composerMax = 120;   // R1: Discuss with Winn opens the composer taller
         function setupInput() {
             const input = document.getElementById('founderInput');
+            composerMax = 120;
+            { const dh = document.getElementById('discussHint'); if (dh) dh.style.display = 'none'; }
             input.value = ''; input.style.height = 'auto'; input.focus();
             input.addEventListener('input', function() {
                 this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                this.style.height = Math.min(this.scrollHeight, composerMax) + 'px';
             });
             input.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
@@ -2286,6 +2298,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
 
             exitIntro();
             input.value = ''; input.style.height = 'auto';
+            composerMax = 120;
+            { const dh = document.getElementById('discussHint'); if (dh) dh.style.display = 'none'; }
             thinking = true; btn.disabled = true;
 
             const imageUrls = hasAttach ? pendingAttachments.map(a => a.url) : null;
