@@ -186,6 +186,26 @@
         #takeaway-cards { display: flex; flex-direction: column; gap: 10px; }
         .takeaway-body { display: none; font-size: 13.5px; line-height: 1.62; color: var(--text-main); white-space: pre-wrap; margin-top: 8px; padding-top: 10px; border-top: 0.5px solid var(--border-accent); cursor: text; }
         .takeaway-card.open .takeaway-body { display: block; }
+        /* ── R1 SHARE WITH MY ADVISOR (V3 v1): sealed share, comments, Discuss with Winn ── */
+        #shared-section { display: none; margin-top: 6px; }
+        #shared-cards { display: flex; flex-direction: column; gap: 10px; }
+        #panel-shared { gap: 18px; }
+        .shared-title { font-size: 19px; line-height: 1.4; color: var(--text-main); font-weight: 600; }
+        .shared-prov { font-size: 12.5px; line-height: 1.55; color: var(--text-muted); border-left: 2px solid var(--accent); padding: 2px 0 2px 12px; }
+        .shared-body { font-size: 14.5px; line-height: 1.68; color: var(--text-main); white-space: pre-wrap; overflow-wrap: anywhere; background: var(--bg-surface); border: 0.5px solid var(--border-accent); border-radius: 10px; padding: 18px 20px; }
+        .share-block, .comment-block { display: flex; flex-direction: column; gap: 10px; border-top: 0.5px solid var(--border-accent); padding-top: 18px; }
+        .share-block .takeaways-head, .comment-block .takeaways-head { margin: 0 2px; }
+        .share-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .share-row .input-field { flex: 1 1 220px; min-width: 0; }
+        .share-status { font-size: 12.5px; color: var(--accent-pale); min-height: 1em; }
+        .grant-line { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--text-main); }
+        .grant-meta { font-size: 12px; color: var(--text-muted); }
+        .comment-list { display: flex; flex-direction: column; gap: 12px; }
+        .comment-item { background: var(--bg-surface); border: 0.5px solid var(--border-accent); border-radius: 10px; padding: 12px 14px; }
+        .comment-meta { font-size: 11px; letter-spacing: 0.04em; color: var(--accent-light); margin-bottom: 5px; }
+        .comment-body { font-size: 13.5px; line-height: 1.6; color: var(--text-main); white-space: pre-wrap; overflow-wrap: anywhere; }
+        .comment-item .session-actions { margin-top: 9px; }
+        @media (max-width: 520px) { #panel-shared { padding: 32px 18px; } }
 
         #winn-container {
             width: 100%; max-width: 680px;
@@ -295,6 +315,10 @@
         #heroSub { display: none; font-size: 16.5px; line-height: 1.55; color: var(--text-muted); margin-top: 12px; max-width: 56ch; }
         #winn-container.intro .hero-lede-wrap #heroSub { display: block; }
         #winn-container.intro.authed .hero-lede-wrap #heroSub { display: none; }
+        #heroBuilt { display: none; font-size: 13.5px; line-height: 1.5; color: var(--text-muted); margin-top: 10px; max-width: 60ch; }
+        #heroBuilt a { color: var(--accent-light); text-decoration: none; white-space: nowrap; }
+        #heroBuilt a:hover { text-decoration: underline; }
+        #winn-container.intro:not(.authed) .hero-lede-wrap #heroBuilt { display: block; }
         #heroPills { display: none; flex-wrap: wrap; gap: 8px; }
         #winn-container.intro.authed.has-sessions #heroPills { display: flex; }
         .hero-pill { font-size: 13px; font-family: var(--font); padding: 8px 14px; border-radius: 999px; cursor: pointer; background: transparent; border: 0.5px solid var(--border-accent); color: var(--accent-pale); white-space: nowrap; transition: border-color 0.15s, background 0.15s; }
@@ -432,6 +456,7 @@
             <span>Sign in to save your work — or pick up where you left off.</span>
         </div>
         <div class="hint">Free to start. Your email is only used to save your sessions and remember your venture between visits — no spam, and we never sell your data.</div>
+        <div id="signin-shared-note" class="refer-note" style="display:none;">Someone shared a takeaway with you. Sign in with the email address it was sent to, and it will open.</div>
         <button class="btn-google" onclick="handleGoogleSignIn()">
             <svg width="16" height="16" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -496,11 +521,21 @@
             <div class="takeaways-head">My takeaways</div>
             <div id="takeaway-cards"></div>
         </div>
+        <div id="shared-section">
+            <div class="takeaways-head">Shared with me</div>
+            <div id="shared-cards"></div>
+        </div>
         <div class="btn-row">
             <button class="btn btn-primary" onclick="startNewSession()">Start a new conversation</button>
             <button class="btn btn-ghost" onclick="signOut()">Sign out</button>
         </div>
         <div class="trust-strip">What you bring stays yours &mdash; never sold, never published. <a href="privacy.html">How Winn handles your data &rarr;</a></div>
+    </div>
+
+    <!-- PANEL: A SHARED TAKEAWAY (V3 v1 R1) — owner or advisor view -->
+    <div id="panel-shared" class="panel">
+        <div class="signin-back" style="margin-bottom:0;"><a href="#" onclick="leaveShared();return false;">&larr; Back to your conversations</a></div>
+        <div id="shared-view"></div>
     </div>
 
     <!-- WINN CONVERSATION -->
@@ -535,6 +570,7 @@
             <div class="hero-lede-wrap">
                 <div class="intro-heading" id="introHeading">Your personal venture advisor.</div>
                 <div id="heroSub">Not a chatbot &mdash; it works the real question under your venture.</div>
+                <div id="heroBuilt">Built from real ventures in robotics, health, payments, energy and more &mdash; failures included. <a href="about.html#library">How &rarr;</a></div>
             </div>
             <!-- The earned-close email ask (anonymous conversion moment). Hidden
                  until the session has real depth; dismissable; never blocks chat. -->
@@ -860,6 +896,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             // URL, so the target must survive in localStorage.
             pendingClaimId = urlParams.get('claim_session') || urlParams.get('open_session') || null;
             if (pendingClaimId) { try { localStorage.setItem(REQUESTED_SESSION_KEY, pendingClaimId); } catch (e) {} }
+            // R1: a share email links to ?shared=<id>. Persist it the same way.
+            { const sh = urlParams.get('shared'); if (sh && WV_UUID.test(sh)) { try { localStorage.setItem(PENDING_SHARED_KEY, sh); } catch (e) {} } }
 
             // The email-input listener is wired once, so the sign-in panel works
             // whenever it's shown (it's no longer the default view).
@@ -917,6 +955,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 let requested = pendingClaimId;
                 try { requested = requested || localStorage.getItem(REQUESTED_SESSION_KEY); } catch (e) {}
                 if (requested) { showSignIn(); return; }
+                if (pendingShared()) { showSignIn(); return; }
                 // CASE-STUDY DOOR: a contributor link is invite-only and
                 // attribution is the point, so sign in first — a different door
                 // from the public anonymous-first coaching entrance. An
@@ -931,6 +970,14 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         // an anonymous session to claim (from the email link, or one in progress),
         // claim it and open that thread; otherwise the normal returning-user flow.
         async function afterAuthRoute() {
+            // R1: arrived on a share link → land on the shared takeaway.
+            const sharedId = takePendingShared();
+            if (sharedId) {
+                try { if (location.search) window.history.replaceState(null, '', location.pathname); } catch (e) {}
+                await loadUserAndSessions(false);
+                await openShared(sharedId);
+                return;
+            }
             // Reliable server-side path (build 04b): claim any anonymous session
             // whose summary we emailed to this now-verified address. Works cross-
             // device — no dependence on the magic-link redirect carrying an id.
@@ -1250,6 +1297,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         function showSignIn() {
             const back = document.getElementById('signin-back');
             if (back) back.style.display = localStorage.getItem(ANON_SESSION_KEY) ? '' : 'none';
+            const shNote = document.getElementById('signin-shared-note');
+            if (shNote) shNote.style.display = pendingShared() ? '' : 'none';
             showPanel('panel-email');
             const ei = document.getElementById('emailInput');
             if (ei) ei.focus();
@@ -1473,6 +1522,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             renderSessionCards();
             showPanel('panel-returning');
             loadTakeaways();
+            loadSharedWithMe();
         }
 
         function renderSessionCards() {
@@ -1766,10 +1816,17 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 card.className = 'session-card takeaway-card';
                 const label = document.createElement('div'); label.className = 'session-card-label'; label.textContent = formatDate(t.created_at);
                 const title = document.createElement('div'); title.className = 'session-card-title'; title.textContent = t.title || 'Takeaway';
+                const meta = document.createElement('div'); meta.className = 'session-card-meta';
+                const shareBits = [];
+                if (t.active_shares) shareBits.push(`Shared with ${t.active_shares}`);
+                if (t.comment_count) shareBits.push(`${t.comment_count} comment${t.comment_count === 1 ? '' : 's'}`);
+                meta.textContent = shareBits.join(' · ');
                 const body = document.createElement('div'); body.className = 'takeaway-body';
                 body.onclick = (e) => e.stopPropagation();
                 const actions = document.createElement('div'); actions.className = 'session-actions';
-                card.append(label, title, body, actions);
+                card.append(label, title);
+                if (shareBits.length) card.append(meta);
+                card.append(body, actions);
                 const mk = (txt, fn, danger) => {
                     const b = document.createElement('button');
                     b.className = 'sess-btn' + (danger ? ' danger' : '');
@@ -1777,6 +1834,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                     b.onclick = (e) => { e.stopPropagation(); fn(b); };
                     actions.appendChild(b);
                 };
+                mk(t.active_shares || t.comment_count ? 'Sharing & comments' : 'Share with my advisor', () => openShared(t.id, { focusShare: true }));
                 mk('Copy', async (b) => { const x = await takeawayFullText(t.id); if (x) copyTakeaway(b, x); });
                 mk('Download', async () => { const x = await takeawayFullText(t.id); if (x) downloadTakeaway(x, t.title); });
                 mk('Rename', () => renameTakeaway(t));
@@ -1827,6 +1885,281 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             actions.append(q, yes, no);
         }
 
+        // ── R1: SHARE WITH MY ADVISOR (V3 v1) ──
+        // A saved takeaway can be shared, sealed, with a named person by email.
+        // The database decides who may read, comment, share and stop sharing; the
+        // worker sends link-only emails. The advisor sees the takeaway and the
+        // comments, nothing else: no conversations, no messages, no other
+        // takeaways, and no Copy / Download / forward. Every value from the
+        // database is rendered with textContent.
+        const PENDING_SHARED_KEY = 'winn_pending_shared';
+        const WV_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        function pendingShared() {
+            try { const v = localStorage.getItem(PENDING_SHARED_KEY); return v && WV_UUID.test(v) ? v : null; } catch (e) { return null; }
+        }
+        function takePendingShared() {
+            const v = pendingShared();
+            try { localStorage.removeItem(PENDING_SHARED_KEY); } catch (e) {}
+            return v;
+        }
+        function wvEl(tag, cls, text) {
+            const e = document.createElement(tag);
+            if (cls) e.className = cls;
+            if (text != null) e.textContent = text;
+            return e;
+        }
+        function wvDay(iso) {
+            try { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); } catch (e) { return ''; }
+        }
+        async function workerPost(path, body) {
+            await ensureFreshToken();
+            const res = await fetch(`${WORKER_URL}${path}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+                body: JSON.stringify(body)
+            });
+            let data = null;
+            try { data = await res.json(); } catch (e) {}
+            return { ok: res.ok, status: res.status, data: data || {} };
+        }
+
+        let sharedWithMe = [];
+        async function loadSharedWithMe() {
+            const section = document.getElementById('shared-section');
+            if (!section) return;
+            section.style.display = 'none';
+            if (!authToken) return;
+            try {
+                await ensureFreshToken();
+                const res = await wvRpc('list_shared_with_me');
+                if (!res.ok) return;
+                sharedWithMe = (await res.json()) || [];
+                renderSharedWithMe();
+            } catch (e) {}
+        }
+        function renderSharedWithMe() {
+            const section = document.getElementById('shared-section');
+            const cards = document.getElementById('shared-cards');
+            if (!section || !cards) return;
+            cards.innerHTML = '';
+            section.style.display = sharedWithMe.length ? 'block' : 'none';
+            sharedWithMe.forEach(x => {
+                const card = wvEl('div', 'session-card');
+                card.append(
+                    wvEl('div', 'session-card-label', `Shared by ${x.shared_by || 'a Winn builder'} · ${formatDate(x.shared_at)}`),
+                    wvEl('div', 'session-card-title', x.title || 'Takeaway')
+                );
+                if (x.comment_count) card.append(wvEl('div', 'session-card-meta', `${x.comment_count} comment${x.comment_count === 1 ? '' : 's'}`));
+                card.onclick = () => openShared(x.object_id);
+                cards.appendChild(card);
+            });
+        }
+
+        let viewingShared = null;
+        function leaveShared() { viewingShared = null; goHome(); }
+        async function openShared(id, opts) {
+            opts = opts || {};
+            viewingShared = id;
+            showPanel('panel-shared');
+            const box = document.getElementById('shared-view');
+            box.innerHTML = '';
+            box.append(wvEl('div', 'hint', 'Opening…'));
+            let obj = null;
+            try {
+                await ensureFreshToken();
+                const res = await wvRpc('get_shared_object', { p_object_id: id });
+                if (res.ok) { const rows = await res.json(); obj = rows && rows[0]; }
+            } catch (e) {}
+            if (viewingShared !== id) return;
+            box.innerHTML = '';
+            const wrap = wvEl('div');
+            wrap.style.cssText = 'display:flex;flex-direction:column;gap:18px;';
+            box.append(wrap);
+            if (!obj) {
+                const who = currentUser && currentUser.email ? currentUser.email : 'this account';
+                wrap.append(
+                    wvEl('div', 'panel-title', "This isn't available to you."),
+                    wvEl('div', 'hint', `You're signed in as ${who}. It may have been shared with a different email address, or the person who shared it may have stopped sharing it.`)
+                );
+                const row = wvEl('div', 'btn-row');
+                const out = wvEl('button', 'btn btn-ghost', 'Sign in with a different email');
+                out.type = 'button';
+                out.onclick = async () => { try { localStorage.setItem(PENDING_SHARED_KEY, id); } catch (e) {} await signOut(); showSignIn(); };
+                row.append(out);
+                wrap.append(row);
+                return;
+            }
+            const text = (obj.content && obj.content.text) || '';
+            if (text && obj.is_owner) takeawayText[id] = text;
+            wrap.append(
+                wvEl('div', 'session-card-label', obj.is_owner ? 'Your takeaway' : 'Consented snapshot'),
+                wvEl('div', 'shared-title', obj.title || 'Takeaway'),
+                wvEl('div', 'shared-prov', obj.is_owner
+                    ? `Saved ${wvDay(obj.created_at)} from your conversation with Winn. Sealed: only the people you share it with can open it, and they can't pass it on.`
+                    : `Shared with you by ${obj.owner_name}, with their consent, on ${wvDay(obj.shared_at || obj.created_at)}. Saved from their conversation with Winn on ${wvDay(obj.created_at)}. Sealed: only you can open it. This records who shared it and when, not whether it's right.`),
+                wvEl('div', 'shared-body', text)
+            );
+            let shareInput = null;
+            if (obj.is_owner) shareInput = renderShareBlock(wrap, obj);
+            await renderComments(wrap, obj);
+            if (opts.focusShare && shareInput) shareInput.focus();
+        }
+
+        function renderShareBlock(wrap, obj) {
+            const blk = wvEl('div', 'share-block');
+            blk.append(
+                wvEl('div', 'takeaways-head', 'Share with my advisor'),
+                wvEl('div', 'hint', "Name one person by email. They sign in with that address to read it and can comment beside it; they can't pass it on. Their email has a link, nothing from the takeaway.")
+            );
+            const row = wvEl('div', 'share-row');
+            const input = document.createElement('input');
+            input.type = 'email'; input.className = 'input-field'; input.placeholder = "Your advisor's email"; input.autocomplete = 'email';
+            const btn = wvEl('button', 'btn btn-primary', 'Share');
+            btn.type = 'button';
+            row.append(input, btn);
+            const status = wvEl('div', 'share-status');
+            const grants = wvEl('div');
+            grants.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+            blk.append(row, status, grants);
+            btn.onclick = async () => {
+                const email = input.value.trim();
+                if (!email) { input.focus(); return; }
+                btn.disabled = true; status.textContent = 'Sharing…';
+                try {
+                    const r = await workerPost('/share', { object_id: obj.id, recipient_email: email });
+                    if (r.ok && r.data.ok) {
+                        input.value = '';
+                        status.textContent = r.data.emailed
+                            ? `Shared. ${email} will get a link by email.`
+                            : r.data.note === 'already_notified'
+                                ? `Already shared with ${email}; they were emailed in the last day.`
+                                : `Shared, but the email didn't go out. ${email} will still find it under "Shared with me" after signing in with that address.`;
+                        loadGrants(obj.id, grants);
+                    } else {
+                        status.textContent = (r.data && (r.data.error || r.data.message)) || "Couldn't share — try again.";
+                    }
+                } catch (e) { status.textContent = "Couldn't share — try again."; }
+                btn.disabled = false;
+            };
+            input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); btn.click(); } });
+            wrap.append(blk);
+            loadGrants(obj.id, grants);
+            return input;
+        }
+        async function loadGrants(id, el) {
+            try {
+                await ensureFreshToken();
+                const res = await wvRpc('list_object_grants', { p_object_id: id });
+                if (!res.ok) return;
+                const rows = ((await res.json()) || []).filter(g => !g.revoked_at);
+                el.innerHTML = '';
+                rows.forEach(g => {
+                    const line = wvEl('div', 'grant-line');
+                    line.append(
+                        wvEl('span', null, g.recipient_email),
+                        wvEl('span', 'grant-meta', g.first_viewed_at ? `opened ${formatDate(g.first_viewed_at)}` : 'not opened yet')
+                    );
+                    const stop = wvEl('button', 'sess-btn danger', 'Stop sharing');
+                    stop.type = 'button';
+                    stop.onclick = () => {
+                        stop.remove();
+                        const q = wvEl('span', 'sess-confirm', `Stop sharing with ${g.recipient_email}? They won't be able to open it again.`);
+                        const yes = wvEl('button', 'sess-btn danger', 'Stop sharing');
+                        const no = wvEl('button', 'sess-btn', 'Keep');
+                        yes.type = 'button'; no.type = 'button';
+                        yes.onclick = async () => {
+                            yes.disabled = true;
+                            try {
+                                await ensureFreshToken();
+                                const r = await wvRpc('revoke_grant', { p_grant_id: g.grant_id });
+                                if (r.ok) { loadGrants(id, el); return; }
+                            } catch (e) {}
+                            q.textContent = "Couldn't stop sharing — try again."; yes.disabled = false;
+                        };
+                        no.onclick = () => loadGrants(id, el);
+                        line.append(q, yes, no);
+                    };
+                    line.append(stop);
+                    el.append(line);
+                });
+            } catch (e) {}
+        }
+
+        async function renderComments(wrap, obj) {
+            const blk = wvEl('div', 'comment-block');
+            const list = wvEl('div', 'comment-list');
+            const ta = document.createElement('textarea');
+            ta.className = 'input-field'; ta.rows = 3; ta.maxLength = 8000;
+            ta.placeholder = obj.is_owner ? 'Reply to your advisor…' : `Leave a comment for ${obj.owner_name}…`;
+            const row = wvEl('div', 'btn-row');
+            const btn = wvEl('button', 'btn btn-ghost', 'Post comment');
+            btn.type = 'button';
+            row.append(btn);
+            const status = wvEl('div', 'share-status');
+            blk.append(
+                wvEl('div', 'takeaways-head', 'Comments'),
+                list, ta, row, status,
+                wvEl('div', 'hint', obj.is_owner ? 'Only you and the people you share this with see comments.' : `Only you and ${obj.owner_name} see comments.`)
+            );
+            btn.onclick = async () => {
+                const body = ta.value.trim();
+                if (!body) { ta.focus(); return; }
+                btn.disabled = true; status.textContent = 'Posting…';
+                try {
+                    const r = await workerPost('/comment', { object_id: obj.id, body });
+                    if (r.ok && r.data.ok) { ta.value = ''; status.textContent = 'Posted.'; await loadComments(obj, list); }
+                    else status.textContent = (r.data && (r.data.error || r.data.message)) || "Couldn't post — try again.";
+                } catch (e) { status.textContent = "Couldn't post — try again."; }
+                btn.disabled = false;
+            };
+            wrap.append(blk);
+            await loadComments(obj, list);
+        }
+        async function loadComments(obj, list) {
+            try {
+                await ensureFreshToken();
+                const res = await wvRpc('list_comments', { p_object_id: obj.id });
+                if (!res.ok) return;
+                const rows = (await res.json()) || [];
+                list.innerHTML = '';
+                if (!rows.length) { list.append(wvEl('div', 'session-card-meta', 'No comments yet.')); return; }
+                rows.forEach(c => {
+                    const item = wvEl('div', 'comment-item');
+                    item.append(
+                        wvEl('div', 'comment-meta', `${c.is_mine ? 'You' : c.author_name} · ${formatDate(c.created_at)}`),
+                        wvEl('div', 'comment-body', c.body)
+                    );
+                    if (obj.is_owner && !c.is_mine) {
+                        const acts = wvEl('div', 'session-actions');
+                        const d = wvEl('button', 'sess-btn', 'Discuss with Winn');
+                        d.type = 'button';
+                        d.onclick = () => discussWithWinn(obj, c);
+                        acts.append(d);
+                        item.append(acts);
+                    }
+                    list.append(item);
+                });
+            } catch (e) {}
+        }
+        // The builder brings an advisor's comment into a NEW conversation with
+        // Winn. Nothing is sent: the composer is pre-filled, and the builder
+        // edits or sends it. Only the owner sees this button.
+        function discussWithWinn(obj, c) {
+            if (!obj.is_owner) return;
+            const text = (obj.content && obj.content.text) || '';
+            const prefill = `My advisor ${c.author_name} read a takeaway from one of our conversations and commented:\n\n"${c.body}"\n\nThe takeaway was:\n\n${text}\n\nWhat I make of it: `;
+            viewingShared = null;
+            startNewSession();
+            const box = document.getElementById('founderInput');
+            if (box) {
+                box.value = prefill;
+                box.style.height = 'auto';
+                box.style.height = Math.min(box.scrollHeight, 120) + 'px';
+                box.focus();
+                box.selectionStart = box.selectionEnd = box.value.length;
+            }
+        }
+
         async function signOut() {
             try {
                 await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
@@ -1856,8 +2189,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             div.className = `msg ${isWinn ? 'winn' : 'user'}`;
             if (!animate) div.style.animation = 'none';
             div.innerHTML = `
-                <span class="msg-label">${isWinn ? 'Winn' : name}</span>
-                <div class="msg-bubble">${text.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</div>
+                <span class="msg-label">${isWinn ? 'Winn' : escapeHtml(name)}</span>
+                <div class="msg-bubble">${escapeHtml(text).replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>')}</div>
             `;
             if (images && images.length) {
                 const _b = div.querySelector('.msg-bubble');
@@ -2056,7 +2389,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         init();
     </script>
     <script>
-window.APP_VERSION = 'v3.1';
+window.APP_VERSION = 'v3.3';
 console.log('%cWinntelligence ' + window.APP_VERSION, 'color:#4ade80;font-weight:600');
 </script>
 </body>
