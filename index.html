@@ -223,6 +223,9 @@
         .person-info { flex: 1 1 140px; min-width: 0; display: flex; flex-direction: column; }
         .person-name { font-size: 13.5px; color: var(--text-main); font-weight: 600; overflow-wrap: anywhere; }
         .person-meta { font-size: 12px; color: var(--text-muted); }
+        .expiry-select { background: var(--bg-main); color: var(--text-muted); border: 0.5px solid var(--border-accent); border-radius: 6px; font-family: var(--font); font-size: 11.5px; padding: 4px 6px; min-height: 30px; cursor: pointer; }
+        .expiry-select:hover { color: var(--accent-pale); border-color: rgba(201,162,39,0.6); }
+        .comments-quiet { font-size: 13px; line-height: 1.55; color: var(--text-muted); border-top: 0.5px solid var(--border-accent); padding-top: 18px; }
         .new-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-right: 6px; vertical-align: middle; }
         .new-word { color: var(--accent); font-weight: 600; }
         .discussed { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--accent-light); }
@@ -2207,6 +2210,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 const rows = ((await res.json()) || []).filter(g => !g.revoked_at);
                 el.innerHTML = '';
                 setBanner(banner, obj, rows.map(g => g.recipient_email));
+                obj._grantCount = rows.length;
+                updateCommentVisibility(obj);
                 if (!rows.length) { el.append(wvEl('div', 'session-card-meta', 'Not shared with anyone yet.')); return; }
                 rows.forEach(g => {
                     const r = wvEl('div', 'person-row');
@@ -2217,6 +2222,26 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                         wvEl('span', 'person-name', g.recipient_email),
                         wvEl('span', 'person-meta', g.first_viewed_at ? `Advisor · opened ${formatDate(g.first_viewed_at)}` : 'Advisor · not opened yet')
                     );
+                    const sel = document.createElement('select');
+                    sel.className = 'expiry-select';
+                    sel.setAttribute('aria-label', `When access ends for ${g.recipient_email}`);
+                    const opt = (v, label) => { const o = document.createElement('option'); o.value = v; o.textContent = label; sel.append(o); return o; };
+                    opt('', 'Until removed');
+                    if (g.expires_at) opt('keep', `Ends ${wvDay(g.expires_at)}`).selected = true;
+                    opt('7', 'Ends in 7 days');
+                    opt('30', 'Ends in 30 days');
+                    const was = sel.value;
+                    sel.onchange = async () => {
+                        if (sel.value === 'keep') return;
+                        sel.disabled = true;
+                        try {
+                            await ensureFreshToken();
+                            const rr = await wvRpc('set_grant_expiry', { p_grant_id: g.grant_id, p_days: sel.value === '' ? null : Number(sel.value) });
+                            if (rr.ok) { loadGrants(obj, el, banner); return; }
+                        } catch (e) {}
+                        sel.value = was;
+                        sel.disabled = false;
+                    };
                     const rm = wvEl('button', 'sess-btn danger', 'Remove access');
                     rm.type = 'button';
                     rm.onclick = () => {
@@ -2238,7 +2263,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                         no.onclick = () => loadGrants(obj, el, banner);
                         r.append(q, yes, no);
                     };
-                    r.append(av, info, rm);
+                    r.append(av, info, sel, rm);
                     el.append(r);
                 });
             } catch (e) {}
@@ -2273,7 +2298,17 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 btn.disabled = false;
             };
             side.append(blk);
+            const quiet = wvEl('div', 'comments-quiet', 'Share it with an advisor to start a conversation here. Only the people you share it with will see it.');
+            side.append(quiet);
+            obj._cblk = blk; obj._cquiet = quiet;
             await loadComments(obj, list, tabBtn);
+        }
+        // An owner's private takeaway shows no comment box until someone can read it.
+        function updateCommentVisibility(obj) {
+            if (!obj._cblk || !obj._cquiet) return;
+            const quietNow = obj.is_owner && !obj._grantCount && !obj._commentCount;
+            obj._cblk.style.display = quietNow ? 'none' : '';
+            obj._cquiet.style.display = quietNow ? '' : 'none';
         }
         async function loadComments(obj, list, tabBtn) {
             try {
@@ -2282,6 +2317,8 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 if (!res.ok) return;
                 const rows = (await res.json()) || [];
                 list.innerHTML = '';
+                obj._commentCount = rows.length;
+                updateCommentVisibility(obj);
                 if (tabBtn) tabBtn.textContent = rows.length ? `Comments (${rows.length})` : 'Comments';
                 if (!rows.length) { list.append(wvEl('div', 'session-card-meta', 'No comments yet.')); return; }
                 const disc = obj.is_owner ? discussedMap() : {};
@@ -2580,7 +2617,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         init();
     </script>
     <script>
-window.APP_VERSION = 'v3.4';
+window.APP_VERSION = 'v3.5';
 console.log('%cWinntelligence ' + window.APP_VERSION, 'color:#4ade80;font-weight:600');
 </script>
 </body>
