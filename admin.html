@@ -65,6 +65,15 @@
   .feed .d{color:var(--muted);font-size:11.5px} .feed .sid{color:var(--gold);font-weight:700;font-size:12px} .feed .wt{color:var(--ink2)} .feed .hd{color:var(--ink)}
   .sessions .srow{display:grid;grid-template-columns:1fr 90px 96px 74px;gap:12px;padding:11px 4px;border-top:1px solid var(--border);font-size:12.5px;align-items:center}
   .sessions .srow.h{color:var(--muted);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-top:none}
+  .inv .irow{display:grid;grid-template-columns:1.1fr 1.4fr 70px 80px 70px 76px;gap:12px;padding:11px 4px;border-top:1px solid var(--border);font-size:12.5px;align-items:center}
+  .inv .irow.h{color:var(--muted);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-top:none}
+  .inv .who small,.signins .who small{display:block;color:var(--muted);font-size:10.5px;margin-top:2px}
+  .inv .st{font-size:10px;letter-spacing:.08em;text-transform:uppercase;border-radius:20px;padding:2px 8px;justify-self:start;white-space:nowrap}
+  .inv .st.sent{color:var(--amber);border:1px solid rgba(224,152,58,.35);background:rgba(224,152,58,.10)}
+  .inv .st.arrived{color:var(--teal);border:1px solid rgba(94,234,212,.32);background:rgba(94,234,212,.08)}
+  .inv .st.returned{color:var(--green);border:1px solid rgba(55,211,154,.35);background:rgba(55,211,154,.10)}
+  .signins .urow{display:grid;grid-template-columns:1fr 110px 110px;gap:12px;padding:11px 4px;border-top:1px solid var(--border);font-size:12.5px;align-items:center}
+  .signins .urow.h{color:var(--muted);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-top:none}
   .chipmsg{font-size:11px;color:var(--teal);border:1px solid #1f4a44;border-radius:6px;padding:2px 7px;justify-self:start}
   .note-inline{font-size:11px;color:var(--muted)}
   .eir .er{display:grid;grid-template-columns:150px 1fr 1.2fr;gap:14px;padding:13px 4px;border-top:1px solid var(--border);font-size:12.5px;align-items:baseline}
@@ -346,13 +355,14 @@ async function loadAll(){
   try{
     const inc=(document.getElementById('incl-internal')||{}).checked?'?include_internal=1':'';
     const degraded=[];
-    const [usage,intelligence,cohort,funnel]=await Promise.all([
+    const [usage,intelligence,cohort,funnel,people]=await Promise.all([
       apiGet('/admin/dashboard/usage'+inc),
       apiGet('/admin/dashboard/intelligence'),
       apiGet('/admin/dashboard/cohort').catch(()=>{degraded.push('cohort');return DEMO.cohort;}),
-      apiGet('/admin/dashboard/funnel'+inc).catch(()=>{degraded.push('funnel');return DEMO.funnel;})
+      apiGet('/admin/dashboard/funnel'+inc).catch(()=>{degraded.push('funnel');return DEMO.funnel;}),
+      apiGet('/admin/dashboard/invitations'+inc).catch(()=>{degraded.push('invitations');return null;})
     ]);
-    renderAll({usage,intelligence,cohort,funnel});
+    renderAll({usage,intelligence,cohort,funnel,people});
     if(degraded.length){ st.className='status demo'; st.textContent='● live · '+degraded.join(' & ')+' unavailable — sample shown'; } else { st.className='status live'; st.textContent='● live'; }
   }catch(e){
     renderAll(DEMO);
@@ -366,7 +376,38 @@ const SHADE={cold_pull:'#d9ad3c',self_initiated_task_seeded:'#37d39a',nudged:'#e
 const SHADE_LABEL={cold_pull:'cold-pull',self_initiated_task_seeded:'self-initiated',nudged:'nudged',builder_curiosity_seeded:'curiosity',doubly_seeded:'doubly-seeded',larry_pushed:'pushed'};
 function daysSince(iso){ if(!iso) return null; const d=(Date.now()-Date.parse(iso))/864e5; return d; }
 
-function renderAll(d){ renderUsage(d.usage); renderIntel(d.intelligence); renderCohort(d.cohort); renderFunnel(d.funnel); }
+function renderAll(d){ renderUsage(d.usage); renderIntel(d.intelligence); renderCohort(d.cohort); renderFunnel(d.funnel); renderPeople(d.people); }
+
+// Nov 25: invitations (Cohort tab) + recent sign-ins (Usage tab). Roster only — never session content.
+function renderPeople(p){
+  const usage=document.getElementById('usage'), cohort=document.getElementById('cohort');
+  if(!p){
+    const msg='<div class="subhead" style="margin-top:18px">Invitations and recent sign-ins show here when the console is live.</div>';
+    if(usage) usage.insertAdjacentHTML('beforeend', msg);
+    if(cohort) cohort.insertAdjacentHTML('beforeend', msg);
+    return;
+  }
+  const si=p.recent_signins||[];
+  if(usage) usage.insertAdjacentHTML('beforeend', `<div class="sec-label">Recently signed in</div>
+  <div class="card pad signins">
+    <div class="urow h"><span>User</span><span>Last signed in</span><span>Joined</span></div>
+    ${si.length?si.map(u=>`<div class="urow"><span>${esc(u.email)}</span><span class="note-inline">${fmtAgo(u.last_seen_at)}</span><span class="note-inline">${fmtDate(u.created_at)}</span></div>`).join(''):'<div class="urow"><span class="note-inline">No sign-ins recorded.</span></div>'}
+  </div>
+  <div class="footer-note">A sign-in counts even with no messages — someone checking their takeaways or sending an invite shows here, not in the sessions list.</div>`);
+  const iv=p.invitations||[];
+  const stc=r=>r.returned?'returned':(r.status==='arrived'||r.arrived_at?'arrived':'sent');
+  if(cohort) cohort.insertAdjacentHTML('beforeend', `<div class="sec-label">Invitations — who invited whom</div>
+  <div class="card pad inv">
+    <div class="irow h"><span>Invited by</span><span>Invitee</span><span>Sent</span><span>Status</span><span>Sessions</span><span>Last seen</span></div>
+    ${iv.length?iv.map(r=>`<div class="irow"><span class="who">${esc(r.inviter_name||'—')}<small>${esc(r.inviter_email||'')}</small></span>
+      <span class="who">${esc(r.invitee_name||'—')}<small>${esc(r.invitee_email||'')}</small></span>
+      <span class="note-inline">${fmtDate(r.sent_at)}</span>
+      <span class="st ${stc(r)}">${stc(r)}</span>
+      <span class="note-inline">${r.session_count||0}</span>
+      <span class="note-inline">${r.last_seen?fmtAgo(r.last_seen):'—'}</span></div>`).join(''):'<div class="irow"><span class="note-inline">No invitations yet.</span></div>'}
+  </div>
+  <div class="footer-note">Sent → arrived (they opened the invite) → returned (a second session). The roster only — never what anyone said to Winn. Operator-to-operator test invites are hidden unless <b>include internal</b> is ticked.</div>`);
+}
 
 function renderFunnel(f){
   f = f || {};
