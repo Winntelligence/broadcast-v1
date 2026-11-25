@@ -388,7 +388,7 @@ function renderPeople(p){
     return;
   }
   const si=p.recent_signins||[];
-  if(usage) usage.insertAdjacentHTML('beforeend', `<div class="sec-label">Recently signed in</div>
+  if(usage) usage.insertAdjacentHTML('afterbegin', `<div class="sec-label">Recently signed in</div>
   <div class="card pad signins">
     <div class="urow h"><span>User</span><span>Last signed in</span><span>Joined</span></div>
     ${si.length?si.map(u=>`<div class="urow"><span>${esc(u.email)}</span><span class="note-inline">${fmtAgo(u.last_seen_at)}</span><span class="note-inline">${fmtDate(u.created_at)}</span></div>`).join(''):'<div class="urow"><span class="note-inline">No sign-ins recorded.</span></div>'}
@@ -396,7 +396,7 @@ function renderPeople(p){
   <div class="footer-note">A sign-in counts even with no messages — someone checking their takeaways or sending an invite shows here, not in the sessions list.</div>`);
   const iv=p.invitations||[];
   const stc=r=>r.returned?'returned':(r.status==='arrived'||r.arrived_at?'arrived':'sent');
-  if(cohort) cohort.insertAdjacentHTML('beforeend', `<div class="sec-label">Invitations — who invited whom</div>
+  if(cohort) cohort.insertAdjacentHTML('afterbegin', `<div class="sec-label">Invitations — who invited whom</div>
   <div class="card pad inv">
     <div class="irow h"><span>Invited by</span><span>Invitee</span><span>Sent</span><span>Status</span><span>Sessions</span><span>Last seen</span></div>
     ${iv.length?iv.map(r=>`<div class="irow"><span class="who">${esc(r.inviter_name||'—')}<small>${esc(r.inviter_email||'')}</small></span>
