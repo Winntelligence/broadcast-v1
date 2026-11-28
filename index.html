@@ -2592,6 +2592,11 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             pendingDiscussComment = null;
             { const dh = document.getElementById('discussHint'); if (dh) dh.style.display = 'none'; }
             input.value = ''; input.style.height = 'auto'; input.focus();
+            // v3.7.1: bind the composer's listeners once. setupInput runs on every
+            // conversation open, and stacked paste listeners attached one image
+            // several times.
+            if (input.dataset.bound === '1') return;
+            input.dataset.bound = '1';
             input.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, composerMax) + 'px';
@@ -2601,6 +2606,12 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
             });
             input.addEventListener('paste', function(e) {
                 if (!authToken) return;
+                // v3.7.1: text wins. PowerPoint/Word/Excel put a picture of the
+                // selection on the clipboard alongside the words; if there are
+                // words, let the browser paste them. Only a text-less paste
+                // (a screenshot) becomes an image attachment.
+                const pastedText = (e.clipboardData && e.clipboardData.getData('text/plain')) || '';
+                if (pastedText.trim()) return;
                 const items = (e.clipboardData && e.clipboardData.items) || [];
                 const imgs = [];
                 for (const it of items) { if (it.kind === 'file' && it.type && it.type.indexOf('image/') === 0) { const f = it.getAsFile(); if (f) imgs.push(f); } }
@@ -2682,7 +2693,9 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
                 removeTyping();
 
                 if (!res.ok) {
-                    addMsg('winn', "Something went wrong on my end. Try again in a moment.");
+                    addMsg('winn', hasAttach
+                        ? "I couldn't take that image in. Try a smaller screenshot — or paste the text itself and I'll work from that."
+                        : "Something went wrong on my end. Try again in a moment.");
                     history.pop();
                 } else {
                     const reply = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
@@ -2726,7 +2739,7 @@ let sessionMode = null;   // 'case_study' when entered via ?mode=case_study
         init();
     </script>
     <script>
-window.APP_VERSION = 'v3.7';
+window.APP_VERSION = 'v3.7.1';
 console.log('%cWinntelligence ' + window.APP_VERSION, 'color:#4ade80;font-weight:600');
 </script>
 </body>
